@@ -81,7 +81,7 @@ Regarding the results obtained from the GeneWalk analysis:
 
 "Next, GeneWalk calculates whether a cosine similarity value between a gene and GO term is higher than expected by chance using a significance test. By comparing the similarity to similarity values between node vectors arising from random networks, we obtain a p-value. Because a gene can have multiple GO annotations, we apply a multiple testing correction (Benjamin-Hochberg false discovery rate FDR procedure), yielding a corrected p-adjust value. This procedure is repeated multiple times to retrieve a robust mean estimate (mean p-adjust) and its uncertainty (95% confidence interval) as final statistical significance relevance results."
 
-```{r Loading GeneWalk Results 1}
+```{r Loading GeneWalk Results 1, eval=FALSE}
 #PMD results
 
 PMD.gw <- read.csv(file = '../data/Output/old_GW/pmds/genewalk_results.csv')
