@@ -1,0 +1,154 @@
+---
+title: "2: Basic Analysis"
+author: "Kevin Brooks Henry"
+date: "November 27, 2019"
+output: workflowr::wflow_html
+---
+
+In this section I am running some basic analysis on the 'regions' object and PRAD data. This is namely seeing overall coverage of the regions against the hg19 genome and gene density between the different regions. In the second part I am assessing the quality of the PRAD data by looking at LUMP values and GSTP1 expression (explained in more detail below).  
+
+```{r Packages, message=FALSE}
+
+library(rtracklayer)
+library(GenomicRanges)
+library(ELMER)
+library(MultiAssayExperiment)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(ggplot2)
+library(TCGAbiolinks)
+library(dplyr)
+```
+
+```{r Loading data needed}
+load(file = '../data/Output/regions')
+load(file = '../data/Output/df.regions')
+load(file = "../data/Output/PRAD_mae")
+load(file = "../data/Output/PRADexp")
+load(file = "../data/Output/PRADmeth")
+```
+
+
+First I'll look at the coverage of the 'regions' object against the hg19 genome
+
+```{r Coverage, warning=FALSE, message=FALSE}
+
+region.length <- sum(width(regions))
+
+hg19 <- GRangesForBSGenome(genome = 'hg19', chrom = NULL, ranges = NULL)
+df.hg19 <- data.frame(hg19[c(1:22), ])
+hg19 <- makeGRangesFromDataFrame(df.hg19, 
+                                 keep.extra.columns = TRUE,
+                                 seqnames.field = 'seqnames',
+                                 start.field = 'start',
+                                 end.field = 'end')
+
+hg19length <- sum(width(hg19))
+region.length / hg19length * 100
+
+```
+
+So overall the regions object covers `r region.length / hg19length * 100` percent of the hg19 genome. 
+
+I think the slight discrepancy might be due to the regions that were lost when I loaded them up (see the warning present in the first code chunk of Regions_and_PRAD.Rmd). 
+
+```{r region coverage against genome}
+
+PMD.length <- subset(regions, regions$region == 'commonPMD')
+HMD.length <- subset(regions, regions$region == 'commonHMD')
+neither.length <- subset(regions, regions$region == 'neither')
+
+PMD.length <- sum(width(PMD.length))
+HMD.length <- sum(width(HMD.length)) 
+neither.length <- sum(width(neither.length))
+
+region.lengths <- data.frame(region = c('PMD', 'HMD', 'Neither', 'Other (not in regions object)'),
+                             length = c(PMD.length, HMD.length, neither.length, (hg19length - region.length)),
+                             hg19.length = hg19length,
+                             coverage = NA)
+
+region.lengths$coverage <- region.lengths$length / region.lengths$hg19.length #*100
+
+ggplot(region.lengths, aes(fill=region, y=coverage, x='region')) + 
+    geom_bar(position="stack", stat="identity", width=0.2) + 
+  coord_flip() +
+  scale_fill_grey(start = 0.25, end = 0.75) +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank()) +
+  labs(y='Fraction of hg19 genome', fill='Region')
+
+```
+
+
+I can also look at the gene density within the different regions to see if it agrees with what has been seen in previously
+
+```{r gene_density}
+
+human.genes <- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+gene.density <- regions
+gene.density$totgenes <- countOverlaps(gene.density, human.genes)
+
+df.gene.density <- as.data.frame(gene.density)
+
+ggplot(data=df.gene.density, aes(x=totgenes, group=region, fill=region)) +
+  geom_density(adjust=1.5, alpha=.4) +
+  xlim(0, 10) + 
+  labs(x='Genes/100kb bin', y='Density', fill='Region')
+
+#PMD.gene.density <- subset(df.gene.density, df.gene.density$region == 'commonPMD')
+#nonPMD.gene.density <- subset(df.gene.density, df.gene.density$region == c('neither','commonHMD'))
+
+```
+
+So as expected, most of the PMD bins contain few/no genes when compared with HMD and 'neither' regions
+
+Here are some other papers looking at PMDs for comparison:
+
+Toth et al Forest Model: https://clinicalepigeneticsjournal.biomedcentral.com/articles/10.1186/s13148-019-0736-8#Abs1
+Brinkman Breast Cancer: https://www.nature.com/articles/s41467-019-09828-0
+Lister Methylomes: https://www.nature.com/articles/nature08514
+Gaidatzis: https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004143
+
+I can more empirically test to see if the regions have different distributions of gene density using a KS test(?)
+
+KS Test: https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
+
+```{r KS test}
+
+PMD.gene.density <- subset(df.gene.density, df.gene.density$region == 'commonPMD')
+nonPMD.gene.density <- subset(df.gene.density, df.gene.density$region == c('neither','commonHMD'))
+
+ks.test(PMD.gene.density$totgenes, nonPMD.gene.density$totgenes)
+
+```
+
+
+Finally, I will do some quality checks on the PRAD data, this can be done by looking at correlation between GSTP1 gene expression and promoter methylation, as well as LUMP values for each of the PRAD patient samples
+
+GSTP1 reference: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4995330/
+LUMP reference: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4671203/
+
+```{r PRAD LUMP}
+#LUMP scores can be gotten directly from TCGAbiolinks
+
+Tumor.purity <- Tumor.purity
+
+PRAD.tp <- subset(Tumor.purity, Tumor.purity$Sample.ID %in% PRAD.mae@sampleMap@listData[['primary']])
+PRAD.tp$LUMP <- as.numeric(sub(",", ".", sub(".", "", PRAD.tp$LUMP, fixed=TRUE), fixed=TRUE))
+PRAD.tp$CPE <- as.numeric(sub(",", ".", sub(".", "", PRAD.tp$CPE, fixed=TRUE), fixed=TRUE))
+
+ggplot(PRAD.tp, aes(y=LUMP, x=CPE)) +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  ggtitle('PRAD CPE vs LUMP scores') +
+  xlab("CPE")
+
+scatter.plot(data = PRAD.mae,
+             byPair = list(probe = c('cg06928838'), gene = c('ENSG00000084207')),
+             category = 'definition',
+             save = FALSE,
+             lm_line = TRUE)
+
+```
+
+From the above plots it is apparent that the quality of the patient samples is relatively high for the most part, with some lower quality samples and even missing LUMP scores for some of the tumor samples. I think that this is mostly ok for my purposes though, and the GSTP1 correlation looks good. 
+
+Also important to note here that 78 data points were missing either LUMP or CPE values. 

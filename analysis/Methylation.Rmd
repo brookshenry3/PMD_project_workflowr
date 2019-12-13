@@ -1,0 +1,325 @@
+---
+title: "5: Methylation"
+author: "Kevin Brooks Henry"
+date: "November 27, 2019"
+output: workflowr::wflow_html
+---
+
+Something else of possible interest is looking at the standard deviation of the methylation beta values for each probe gene pairs among all the samples/regions. In the interest of simplifying things, I am attaching methylation SD values to the df.pairs.FINAL object, as well as attaching the methylation SD values for just the tumor samples 
+
+```{r Packages, message=FALSE}
+library(ggplot2)
+library(plyr)
+library(TCGAbiolinks)
+library(RColorBrewer)
+library(ComplexHeatmap)
+library(matrixStats)
+library(pheatmap)
+library(DT)
+```
+
+
+```{r Loading data needed, message=FALSE, warning=FALSE}
+load(file = '../data/Output/regions')
+load(file = '../data/Output/df.regions')
+load(file = "../data/Output/PRAD_mae")
+load(file = "../data/Output/PRADexp")
+load(file = "../data/Output/PRADmeth")
+load(file = '../data/Output/df_pairs_correlation')
+load(file = '../data/Output/promoter_probes')
+```
+
+
+Here, I am first looking at the top 10k probes (in any region) that display the highest methylation standard deviation values. Not all the probes that have the highest methylation are within the df.pairs.FINAL object (which makes sense, the probes with the highest variance in methylation are likely the SNP probes that I removed in the beginning), this ultimately results in ~9k probes out of the original 10k.
+
+After I get these probes, I can plot their methylation in a heatmap (using the ComplexHeatmap package) to see if there are any trends that appear between probes inside vs outside of PMDs.
+
+```{r 10k_highest_meth}
+
+top10k.meth.sd <- head(PRADmeth[order(rowSds(PRADmeth), decreasing = TRUE), ], 10000)
+top10k.meth.sd <- subset(top10k.meth.sd, rownames(top10k.meth.sd) %in% df.pairs.FINAL$ID)
+
+PRAD.tp <- subset(Tumor.purity, Tumor.purity$Sample.ID %in% PRAD.mae@sampleMap@listData[['primary']])
+PRAD.tp$LUMP <- as.numeric(sub(",", ".", sub(".", "", PRAD.tp$LUMP, fixed=TRUE), fixed=TRUE))
+row.names(PRAD.tp) <- PRAD.tp$Sample.ID
+PRAD.tp <- PRAD.tp[ , c(1, 5)]
+names(PRAD.tp)[1] <- 'primary'
+
+sampleMap <- data.frame(PRAD.mae@sampleMap)
+sampleMap <- subset(sampleMap, sampleMap$assay == "DNA methylation")
+row.names(sampleMap) <- sampleMap$primary
+sampleMap$LUMP <- NA
+
+sampleMap$LUMP <- PRAD.tp$LUMP[match(sampleMap$primary, PRAD.tp$primary)]
+sampleMap[sampleMap == 'NaN'] <- NA
+
+all.col.metadata <- data.frame(row.names = colnames(PRADmeth),
+                               Gleason = PRAD.mae@colData@listData[['primary_gleason_grade']],
+                               Stage = PRAD.mae@colData@listData[['ajcc_clinical_t']],
+                               Definition = PRAD.mae@colData@listData[['TN']],
+                               LUMP = sampleMap$LUMP)
+
+row.annots <- data.frame(row.names = rownames(top10k.meth.sd),
+                     region = subset(df.pairs.FINAL$region, df.pairs.FINAL$ID %in% rownames(top10k.meth.sd)))
+
+ha.row <- HeatmapAnnotation(
+  region = row.annots$region,
+  annotation_name_side = 'bottom',
+  show_legend = TRUE,
+  which = 'row')
+
+ha.col <- HeatmapAnnotation(
+  Definition = all.col.metadata$Definition,
+  Stage = all.col.metadata$Stage,
+  Gleason = all.col.metadata$Gleason,
+  LUMP = all.col.metadata$LUMP,
+  na_col = 'black',
+  show_legend = TRUE)
+
+top10k.hm <- Heatmap(top10k.meth.sd,
+        top_annotation = ha.col,
+        show_row_dend = FALSE,
+        show_column_dend = FALSE,
+        show_row_names = FALSE,
+        show_column_names = FALSE,
+        #use_raster = TRUE,
+        #raster_device = 'png',
+        row_title = 'Probe',
+        column_title = 'Sample')
+
+draw(top10k.hm + ha.row)
+
+
+```
+
+So interestinly based on the above heatmap there doesn't really seem to be any grouping of the samples based on region, or much of anything for that matter, although a definite group can be seen for the normal samples. 
+
+To see if there's any variation explainable within the PMD I'll make another heatmap just looking at the top 10k probes within PMDs.
+
+```{r top_PMD_meth}
+PMD_annots <- subset(row.annots, row.annots$region == 'commonPMD')
+top10kpmd <- subset(top10k.meth.sd, rownames(top10k.meth.sd) %in% rownames(PMD_annots))
+
+top10k.PMD.hm <- Heatmap(top10kpmd,
+                     top_annotation = ha.col,
+                     show_row_dend = FALSE,
+                     show_column_dend = FALSE,
+                     show_row_names = FALSE,
+                     show_column_names = FALSE,
+                     #use_raster = TRUE,
+                     #raster_device = 'png',
+                     row_title = 'Probe',
+                     column_title = 'Sample')
+
+top10k.PMD.hm
+
+```
+
+Once again it's hard to see any trend the seperates different PMDs from each other. 
+
+As the last heatmap here I am looking at the methylation of only probes in PMD regions that display high negative correlation to gene expression.
+
+
+```{r PMD Hi Corr tumor meth}
+
+#Finding PMDs with high correlation values
+
+PMD.meth.corr <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'commonPMD' & df.pairs.FINAL$r <(-0.5))
+
+sample.map <- data.frame(sample.type = rep(as.factor(PRAD.mae@colData@listData[['TN']]), 2),
+                         patient.id = PRAD.mae@sampleMap@listData[['colname']])
+sample.map <- sample.map[c(1:537), ]
+sample.map <- subset(sample.map, sample.map$sample.type == 'Tumor')
+sample.map$patient.id <- factor(sample.map$patient.id)
+sample.map$sample.type <- factor(sample.map$sample.type)
+row.names(sample.map) <- sample.map$patient.id
+
+
+PRADmeth.r <- subset(PRADmeth, row.names(PRADmeth) %in% PMD.meth.corr$ID)
+
+#Now making the heatmap 
+
+hi.corr.PMD.meth <- Heatmap(PRADmeth.r,
+                     top_annotation = ha.col,
+                     show_row_dend = FALSE,
+                     show_column_dend = FALSE,
+                     show_row_names = FALSE,
+                     show_column_names = FALSE,
+                     #use_raster = TRUE,
+                     #raster_device = 'png',
+                     row_title = 'Probe',
+                     column_title = 'Sample')
+
+hi.corr.PMD.meth
+
+```
+
+The above heatmap is a bit odd to me, it would seem that by selecting only probes with high negative correlation, methylation values would all be mostly blue (i.e. low ) but it seems like there are quite a few with high methylation values. Not entirely sure why that is. 
+
+For the meantime, I'll move on to looking at methylation specifically within promoter probes, to see if there's any major difference between the different regions
+
+```{r promoter_meth}
+#Let's see what the sds look like for promoter probes (as opposed to just all probes ^)
+
+df.pairs.FINAL$meth.sd <- rowSds(PRADmeth[df.pairs.FINAL$ID, ], na.rm = TRUE)
+
+ggplot(df.pairs.FINAL, aes(x=region, y=meth.sd, fill=region)) + 
+  geom_violin()
+
+#Now trying to plot the above again but this time with only the probes correlated with gene expression
+
+df.pairs.hi.corr <- subset(df.pairs.FINAL, df.pairs.FINAL$r <(-0.5) | df.pairs.FINAL$r >(0.5))
+
+ggplot(df.pairs.hi.corr, aes(x=region, y=meth.sd, fill=region)) + 
+  geom_violin()
+
+#Ok so from the above, even highly probes highly correlated with gene expression don't appear to show any difference in the variance of the mehtylation sd
+
+
+
+```
+
+Interestingly, the SD of the methylation in PMDs is much more variable than in HMDs and neither regions. Given that PMDs are characterized by aberrent methylation patterns however I think that this makes sense. Regarding an email I received from Reka pertaining to the second figure with methylation SD in highly correlated regions:
+
+"Interesting! Compared to how it looked before (the PMDs had high sd), it looks quite equal among the categories.
+This can also be a characteristic of the genes in PMDs, that if their promoter has uniform methylation patterns, there is a good chance that methylation regulates the expression of this gene. If the methylation varies highly, then they are probably independent."
+
+Below I plotted the same two figures as above however this time only with the tumor samples to remove methylation values from the normal tissue samples. 
+
+```{r tumor meth sd}
+#Looking at just tumor meth sd 
+
+PRADmeth.tumors <- subset(PRADmeth, colnames(PRADmeth) %in% sample.map$patient.id)
+
+PRADmeth.tumors <- PRADmeth[ , sample.map$patient.id]
+
+tumor.meth.sd <- rowSds(PRADmeth.tumors, na.rm = TRUE)
+XXX <- data.frame(id = rownames(PRADmeth),
+                  sd = tumor.meth.sd)
+tumor.region.meth.sd <- df.pairs.FINAL
+tumor.region.meth.sd$tumormethsd <- subset(XXX$sd, XXX$id %in% df.pairs.FINAL$ID)
+
+ggplot(tumor.region.meth.sd, aes(x=region, y=tumormethsd, fill=region)) + 
+  geom_violin()
+
+df.pairs.hi.corr2 <- subset(tumor.region.meth.sd, tumor.region.meth.sd$r <(-0.5) | tumor.region.meth.sd$r >(0.5))
+
+ggplot(df.pairs.hi.corr2, aes(x=region, y=tumormethsd, fill=region)) + 
+  geom_violin()
+
+
+```
+
+It seems like all of the variation between the groups goes away when the normal tissue samples are removed, this doesn't seem like it should be the case, that the standard deviation changes this much with the removal of 35 samples. This is something to look into more. 
+
+Next I am just adding the tumor methylation sd data to the main data frame. 
+
+```{r}
+df.pairs.FINAL$methsd.tumor <- tumor.region.meth.sd$tumormethsd
+```
+
+In the next section here I am looking at mean promoter methylation standard deviation, to see if there are specific promoters that stand out as being really variable
+
+```{r mean promoter methylation sd}
+
+df.probes.proms.FINAL$length <- NA
+
+for (i in seq_len(nrow(df.probes.proms.FINAL))) {
+  df.probes.proms.FINAL$length[i] <- length(df.probes.proms.FINAL$probe[[i]])
+}
+
+
+df.probes.proms.FINAL$mean.sd <- NA
+probes <- apply(df.probes.proms.FINAL, 1, function(x) x$probe)
+
+
+for (i in seq_len(nrow(df.probes.proms.FINAL))) {
+  if (df.probes.proms.FINAL$length[i] == 1){
+    df.probes.proms.FINAL$mean.sd[i] <- NA
+  }
+  else {
+      df.probes.proms.FINAL$mean.sd[i] <- mean(colSds(PRADmeth[probes[[i]],], na.rm=T), na.rm=T)
+    }
+}
+
+df.probes.proms.FINAL$region <- as.factor(df.probes.proms.FINAL$region)
+
+df.probes.proms.FINAL <- subset(df.probes.proms.FINAL, df.probes.proms.FINAL$region == 'commonPMD' | df.probes.proms.FINAL$region == 'commonHMD' | df.probes.proms.FINAL$region == 'neither')
+
+ggplot(df.probes.proms.FINAL, aes(x = region, y=mean.sd)) +
+  geom_boxplot(fill="slateblue", alpha=0.2) #+
+  #geom_jitter(color="black", size=0.4, alpha=0.9) 
+
+
+```
+
+
+```{r violin plot of mpmsd}
+
+ggplot(df.probes.proms.FINAL, aes(x = region, y=mean.sd, fill=region)) +
+  geom_violin() +
+  labs(y='Mean standard deviation', fill='Region', x='Region')
+
+```
+
+Below is a table of the values obtained from the chunk above where I found mean promoter methylation sd. 
+```{r}
+DT::datatable(df.probes.proms.FINAL)
+```
+
+
+This next section is using a function Reka gave me to adjust the methylation beta values for tumor purity, this removes any of the variation associated with less-pure samples and allows for a clearer picture of what is causing variation in the methylation. 
+
+```{r adjusting methylation beta values for tumor purity, eval=FALSE}
+## tumor purity
+LUMP <- PRAD.tp$LUMP
+
+## Adjust for tumor purity
+  
+ beta_res <- apply(PRADmeth.tumors, 1, function(x) {
+    mod<-lm(x~LUMP, na.action=na.exclude)
+    pval<-pf(summary(mod)$fstatistic[1], summary(mod)$fstatistic[2], summary(mod)$fstatistic[3], lower.tail = FALSE)
+    if(pval<0.01){
+      residuals(mod)
+    }else{
+      scale(x, scale = FALSE)[,1, drop=T]
+    }
+  })
+ 
+
+```
+
+```{r Heatmap of beta res, eval=FALSE}
+
+#load(file = '../data/Output/beta_res')
+
+top10k.beta.res.sd <- head(beta_res[order(rowSds(beta_res), decreasing = TRUE), ], 10000)
+top10k.beta.res.sd <- subset(top10k.beta.res.sd, rownames(top10k.beta.res.sd) %in% df.pairs.FINAL$ID)
+
+sum(is.na(top10k.beta.res.sd))
+
+beta.res.hm <- Heatmap(top10k.beta.res.sd,
+                     #top_annotation = ha.col,
+                     #show_row_dend = FALSE,
+                     #show_column_dend = FALSE,
+                     #show_row_names = FALSE,
+                     #show_column_names = FALSE,
+                     use_raster = TRUE,
+                     raster_device = 'png',
+                     row_title = 'Probe',
+                     column_title = 'Sample')
+
+beta.res.hm
+```
+
+
+```{r}
+rm(all.col.metadata, ha.row, PRAD.tp, row.annots, sample.id, top10k.meth.sd, Tumor.purity,
+   sampleMap, PMD_annots, top10k.hm, top10kpmd, top10k.PMD.hm, df.pairs.hi.corr2, ha.col, PMD.meth.corr, PRADmeth.r, PRADmeth.tumors, sample.map, tumor.region.meth.sd, XXX, tumor.meth.sd, hi.corr.PMD.meth, df.pairs.hi.corr)
+
+```
+
+```{r Saving data}
+save(df.pairs.FINAL, file = '../data/Output/df_pairs_cor_methsd')
+#save(beta_res, file = '../data/Output/beta_res')
+```

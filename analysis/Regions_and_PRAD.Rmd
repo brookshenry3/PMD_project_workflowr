@@ -1,0 +1,142 @@
+---
+title: "1: Loading and formatting regions and the PRAD data"
+author: "Kevin Brooks Henry"
+date: "November 27, 2019"
+output: workflowr::wflow_html
+---
+
+Loading the required packages for this section
+
+```{r Packages, message=FALSE}
+library(rtracklayer)
+library(GenomicRanges)
+library(ELMER)
+library(MultiAssayExperiment)
+library(RnBeads)
+```
+
+I can now import the partially methylated domain (PMD) coordinates data file (in bedGraph format) that I obtained from [Zhou (2018)](https://zwdzwd.github.io/pmd) using the rtracklayer package. The arguement below also coerces the file into a Genomic Ranges (GRanges) object, useful for downstream analysis.
+
+Region annotation reference: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5893360/
+
+
+```{r Loading_and_formatting_regions}
+
+regions <- import.bedGraph("../data/Input/PMD_coordinates_hg19.bed.gz", genome = "hg19")
+
+```
+
+<span style="color:red"> Of note should be that using the import.bedGraph() function and setting the genome to hg19 will result in 13 out-of-bound ranges, see warning above </span>
+
+The above "regions" GRanges object contains the coordinates of the PMDs and also coordinates of HMDs and regions that are defined as "neither" (The genome is segmented into 100kb bins). While I was initially planning on focusing just on the PMDs, I ended up using all regions, as it makes for good comparisons to see how things like methylation, gene density/expression, etc. vary between regions that are considered PMDs vs HMDs vs neither. 
+
+The code below is to convert the regions GRanges to a data frame and clean it up. 
+
+```{r Regions to DF to GR}
+
+df.regions <- as.data.frame(regions)
+df.regions <- df.regions[, c('seqnames', 'start', 'end', 'NA.1')]
+names(df.regions)[4] <- 'region'
+regions <- makeGRangesFromDataFrame(df.regions, 
+                                 keep.extra.columns = TRUE,
+                                 seqnames.field = 'seqnames',
+                                 start.field = 'start',
+                                 end.field = 'end')
+
+
+```
+
+Now after loading the regions, the next step is to load up the prostate adenocarcinoma (PRAD) data available from TCGA. Here, I am loading up an already downloaded data set that I created using ELMER. I am also creating matrices of the methylation and expression data for use in downstream analysis, as well as summarizing patient profiles in the final bit. The MultiAssayExperiement (MAE) that I load in containing the PRAD data was created using ELMER, and is a convenient container for methylation and expression data as well as sample metadata. In the MAE, expression data (in this case Illumina HiSeq normalized expression counts) and methylation data (Illumina 450k methylation beta values) were used. 
+
+!Of important note is that I am using legacy data, which is aligned to the hg19 (not hg38) genome, all subsequent analysis was performed in reference to the hg19 genome. 
+
+ELMER: https://bioconductor.org/packages/release/bioc/vignettes/ELMER/inst/doc/index.html
+
+TCGA-PRAD data: https://portal.gdc.cancer.gov/legacy-archive/search/f?filters=%7B%22op%22:%22and%22,%22content%22:%5B%7B%22op%22:%22in%22,%22content%22:%7B%22field%22:%22cases.project.primary_site%22,%22value%22:%5B%22Prostate%22%5D%7D%7D,%7B%22op%22:%22in%22,%22content%22:%7B%22field%22:%22cases.project.project_id%22,%22value%22:%5B%22TCGA-PRAD%22%5D%7D%7D%5D%7D
+
+
+```{r Creating PRAD MAE, eval=FALSE}
+
+#Downloading expression data 
+
+query.exp.PRAD <- GDCquery(project = 'TCGA-PRAD',
+                           data.category = 'Gene expression',
+                           data.type = 'Gene expression quantification',
+                           platform = 'Illumina HiSeq',
+                           file.type = 'normalized_results',
+                           legacy = TRUE)
+
+
+query.exp.PRAD[[1]][[1]] <- query.exp.PRAD[[1]][[1]][!duplicated(query.exp.PRAD[[1]][[1]]$cases),]
+
+GDCdownload(query.exp.PRAD)
+PRADexp <- GDCprepare(query.exp.PRAD)
+
+rownames(PRADexp) <- values(PRADexp)$ensembl_gene_id
+
+#now downloading the methylation data
+
+query.meth.PRAD <- GDCquery(project = 'TCGA-PRAD',
+                            data.category = 'DNA methylation',
+                            platform = 'Illumina Human Methylation 450',
+                            legacy = TRUE)
+
+GDCdownload(query.meth.PRAD, method = 'api')
+PRADmeth <- GDCprepare(query.meth.PRAD)
+
+#Now to create a MAE that contains ALL info (sorting out PMDs/promoters/etc can be done later)
+
+PRAD.mae <- createMAE(exp = PRADexp,
+                      met = PRADmeth,
+                      met.platform = '450K',
+                      genome = 'hg19',
+                      save = TRUE,
+                      save.filename = "PRAD-MAE",
+                      TCGA = TRUE)
+
+summary(complete.cases(PRAD.mae))
+
+intersectColumns(PRAD.mae)
+
+
+```
+
+Once the PRAD MAE is created above using ELMER, I can make expression and methylation matrices, these are useful later as it takes far less time to loop operations over matrices than using assay() to obtain values from the MAE for every operation. Additionally I am seeing what the makeup of the PRAD dataset is using summary to look at various elements of the metadata. 
+
+```{r Loading PRAD MAE & making matrices}
+
+load(file = "../data/Output/PRAD_mae")
+
+PRADmeth <- assay(PRAD.mae[, , 1])
+PRADexp <- assay(PRAD.mae[, , 2])
+
+summary(as.factor(PRAD.mae@colData@listData[["definition"]]))
+summary(as.factor(PRAD.mae@colData@listData[['ajcc_clinical_t']]))
+summary(as.factor(PRAD.mae@colData@listData[['ajcc_clinical_m']]))
+summary(as.factor(PRAD.mae@colData@listData[['primary_gleason_grade']]))
+summary(as.factor(PRAD.mae@colData@listData[['TN']]))
+
+#Removing SNP probes & probes in "blacklist" that Reka sent me
+
+probe.names <- data.frame(probe = rownames(PRADmeth))
+
+PRADmeth <- PRADmeth[c(1:394289), ]
+
+rm(mae, probe.names)
+
+```
+
+From the above the number of samples falling into several different categories (including Tumor/normal, primary gleason grade, stage, etc.) can be assessed to look at what the overall data looks like.
+
+It can be noted that most of the patient samples come from primary solid tumor tissue, while 35 are from normal tissue. This means that there aren't a lot of normal samples to compare differences in expression and methylation, something to keep in mind.
+
+The last line of code in the above is to remove SNP and other probes that by their nature contain very high variation and need to be excluded from analysis. 
+
+```{r Saving Data}
+save(df.regions, file = '../data/Output/df.regions')
+save(regions, file = '../data/Output/regions')
+save(PRAD.mae, file = '../data/Output/PRAD_mae')
+save(PRADexp, file = '../data/Output/PRADexp')
+save(PRADmeth, file = '../data/Output/PRADmeth')
+```
+

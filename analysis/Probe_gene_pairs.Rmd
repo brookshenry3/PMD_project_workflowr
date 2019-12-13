@@ -1,0 +1,109 @@
+---
+title: "3: Finding probe-gene pairs"
+author: "Kevin Brooks Henry"
+date: "November 28, 2019"
+output: workflowr::wflow_html
+---
+
+In this section I am identifying probe-gene pairs within each of the regions. Importantly, the probe-gene pairs are for probes in promoter regions only. Once this is done I can run methylation-expression correlation tests. 
+
+Loading the required packages for this section
+
+```{r Packages, warning=FALSE, message=FALSE}
+library(rtracklayer)
+library(GenomicRanges)
+library(ELMER)
+library(MultiAssayExperiment)
+library(RnBeads)
+library(splicejam)
+library(dplyr)
+```
+
+
+```{r Loading data needed}
+load(file = '../data/Output/regions')
+load(file = '../data/Output/df.regions')
+load(file = "../data/Output/PRAD_mae")
+load(file = "../data/Output/PRADexp")
+load(file = "../data/Output/PRADmeth")
+```
+
+Now to load up Illumina 450k probes, and promoter regions, and find the ones that are within the "regions" I have downloaded. This will all be done using RnBeads.
+
+RnBeads reference: https://bioconductor.org/packages/release/bioc/vignettes/RnBeads/inst/doc/RnBeads.pdf  
+more RnBeads: http://rnbeads.mpi-inf.mpg.de/methylomes.php
+
+
+```{r Probe-gene pairs, message=FALSE, warning=FALSE}
+#This time I am going to try working exclusively with RnBeads for annotation/data processing, etc.
+#Getting 450k probes, hg19 genes & probes using RnBeads
+
+probes.450k <- rnb.annotation2data.frame(rnb.get.annotation(type = 'probes450'))
+probes.450k <- probes.450k[, c('Chromosome', 'Start', 'End', 'CGI Relation', 'CpG', 'ID')]
+probes.gr <- makeGRangesFromDataFrame(probes.450k, 
+                                      keep.extra.columns = TRUE,
+                                      ignore.strand = TRUE,
+                                      seqnames.field = 'Chromosome',
+                                      start.field = 'Start',
+                                      end.field = 'End')
+
+promoters <- rnb.annotation2data.frame(rnb.get.annotation(type = 'promoters', assembly = 'hg19'))
+promoters <- promoters[, c('Chromosome', 'Start', 'End', 'symbol', 'CpG', 'ID')]
+promoters.gr <- makeGRangesFromDataFrame(promoters,
+                                         keep.extra.columns = TRUE,
+                                         seqnames.field = 'Chromosome',
+                                         start.field = 'Start',
+                                         end.field = 'End')
+
+probes.regions <- splicejam::annotateGRfromGR(probes.gr,
+                                              regions)
+
+df.probes.regions <- as.data.frame(probes.regions)
+
+probes.regions.genes <- splicejam::annotateGRfromGR(probes.regions,
+                                                    promoters.gr)
+
+df.probes.regions.genes <- as.data.frame(probes.regions.genes)
+df.probes.regions.genes <- df.probes.regions.genes[ , c('seqnames', 'start', 'end', 'CGI.Relation', 'ID', 'region', 'symbol', 'ID_v1')]
+names(df.probes.regions.genes)[8] <- 'ENSEMBL'
+
+df.probes.regions.genes <- subset(df.probes.regions.genes, df.probes.regions.genes$ID %in% rownames(PRADmeth) & df.probes.regions.genes$ENSEMBL %in% rownames(PRADexp))
+df.probes.regions.genes <- na.omit(df.probes.regions.genes)
+df.probes.regions.genes$region <- as.factor(df.probes.regions.genes$region)
+
+#I am switching all of the subsequent analysis to the above data frame, both because it's smaller and because there are no duplicates, so the distributions won't be as skewed
+#!!!!Importantly though the above are just promoter probe-gene pairs!
+```
+
+Now below I am making a matrix that will be used during the methylation analysis - what I want is to get a matrix of methylation standard deviation values for each promoter region for each patient. 
+
+```{r Formatting data for promoter region sd means}
+#This first line below is necessary so that the function run in methylation will work - filters only for probes present in PRADmeth
+probes.in.PRAD <- subset(probes.gr, names(probes.gr) %in% rownames(PRADmeth))
+probes.in.proms <- splicejam::annotateGRfromGR(probes.in.PRAD, promoters.gr)
+df.probes.proms <- as.data.frame(probes.in.proms)
+df.probes.proms <- df.probes.proms[, c('seqnames', 'start', 'end', 'ID', 'ID_v1')]
+names(df.probes.proms)[names(df.probes.proms) == "ID"] <- "probe"
+names(df.probes.proms)[names(df.probes.proms) == "ID_v1"] <- "promoter.id"
+df.probes.proms <- na.omit(df.probes.proms)
+df.probes.proms <- subset(df.probes.proms, df.probes.proms$promoter.id %in% promoters$ID)
+
+df.probes.proms.FINAL <- aggregate(df.probes.proms[,4], list(df.probes.proms[,5]), function(x) paste0(unique(x)))
+names(df.probes.proms.FINAL)[names(df.probes.proms.FINAL) == "Group.1"] <- "promoter"
+names(df.probes.proms.FINAL)[names(df.probes.proms.FINAL) == "x"] <- "probe"
+
+promoter.regions <- splicejam::annotateGRfromGR(promoters.gr, regions)
+df.promoter.regions <- data.frame(promoter.regions)
+
+df.probes.proms.FINAL$region <- subset(df.promoter.regions$region, df.promoter.regions$ID %in% df.probes.proms.FINAL$promoter)
+
+```
+
+
+The final data frame created above has each promoter and then a list of the probes that are considered part  of that promoter.
+
+```{r Saving probe-gene pairs}
+save(df.probes.regions.genes, file = '../data/Output/df_pairs')
+save(df.probes.proms.FINAL, file = '../data/Output/promoter_probes')
+```
+

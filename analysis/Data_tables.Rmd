@@ -1,0 +1,37 @@
+---
+title: "9: Data"
+author: "Kevin Brooks Henry"
+date: "December 10, 2019"
+output: workflowr::wflow_html
+---
+
+Here the final 'df.pairs.FINAL' table can be looked at. This is done using server-side processing in the DT package and shiny.  
+
+DT: https://rstudio.github.io/DT/server.html
+
+```{r}
+library(shiny)
+library(DT)
+```
+
+```{r}
+load(file = '../data/Output/df_pairs_cor_methsd_chromhmm_TF')
+```
+
+The code below is to get server-side processing, but I can't seem to get it to work. Although I get a warning message that client-side processing doesn't work, the table seems to show up fine (see second code chunk)
+
+```{r, eval=FALSE}
+renderDataTable(df.pairs.FINAL, server = TRUE)
+```
+
+```{r}
+DT::datatable(df.pairs.FINAL)
+```
+
+The data table below shows the hg19 genome in 100kb bins classified by region according to the first paper listed in the Regions_and_PRAD.Rmd file. 
+
+```{r}
+load(file = '../data/Output/df.regions')
+DT::datatable(df.regions)
+```
+

@@ -1,0 +1,371 @@
+---
+title: "7: Transcription Factor Binding Sites"
+author: "Kevin Brooks Henry"
+date: "November 28, 2019"
+output: workflowr::wflow_html
+---
+
+In this section I am adding transcription factor binding sites to the df.pairs.FINAL object. Here, it will be interesting to see if PMDs are enriched in any specific TFs, and if there is an association between these TF binding sites and the correlation coefficients obtained during the correlation testing. It is also interesting here to compare and see if CTCF binding sites are enriched here as they were in the ChromHMM annotations 
+
+Some background on TFs and TFs in prostate cancer (which informed which TFs I added to the data):
+
+https://www.cell.com/cell/pdf/S0092-8674(18)30106-5.pdf
+http://perspectivesinmedicine.cshlp.org/content/early/2018/03/12/cshperspect.a030437
+
+```{r Packages, message=FALSE, warning=FALSE}
+library(rtracklayer)
+library(GenomicRanges)
+library(splicejam)
+library(dplyr)
+library(ggplot2)
+library(data.table)
+library(DT)
+library(ggrepel)
+```
+
+
+```{r Loading data needed}
+load(file = '../data/Output/df_pairs_cor_methsd_chromhmm')
+load(file = '../data/Output/GR_pairs_cor_methsd_chromhmm')
+load(file = '../data/Output/regions')
+```
+
+Transcription factor binding sites were obtained from the link below. Important to note though is that these are ALL binding sites across the hg19 genome, and peaks have been merged. This means that unlike the ChromHMM annotations earlier these are not necessarily prostate cancer specific. 
+
+TF database: http://tagc.univ-mrs.fr/remap/index.php?page=download
+
+```{r Loading TFs}
+#I am now adding transcription factor binding sites to my "master" data object
+
+
+TF.CTCF.gr <- import.bed("../data/Input/TFs/remap2018_CTCF_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.AR.gr <- import.bed("../data/Input/TFs/remap2018_AR_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.ETS1.gr <- import.bed("../data/Input/TFs/remap2018_ETS1_nr_macs2_hg19_v1_2.bed.gz",
+                       genome = 'hg19')
+
+TF.TP53.gr <- import.bed("../data/Input/TFs/remap2018_TP53_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.SP1.gr <- import.bed("../data/Input/TFs/remap2018_SP1_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.FOXA1.gr <- import.bed("../data/Input/TFs/remap2018_FOXA1_nr_macs2_hg19_v1_2.bed.gz",
+                        genome = 'hg19')
+
+TF.RB1.gr <- import.bed("../data/Input/TFs/remap2018_RB1_nr_macs2_hg19_v1_2.bed.gz",
+                        genome = 'hg19')
+
+TF.STAT1.gr <- import.bed("../data/Input/TFs/remap2018_STAT1_nr_macs2_hg19_v1_2.bed.gz",
+                        genome = 'hg19')
+
+TF.FOXJ2.gr <- import.bed("../data/Input/TFs/remap2018_FOXJ2_nr_macs2_hg19_v1_2.bed.gz",
+                        genome = 'hg19')
+
+TF.TAF1.gr <- import.bed("../data/Input/TFs/remap2018_TAF1_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.NRF1.gr <- import.bed("../data/Input/TFs/remap2018_NRF1_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.REST.gr <- import.bed("../data/Input/TFs/remap2018_REST_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.E2F6.gr <- import.bed("../data/Input/TFs/remap2018_E2F6_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.CEBPA.gr <- import.bed("../data/Input/TFs/remap2018_CEBPA_nr_macs2_hg19_v1_2.bed.gz",
+                         genome = 'hg19')
+
+TF.SPI1.gr <- import.bed("../data/Input/TFs/remap2018_SPI1_nr_macs2_hg19_v1_2.bed.gz",
+                          genome = 'hg19')
+
+```
+
+Once the data has been loaded I can use splicejam again to annotate df.pairs.FINAL with the binding sites. In this next code chunk I am also renaming the columns, assigning NAs to 'X' (I originally used 'none' however, because some of the TF names start with a letter after N this messes up my enrichment analysis, so I went with X to be safe), and changing the TF binding site columns to factors (instead of characters). 
+
+```{r Annotating data with TFs}
+
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.AR.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.CTCF.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.ETS1.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.SP1.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.TP53.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.FOXA1.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.RB1.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.STAT1.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.FOXJ2.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.NRF1.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.TAF1.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.CEBPA.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.E2F6.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.REST.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.SPI1.gr)
+
+
+df.pairs.FINAL <- as.data.frame(pairs.FINAL.gr)
+
+
+df.pairs.FINAL <- df.pairs.FINAL[ , c(1:18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60)]
+names(df.pairs.FINAL)[16] <- 'PC3.annots'
+names(df.pairs.FINAL)[17] <- 'PrEC.annots'
+names(df.pairs.FINAL)[18] <- 'AR.binding.sites'
+names(df.pairs.FINAL)[19] <- 'CTCF.binding.sites'
+names(df.pairs.FINAL)[20] <- 'ETS1.binding.sites'
+names(df.pairs.FINAL)[21] <- 'SP1.binding.sites'
+names(df.pairs.FINAL)[22] <- 'TP53.binding.sites'
+names(df.pairs.FINAL)[23] <- 'FOXA1.binding.sites'
+names(df.pairs.FINAL)[24] <- 'RB1.binding.sites'
+names(df.pairs.FINAL)[25] <- 'STAT1.binding.sites'
+names(df.pairs.FINAL)[26] <- 'FOXJ2.binding.sites'
+names(df.pairs.FINAL)[27] <- 'NRF1.binding.sites'
+names(df.pairs.FINAL)[28] <- 'TAF1.binding.sites'
+names(df.pairs.FINAL)[29] <- 'CEBPA.binding.sites'
+names(df.pairs.FINAL)[30] <- 'E2F6.binding.sites'
+names(df.pairs.FINAL)[31] <- 'REST.binding.sites'
+names(df.pairs.FINAL)[32] <- 'SPI1.binding.sites'
+
+df.pairs.FINAL[, 18:32][is.na(df.pairs.FINAL[, 18:32])] <- 'X'
+
+#Have to convert them to factors after this step ^
+#Also using 'X' instead of 'none' because alphabetically using none will make it so that the second half of my TFs show up SECOND instead of first (ruining the for loop below that I created)
+
+cols <- colnames(df.pairs.FINAL[, 16:32])
+
+df.pairs.FINAL[cols] <- lapply(df.pairs.FINAL[cols], factor)
+
+```
+
+Now that the TF binding sites have been added to my main data frame, I can begin doing enrichment analysis. 
+
+```{r TF binding site enrichment analysis}
+#Need to do enrichment analysis on TF binding sites to see if PMDs are enriched in any in particular (maybe AR or CTCF?)
+
+grouped.data <- data.frame(binding.site = rep(colnames(df.pairs.FINAL[18:32]), 3),
+                           region = c(rep('commonHMD', 15), rep('commonPMD', 15), rep('neither', 15)),
+                           count = NA,
+                           total = c(rep(46854, 15), rep(14105, 15), rep(34817, 15)), 
+                           percent = NA)
+
+for (i in 18:32) {
+  sum <- group_by(df.pairs.FINAL, df.pairs.FINAL[, i], region) %>% dplyr::summarise(count = n())
+  grouped.data$count[c(i-17, i-2, i+13)] <- sum$count[c(1:3)]
+  grouped.data$percent[c(i-17, i-2, i+13)] <- grouped.data$count[c(i-17, i-2, i+13)] / grouped.data$total[c(i-17, i-2, i+13)] * 100
+}
+
+```
+
+Once the enrichment data is summarized it can be plotted. 
+
+```{r Plotting TF enrichment}
+
+
+ggplot(grouped.data, aes(fill=region, y=percent, x=binding.site)) + 
+  geom_bar(position="dodge", stat="identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x='Binding Site', y='Percent', fill='Region')
+
+#Interesting, so the expected TFs don't show really any enrichment in PMDs
+#TAF1 & NRF1 are known to only bind to non-methylated DNA, so it's interesting that they're enriched in PMDs
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5559737/
+
+```
+
+Weirdly it looks like none of the binding sites are enriched greatly in PMDs, even CTCF binding sites which was a bit surprising to me. However, given that the TF binding site data is for ALL peaks and is not necessarily PRAD specific, it makes sense as HMDs and neither regions cover a much larger portion of the genome. 
+
+I can look specifically at negatively correlated probe-gene pairs in PMDs and HMDs to see if there is any enrichment in specific TFs in negatively correlated regions, perahps these influence gene expression, etc. 
+
+```{r TF binding site enrichment - regions & correlations}
+#Now I will break up the enrichment above by region and correlation to see if there are any in PMDs or HMDs that stand out
+
+PMD.corr <- subset(df.pairs.FINAL, df.pairs.FINAL$r <= (-.5) & df.pairs.FINAL$region == 'commonPMD')
+
+HMD.corr <- subset(df.pairs.FINAL, df.pairs.FINAL$r <= (-.5) & df.pairs.FINAL$region == 'commonHMD')
+
+region.grouped <- data.frame(binding.site = rep(colnames(df.pairs.FINAL[18:32]), 2),
+                        region = c(rep('PMD', 15), rep('HMD', 15)),
+                        count = NA,
+                        total = c(rep(150, 15), rep(552, 15)),
+                        percent = NA)
+
+for (i in 18:32) {
+  sum <- summary(PMD.corr[[i]])
+  region.grouped$count[c(i-17)] <- sum[1]
+}
+
+for (i in 18:32) {
+  sum <- summary(HMD.corr[[i]])
+  region.grouped$count[c(i-2)] <- sum[1]
+}
+
+region.grouped$count <- as.numeric(region.grouped$count)
+
+region.grouped$percent <- region.grouped$count / region.grouped$total * 100
+
+```
+
+Once the data is collected it can be plotted. 
+
+```{r Plotting region & correlation TF enrichment}
+
+ggplot(region.grouped, aes(fill=region, y=percent, x=binding.site)) + 
+  geom_bar(position="dodge", stat="identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x='Binding Site', y='Percent', fill='Region')
+
+```
+
+Here once again it doesn't look like any of the TFs I looked at are enriched in PMDs (the exception being FOXJ2 but I think there were only 1-2 sites so not really). Interestingly like the other enrichment figure above all of the TFs share the same pattern - I am hoping this is something inherent with the data and not a problem with my analysis, will have to ask Reka about this. 
+
+Below I am using a different set of TF binding sites that Reka sent me  
+Source: http://hgdownload.soe.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeRegTfbsClustered/
+
+```{r Alternative TF binding site analysis}
+#also importing them with fread from the data.table package, this works much faster than using rtracklayer and gives me a data table right away
+
+TF.all <- fread("../data/Input/wgEncodeRegTfbsClusteredV3.bed.gz")
+TF.all <- TF.all[, c(1:4)]
+colnames <- c("chr", 'start', 'end', 'TF')
+names(TF.all) <- colnames
+
+TF.all.gr <- makeGRangesFromDataFrame(TF.all, 
+                                       keep.extra.columns = TRUE,
+                                       seqnames.field = 'chr',
+                                       start.field = 'start',
+                                       end.field = 'end')
+
+TFs.annot <- splicejam::annotateGRfromGR(TF.all.gr, regions)
+
+df.TFs.annot <- data.frame(TFs.annot)
+
+df.TFs.annot$TF <- factor(df.TFs.annot$TF)
+df.TFs.annot$region <- factor(df.TFs.annot$region)
+
+df.TFs.annot <- subset(df.TFs.annot, df.TFs.annot$region == 'commonHMD' | df.TFs.annot$region == 'commonPMD' | df.TFs.annot$region == 'neither')
+
+sum2 <- group_by(df.TFs.annot, TF, region) %>% dplyr::summarise(count = n())
+
+sum2$total <- rep(tapply(sum2$count, sum2$TF, sum), each=3)
+
+sum2$percent <- sum2$count / sum2$total * 100
+
+
+sum2$region <- gsub(x = sum2$region, pattern = 'commonPMD', replacement = '3.PMD')
+sum2$region <- gsub(x = sum2$region, pattern = 'commonHMD', replacement = '2.HMD')
+sum2$region <- gsub(x = sum2$region, pattern = 'neither', replacement = '1.neither')
+
+sum2.pmd <- subset(sum2, sum2$region == '3.PMD')
+sum2.pmd$rank <- rank(-sum2.pmd$percent)
+
+sum2$rank <- rep(sum2.pmd$rank, each=3)
+
+#axis.labs <- sum2
+
+# Hide all of the text labels.
+#axis.labs$TF <- ""
+# Let's just label these items.
+#ix_label <- c(1:5, 479:483)
+#sum2$TF[ix_label] <- rownames(sum2)[ix_label]
+
+
+
+ggplot(sum2, aes(fill=region, y=percent, x=rank)) + 
+  geom_bar(position="stack", stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_x_discrete(name = 'Transcription Factor') +
+  scale_fill_discrete(name="Region",
+                         breaks=c("1.neither", "2.HMD", "3.PMD"),
+                         labels=c("Neither", "HMD", "PMD")) #+
+ 
+
+
+
+```
+
+The data table below shows all of the sums for each of the TFBSs from the analysis above used to plot the enrichment. (as well as showing their rank which is important for interpreting the above figure)
+
+```{r}
+DT::datatable(sum2)
+```
+
+Now I'm repeating the above figure but only looking at significantly negatively correlated promoters
+
+
+
+```{r}
+neg.corr <- subset(df.pairs.FINAL, df.pairs.FINAL$r < (-0.3))
+sig.neg.TFs <- subset(df.TFs.annot, df.TFs.annot$TF %in% neg.corr$symbol)
+sum3 <- group_by(sig.neg.TFs, TF, region) %>% dplyr::summarise(count = n())
+sum3 <- droplevels(sum3)
+sum3$total <- rep(tapply(sum3$count, sum3$TF, sum), each=3)
+sum3$percent <- sum3$count / sum3$total * 100
+
+
+sum3$region <- gsub(x = sum3$region, pattern = 'commonPMD', replacement = '3.PMD')
+sum3$region <- gsub(x = sum3$region, pattern = 'commonHMD', replacement = '2.HMD')
+sum3$region <- gsub(x = sum3$region, pattern = 'neither', replacement = '1.neither')
+
+sum3.pmd <- subset(sum3, sum3$region == '3.PMD')
+sum3.pmd$rank <- rank(-sum3.pmd$percent)
+
+sum3$rank <- rep(sum3.pmd$rank, each=3)
+
+
+#Fix to get TF factor labels 
+ggplot(sum3, aes(fill=region, y=percent, x=rank)) + 
+  geom_bar(position="stack", stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_x_discrete(name = 'Transcription Factor', labels = c('1'='GATA3', '2'='GATA2', '3'='BCL11A', '4'='BATF', '5'='SPI1', '6'='TAL1', '7'='RUNX3', '8'='MEF2A', '9'='STAT5A', '10'='CHD1', '11'='IRF1', '12'='HSF1', '13'='THAP1')) +
+  scale_fill_discrete(name="Region",
+                         breaks=c("1.neither", "2.HMD", "3.PMD"),
+                         labels=c("Neither", "HMD", "PMD"))
+
+```
+
+```{r}
+DT::datatable(sum3)
+```
+
+
+```{r TF binding site density}
+
+TF.density <- regions
+TF.density$tottfs <- countOverlaps(regions, TF.all.gr)
+
+df.TF.density <- as.data.frame(TF.density)
+
+ggplot(data=df.TF.density, aes(x=tottfs, group=region, fill=region)) +
+  geom_density(adjust=1.5, alpha=.4) +
+  xlim(0, 750) + 
+  labs(x='TFBSs/100kb bin', y='Density', fill='Region')
+
+```
+
+
+```{r}
+rm(cols, grouped.data, sum, i, TF.AR.gr, TF.CTCF.gr, TF.ETS1.gr, TF.TP53.gr, TF.SP1.gr, TF.FOXA1.gr, TF.RB1.gr, TF.STAT1.gr, 
+   TF.FOXJ2.gr, TF.NRF1.gr, TF.TAF1.gr, TF.CEBPA.gr, TF.E2F6.gr, TF.REST.gr, TF.SPI1.gr, region.grouped, HMD.corr, PMD.corr, colnames, sum2)
+```
+
+```{r Saving Data}
+save(df.pairs.FINAL, file = '../data/Output/df_pairs_cor_methsd_chromhmm_TF')
+save(df.TFs.annot, file = '../data/Output/df_TFs_annot_2')
+```

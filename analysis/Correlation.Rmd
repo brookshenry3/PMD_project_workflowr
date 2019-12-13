@@ -1,0 +1,118 @@
+---
+title: "4: Probe-gene pair correlation testing"
+author: "Kevin Brooks Henry"
+date: "November 27, 2019"
+output: workflowr::wflow_html
+---
+
+In this section I am testing the correlation between probe-gene pairs within the PRAD dataset. In particular I am interested in cases where when the probe becomes hypomethylated gene expression increases (i.e. negative correlation). Once this is done, I can look at pairs that show significant negative correlation to see if there is a connection between the correlation and being within a PMD. 
+
+```{r Packages, message=FALSE}
+library(ggplot2)
+library(plyr)
+library(dplyr)
+```
+
+
+```{r Loading data needed}
+load(file = '../data/Output/regions')
+load(file = '../data/Output/df.regions')
+load(file = "../data/Output/PRAD_mae")
+load(file = "../data/Output/PRADexp")
+load(file = "../data/Output/PRADmeth")
+load(file = '../data/Output/df_pairs')
+```
+
+
+Now I will determine the correlation between each probe-gene pair identified above using a for loop. Once this is done I have correlation coefficient (r) and p values for each probe gene pair to see how much they are correlated. of particular interest to me are probe-gene pairs that display significant negative correlation, that is, as the probe become less methylated (hypomethylated), expression of the gene increases
+
+The hope/interest here is that perhaps promoters that become hypomethylated (by virtue of being in PMDs) control expression of genes that are implicated in prostate cancer (i.e. oncogenes)
+
+
+```{r Correlation_test, warning=FALSE}
+
+df.probes.regions.genes$r <- NA
+df.probes.regions.genes$p.value <- NA
+
+for (i in seq_len(nrow(df.probes.regions.genes))) {
+  test <- cor.test(PRADmeth[df.probes.regions.genes$ID[i], ], PRADexp[df.probes.regions.genes$ENSEMBL[i], ])
+  df.probes.regions.genes$p.value[i] <- test$p.value
+  df.probes.regions.genes$r[i] <- test$estimate
+}
+
+```
+
+After the correlation test is run above, the distribution of r values can be visualized for each region using violin plots. Additionally, I am renaming the probe-gene pairs dataframe object to be something a bit shorter. 
+
+```{r Plotting correlation}
+
+df.probes.regions.genes <- na.omit(df.probes.regions.genes)
+df.probes.regions.genes$region <- as.factor(df.probes.regions.genes$region)
+
+ggplot(df.probes.regions.genes, aes(x=region, y=r, fill=region)) + 
+  ylim(-1, 1) +
+  geom_violin() +
+  labs(y='Correlation Coefficient (r)', fill='Region', x='Region') +
+  theme(legend.position = 'none')
+  
+
+df.pairs.FINAL <- df.probes.regions.genes
+#renaming my main data frame so that it's a bit shorter
+```
+From the above plot, it can be seen that no region stands out as having more or less correlation between methylation and gene expression, which is surprising as one would think that the aberrent methylation levels in PMDs might impact gene expression to a greater extenct than regions in HMDs or neither. 
+
+As a next step, I can classify each probe-gene pairs correlation on a scale from "highly negatively correlated" to 'highly positively correlated'. The ranges for each classification were found here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3576830/
+
+
+```{r Classifying Correlation}
+
+#21.11.19: After meeting with Reka, moving forward I will break up genes in PMD regions into those that are not expressed, 
+#negatively correlated, positively correlated, and not correlated and use annotatr to look at TF binding sites, ChromHMM annots, 
+#and other thigns
+#The below ranges were found using: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3576830/
+
+Correlation <- data.frame(correlation = c('very high negative', 'high negative', 'moderate negative', 'low negative', 'none', 'low positive', 'moderate positive', 'high positive', 'very high positive'),
+                          lower = c(-1, -.9, -.7, -.5, -.3, .3, .5, .7, .9),
+                          upper = c(-.9, -.7, -.5, -.3, .3, .5, .7, .9, 1))
+
+df.pairs.FINAL <- data.frame(df.pairs.FINAL,
+                      'correlation' = cut(df.pairs.FINAL$r,
+                                          breaks = Correlation$lower,
+                                          right = T,
+                                          include.lowest = T))
+#unique(df.pairs.FINAL$correlation)
+df.pairs.FINAL$correlation <- revalue(df.pairs.FINAL$correlation,
+                               c('(-0.3,0.3]'='none', '(-0.5,-0.3]'='low negative',
+                                 '(0.3,0.5]'='low positive', '(-0.7,-0.5]'='moderate negative',
+                                 '(0.5,0.7]'='moderate positive', '(-0.9,-0.7]'='high negative',
+                                 '[-1,-0.9]'='very high negative', '(0.7,0.9]'='high positive'))
+summary(df.pairs.FINAL$correlation)
+
+```
+
+From the above it can be seen that while not many probe-gene pairs in any regions have very high negative/positive correlation, several have high negative correlation.
+
+Looking specifically at the PMDs:
+
+```{r}
+PMDs <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'commonPMD')
+summary(PMDs$correlation)
+```
+
+The 13 probe-gene pairs with high negative correlation are of particular interest - and will be investigated further.
+Lastly I am breaking up each of the correlation classifications by region. 
+
+```{r visualizing correlation classification}
+sum <- group_by(df.pairs.FINAL, correlation, region) %>% dplyr::summarise(count = n())
+
+ggplot(sum, aes(fill=region, y=count, x=correlation)) + 
+  geom_bar(position="fill", stat="identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x='Correlation', y='Fraction of total counts', fill='Region')
+
+```
+
+```{r Saving Correlation Test}
+save(df.pairs.FINAL, file = '../data/Output/df_pairs_correlation')
+```
+

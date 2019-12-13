@@ -1,0 +1,24 @@
+---
+title: "About"
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+
+The following is my (K. Brooks Henry) documentation for the project titled *"Identification of partially methylated domains conserved across cancer types and their association with prognostic biomarkers"* conducted under the supervision of Dr. Reka Toth and Dr. Pavlo Lutsik in the Division of Cancer Epigenomics (B370) at the German Cancer Research Center (DKFZ) in Heidelberg, Germany from October 7th to December 13th, 2019.
+
+Project Overview:
+
+1. Loading and formatting region and PRAD data
+2. Basic analysis - characterizing PMDs and PRAD
+3. Finding promoter-probe gene pairs for correlation testing
+4. Running correlation tests between identified promoter probe-gene pairs 
+5. Assessing methylation heterogeneity in different regions
+6. Annotating the regions with ChromHMM data for PC3 and PrEC cells
+7. Annotating the regions with transcription factor binding site information
+8. Running GeneWalk to identify genes within PMDs that are potentially associated with PRAD
+
+

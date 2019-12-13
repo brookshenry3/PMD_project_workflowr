@@ -1,0 +1,252 @@
+---
+title: "5:ChromHMM"
+author: "Kevin Brooks Henry"
+date: "November 27, 2019"
+output: workflowr::wflow_html
+---
+
+In this section I am adding chromatin annotations to the regions using publicly available ChromHMM data. This data contains chromatin annotations for both normal and cancer prostate cell lines. The interest here is that the chromatin states and other epigenetic marks present within PMD regions might help explain why the PMD is there in the first place or how PMDs regulate gene expression within the regions(?). Furthermore, finding some pattern in the epigenetic marks present in PMDs might help aid in their use as potential prognostic markers.
+
+ChromHMM data reference: https://www.ncbi.nlm.nih.gov/pubmed/24916973
+General ChromHMM info: http://compbio.mit.edu/ChromHMM/
+And some more: https://www.nature.com/articles/nprot.2017.124
+
+```{r Packages, message=FALSE, warning=FALSE}
+library(rtracklayer)
+library(GenomicRanges)
+library(splicejam)
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r Loading data needed}
+load(file = '../data/Output/df_pairs_cor_methsd')
+```
+
+I am starting here with loading in the BED files containing the ChromHMM annotations for two prostate cell lines - a prostate cancer cell line (PC3) and a normal prostate cell line (PrEC). 
+
+PC3:https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3426349/  
+PrEC: https://www.ncbi.nlm.nih.gov/pubmed/16618209
+
+Annoyingly, the files are not in a nice format like the original regions BED file, and both are formatted differently. It is therefore necessary to add chromosome names and column names to the data, which can then be converted into GRanges and added to the regions data. 
+
+```{r loading_annots, message=FALSE}
+#Starting with PC3 (cancer cell line)
+
+PC3_chrom_annots <- import.bed("../data/Input/GSE57498_PC3_ChromHMM.bed")
+
+df.PC3.annots <- data.frame(PC3_chrom_annots$thick, PC3_chrom_annots$name)
+
+df.PC3.annots$chr <- NA
+df.PC3.annots <- df.PC3.annots[, c('chr', 'start', 'end', 'width', 'PC3_chrom_annots.name')]
+#To find where the ends/beginnings of the chromosomes are:
+subset(df.PC3.annots, df.PC3.annots$start == 1)
+#Adding names to each of the regions:
+df.PC3.annots$chr <- c(rep('chr10', 15153), rep('chr11', 18014), rep('chr12', 15980), rep('chr13', 8843), rep('chr14', 9617),
+                       rep('chr15', 11256), rep('chr16', 10779), rep('chr17', 15788), rep('chr18', 6288), rep('chr19', 13102),
+                       rep('chr1', 30894), rep('chr20', 10765), rep('chr21', 3759), rep('chr22', 6335), rep('chr2', 25002),
+                       rep('chr3', 19347), rep('chr4', 13371), rep('chr5', 16650), rep('chr6', 16512), rep('chr7', 17503),
+                       rep('chr8', 14711), rep('chr9', 12774), rep('chrM', 23), rep('chrX', 8318), rep('chrY', 152))
+
+#Making a GRanges object from the above data frame
+PC3.annots.gr <- makeGRangesFromDataFrame(df.PC3.annots, 
+                                          keep.extra.columns = TRUE, 
+                                          seqnames.field = "chr",
+                                          start.field = "start", 
+                                          end.field = "end")
+
+#Now to do the same with the PrEC normal prostate cell line
+
+PrEC_chrom_annots <- import.bed("../data/Input/GSE57498_PrEC_ChromHMM.bed")
+
+df.PrEC.annots <- data.frame(PrEC_chrom_annots@ranges@start, PrEC_chrom_annots@ranges@width, PrEC_chrom_annots$name)
+#Ok annoyingly the PrEC data is not in the same format as the PC3 data so I will have to re-organize and clean it up a bit 
+
+df.PrEC.annots$chr <- NA
+df.PrEC.annots$end <- NA
+df.PrEC.annots <- df.PrEC.annots[, c('chr', 'PrEC_chrom_annots.ranges.start', 'end', 'PrEC_chrom_annots.ranges.width', 'PrEC_chrom_annots.name')]
+#df.PrEC.annots$PrEC_chrom_annots.type <- gsub('hg19_custom_', '', df.PrEC.annots$PrEC_chrom_annots.type)
+df.PrEC.annots$end <- df.PrEC.annots$PrEC_chrom_annots.ranges.start + df.PrEC.annots$PrEC_chrom_annots.ranges.width
+names(df.PrEC.annots)[2] <- 'start'
+names(df.PrEC.annots)[4] <- 'width'
+names(df.PrEC.annots)[5] <- 'annots.type'
+
+#To find where the ends/beginnings of the chromosomes are:
+subset(df.PrEC.annots, df.PrEC.annots$PrEC_chrom_annots.ranges.start == 1)
+
+#Adding names to each of the regions:
+df.PrEC.annots$chr <- c(rep('chr10', 17898), rep('chr11', 19786), rep('chr12', 19065), rep('chr13', 9817), rep('chr14', 12644),
+                        rep('chr15', 12851), rep('chr16', 13171), rep('chr17', 18042), rep('chr18', 8637), rep('chr19', 13516),
+                        rep('chr1', 37335), rep('chr20', 10964), rep('chr21', 5004), rep('chr22', 8100), rep('chr2', 31022),
+                        rep('chr3', 24901), rep('chr4', 18881), rep('chr5', 20390), rep('chr6', 22454), rep('chr7', 19577),
+                        rep('chr8', 17142), rep('chr9', 16559), rep('chrM', 23), rep('chrX', 7809), rep('chrY', 707))
+
+#Making a GRanges object from the above data frame
+PrEC.annots.gr <- makeGRangesFromDataFrame(df.PrEC.annots, 
+                                           keep.extra.columns = TRUE, 
+                                           seqnames.field = "chr",
+                                           start.field = "start", 
+                                           end.field = "end")
+
+rm(PC3_chrom_annots, PrEC_chrom_annots)
+
+```
+
+Once the data has been loaded and formatted, the "df.pairs.FINAL" object can be annotated with it using splicejam. 
+
+Splicejam: https://rdrr.io/github/jmw86069/splicejam/
+
+```{r annotating_regions}
+#Getting the chromatin regions onto the df.region.pairs.FINAL
+
+pairs.FINAL.gr <- makeGRangesFromDataFrame(df.pairs.FINAL,
+                                                  keep.extra.columns = TRUE,
+                                                  ignore.strand = TRUE,
+                                                  seqnames.field = 'seqnames',
+                                                  start.field = 'start',
+                                                  end.field = 'end')
+
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(GR1 = pairs.FINAL.gr,
+                                                     GR2 = PC3.annots.gr)
+pairs.FINAL.gr <- splicejam::annotateGRfromGR(GR1 = pairs.FINAL.gr,
+                                                     GR2 = PrEC.annots.gr)
+
+df.pairs.FINAL <- as.data.frame(pairs.FINAL.gr)
+
+names(df.pairs.FINAL)[16] <- 'PC3.annots'
+names(df.pairs.FINAL)[17] <- 'PrEC.annots'
+
+
+#Last step is to get rid of overlapping regions
+
+chrom.regions <- c('CTCF', 'CTCF+Enhancer', 'CTCF+Promoter', 'Enhancer', 'Heterochromatin', 'Poised_Promoter', 'Promoter', 'Repressed', 'Transcribed')
+
+df.pairs.FINAL <- df.pairs.FINAL[df.pairs.FINAL$PC3.annots %in% chrom.regions & df.pairs.FINAL$PrEC.annots %in% chrom.regions, ]
+df.pairs.FINAL <- df.pairs.FINAL[ , c(1, 2, 3, 6:17)]
+
+pairs.FINAL.gr <- makeGRangesFromDataFrame(df.pairs.FINAL,
+                                                  keep.extra.columns = TRUE,
+                                                  ignore.strand = TRUE,
+                                                  seqnames.field = 'seqnames',
+                                                  start.field = 'start',
+                                                  end.field = 'end')
+
+
+rm(chrom.regions)
+
+
+```
+
+Now that the PC3 and PrEC annotations have been added to df.pairs.FINAL, I can test for some association between the correlation coefficients and the chromatin annotation present in a given region using an ANOVA(?)
+
+```{r ANOVA}
+
+PMDs <- dplyr::filter(df.pairs.FINAL, region=='commonPMD')
+HMDs <- dplyr::filter(df.pairs.FINAL, region=='commonHMD')
+Neither <- dplyr::filter(df.pairs.FINAL, region=='neither')
+
+#The next three lines are just to get percentages of each annotation within each region, I'll look more at this enrichment in the next code chunk
+PMD.pc3.annots <- table(PMDs$PC3.annots) / nrow(PMDs) * 100
+HMD.pc3.annots <- table(HMDs$PC3.annots) / nrow(HMDs) * 100
+Neither.pc3.annots <- table(Neither$PC3.annots) / nrow(Neither) * 100
+
+#Unrelated thought:
+#CTCF are located at the border of lamina-associated domains, makes sense then that they are enriched in PMDs
+
+res.aov <- aov(r ~ PC3.annots, data = df.pairs.FINAL)
+summary(res.aov)
+TukeyHSD(res.aov)
+
+res.aov2 <- aov(r ~ PC3.annots + region, data = df.pairs.FINAL)
+summary(res.aov2)
+
+#Ok from the ANOVA done above it looks like region and annotation do have some influence on gene expression/promoter methylation correlation 
+
+```
+
+So based on the ANOVA above it looks like the region and annotation do influence correlation coefficient to a certain extent.
+
+Now I am looking at the enrichment of certain annotations within certain regions.  
+
+```{r Enrichment Analysis PC3}
+
+summary.regions <- group_by(df.pairs.FINAL, PC3.annots, region) %>%
+                            dplyr::summarise(
+                            count = n(),
+                            mean = mean(r, na.rm = TRUE),
+                            sd = sd(r, na.rm = TRUE))
+
+sum(summary.regions[summary.regions$region=='commonHMD',]$count)
+sum(summary.regions[summary.regions$region=='commonPMD',]$count)
+sum(summary.regions[summary.regions$region=='neither',]$count)
+
+#The three numbers that are repeated below are gotten from the above 3 expressions, they're the total number of all annotations in each region
+summary.regions$total <- rep(c(46854, 14105, 34817), 9)
+summary.regions$percent <- summary.regions$count / summary.regions$total * 100
+
+ggplot(summary.regions, aes(fill=region, y=percent, x=PC3.annots)) + 
+  geom_bar(position="dodge", stat="identity") +
+  ggtitle("Chromatin annotations in PMDs, HMDs, and neither regions for PC3 cells") +
+  theme(legend.position="top") +
+  labs(x='Annotation', y='Percent total annotations', fill='Region') +
+  theme(legend.background = element_rect(fill="lightblue", size=0.5, linetype="solid", colour ="darkblue")) +
+  coord_flip()
+
+```
+
+So as expected PMDs are really enriched in heterochromatic regions but also surprisingly slightly enriched in CTCF binding sites. I'll look more at this later when I annotate with TF binding sites  
+
+CTCFs: https://www.nature.com/articles/emm201533  
+CTCFs & prostate cancer: https://www.nature.com/articles/s41467-019-12079-8  
+More: https://www.spandidos-publications.com/mmr/18/2/2245  
+
+Heterochromatin enrichment in PMDs:
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6161375/  
+https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004143  
+
+I am now performing the same enrichment analysis on the PrEC cell line. 
+
+```{r Enrichment Analysis PrEC}
+#Ok from the above figure it confirms what I've been seeing, PMDs are enriched in heterochromatin and CTCFs
+
+df.sig.corr <- subset(df.pairs.FINAL, p.value < 0.05 & r < (-0.75))
+
+#Doing the same in PrEC cells
+
+PMD.prec.annots <- table(PMDs$PrEC.annots) / nrow(PMDs) * 100
+HMD.prec.annots <- table(HMDs$PrEC.annots) / nrow(HMDs) * 100
+Neither.prec.annots <- table(Neither$PrEC.annots) / nrow(Neither) * 100
+
+summary.regions2 <- group_by(df.pairs.FINAL, PrEC.annots, region) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(r, na.rm = TRUE),
+    sd = sd(r, na.rm = TRUE))
+
+sum(summary.regions2[summary.regions2$region=='commonHMD',]$count)
+sum(summary.regions2[summary.regions2$region=='commonPMD',]$count)
+sum(summary.regions2[summary.regions2$region=='neither',]$count)
+
+#See comment in last code chunk, same thing here. 
+summary.regions2$total <- rep(c(46854, 14105, 34817), 9)
+summary.regions2$percent <- summary.regions2$count / summary.regions2$total * 100
+
+ggplot(summary.regions2, aes(fill=region, y=percent, x=PrEC.annots)) + 
+  geom_bar(position="dodge", stat="identity") +
+  ggtitle("Chromatin annotations in PMDs, HMDs, and neither regions for PrEC cells") +
+  theme(legend.position="top") +
+  labs(x='Annotation', y='Percent total annotations', fill='Region') +
+  theme(legend.background = element_rect(fill="lightblue", size=0.5, linetype="solid", colour ="darkblue")) +
+  coord_flip()
+
+#From comparing the PC3 and PrEC enrichment graphs, it maybe seems like there is a decrease in repressed annotations in PMDs from the normal cell line (PrEC) to PC3
+
+```
+
+Interestingly it looks like PrEC cells show a similar pattern as the PC3 cells. I'm not sure if this is expected but it doesn't really look like much changes. It does seem like there are fewer poised promoter and repressed regions however in PMDs in the PC3 cell line when compared with PrEC cells. 
+
+```{r Saving Data}
+save(df.pairs.FINAL, file ='../data/Output/df_pairs_cor_methsd_chromhmm')
+save(pairs.FINAL.gr, file ='../data/Output/GR_pairs_cor_methsd_chromhmm')
+```

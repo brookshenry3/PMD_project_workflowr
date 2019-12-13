@@ -1,0 +1,23 @@
+---
+title: "Home"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+The following analyses are for my project investigating partially methylated domains (PMDs) in prostate adenocarcinoma (PRAD). 
+
+
+<a href = "Regions_and_PRAD.html">1: Loading the data</a>   
+<a href = "Basic_analysis.html">2: Basic analysis</a>  
+<a href = "Probe_gene_pairs.html">3: Finding probe-gene pairs</a>  
+<a href = "Correlation.html">4: Running Probe-Gene pair correlation tests</a>   
+<a href = "Methylation.html">5: Methylation analysis</a>   
+<a href = "ChromHMM.html">6: Adding ChromHMM annotations</a>   
+<a href = "TF_binding_sites.html">7: Adding transcription factor binding sites</a>   
+<a href = "GeneWalk.html">8: GeneWalk</a>   
+<a href = "Data_tables.html">9: Data Tables</a>
+

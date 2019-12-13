@@ -1,0 +1,198 @@
+---
+title: "8: GeneWalk"
+author: "Kevin Brooks Henry"
+date: "November 27, 2019"
+output: workflowr::wflow_html
+---
+
+In this section I am looking at the genes within each of the regions and use the GeneWalk tool in Python to find terms associated with the genes in each of the regions. While I intially focused on all of the genes within each of the given regions (section 1), I don't know how useful this is, so I went back in my second analysis and just looked at genes that had correlation coefficient values of -0.5 in the second section. 
+
+GeneWalk references:
+http://churchman.med.harvard.edu/genewalk
+https://github.com/churchmanlab/genewalk
+
+```{r Packages, message=FALSE}
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(DT)
+```
+
+```{r Loading data needed}
+load(file = '../data/Output/df_pairs_cor_methsd_chromhmm_TF')
+```
+
+Here I am preparing csv files that contain the lists of genes for each region that will be fed into GeneWalk. I repeat this again using only significantly negatively correlated genes below. 
+
+```{r GW_prep 1}
+#Prep for PMDs
+
+PMDs.all <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'commonPMD')
+PMDs.all <- PMDs.all %>% arrange(correlation)
+PMDs.all <- unique(PMDs.all$symbol)
+PMDs.all <- data.frame(gene = PMDs.all)
+
+write.csv(PMDs.all, "../data/Output/pmd_genes.csv",
+          row.names = FALSE)
+
+#Prep for HMDs
+
+HMDs.all <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'commonHMD')
+HMDs.all <- HMDs.all %>% arrange(correlation)
+HMDs.all <- unique(HMDs.all$symbol)
+HMDs.all <- data.frame(gene = HMDs.all)
+
+write.csv(HMDs.all, "../data/Output/hmd_genes.csv",
+          row.names = FALSE)
+
+#Prep for Neither
+
+neither.all <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'neither')
+neither.all <- neither.all %>% arrange(correlation)
+neither.all <- unique(neither.all$symbol)
+neither.all <- data.frame(gene = neither.all)
+
+write.csv(neither.all, "../data/Output/neither_genes.csv",
+          row.names = FALSE)
+
+```
+
+!Before the GW program can be run the gene symbols in the above CSV files need to be converted to HGNC IDs, this can be done using the following:
+
+https://www.genenames.org/tools/multi-symbol-checker/
+
+The next chunk is the bash code used to run GeneWalk. Importantly, because I don't have admin privileges on the computer that I ran this analysis on I had to use a virtual environment (VE) in which I installed GeneWalk and ran the analysis. 
+
+```{bash Running GeneWalk 1, eval=FALSE}
+
+bash --version
+#setting up virtual environment
+source ~/Desktop/VE/VE-env/bin/activate
+
+#example of one of the GW runs 
+genewalk --project hmds --genes hmd_genes.csv --id_type hgnc_symbol --nproc 8
+#Change project ^,          gene list ^,          symbol type ^,      cores ^   to desired names/specs
+
+```
+
+Regarding the results obtained from the GeneWalk analysis:
+
+"The output of GeneWalk is a comma separated text file genewalk_results.csv with GO annotations (go_name and go_id columns) ranked quantitatively by statistical significance, the mean FDR adjusted p-value (mean_padj), for each input  gene."
+
+"Next, GeneWalk calculates whether a cosine similarity value between a gene and GO term is higher than expected by chance using a significance test. By comparing the similarity to similarity values between node vectors arising from random networks, we obtain a p-value. Because a gene can have multiple GO annotations, we apply a multiple testing correction (Benjamin-Hochberg false discovery rate FDR procedure), yielding a corrected p-adjust value. This procedure is repeated multiple times to retrieve a robust mean estimate (mean p-adjust) and its uncertainty (95% confidence interval) as final statistical significance relevance results."
+
+```{r Loading GeneWalk Results 1}
+#PMD results
+
+PMD.gw <- read.csv(file = '../data/Output/old_GW/pmds/genewalk_results.csv')
+
+PMD.gw$mlog10padj <- -log10(PMD.gw$mean_padj)
+PMD.gw$mlog10padj_error <- -log10(PMD.gw$cilow_pval) - PMD.gw$mlog10padj
+
+#HMD results
+
+HMD.gw <- read.csv(file = '../data/Output/old_GW/hmds/genewalk_results.csv')
+
+HMD.gw$mlog10padj <- -log10(HMD.gw$mean_padj)
+HMD.gw$mlog10padj_error <- -log10(HMD.gw$cilow_pval) - HMD.gw$mlog10padj
+
+#Neither results 
+
+neither.gw <- read.csv(file = '../data/Output/old_GW/neither/genewalk_results.csv')
+
+neither.gw$mlog10padj <- -log10(neither.gw$mean_padj)
+neither.gw$mlog10padj_error <- -log10(neither.gw$cilow_pval) - neither.gw$mlog10padj
+
+```
+
+
+While the above analysis is interesting, looking at all genes is probably not the most useful. I am therefore going to run the GeneWalk analysis again using specifically significantly (< -0.5) negatively correlated genes for each region.
+
+```{r GeneWalk Prep 2}
+PMDs.sig <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'commonPMD' & df.pairs.FINAL$r < (-0.5))
+PMDs.sig <- PMDs.sig %>% arrange(correlation)
+PMDs.sig <- unique(PMDs.sig$symbol)
+PMDs.sig <- data.frame(gene = PMDs.sig)
+
+write.csv(PMDs.sig, "../data/Output/pmd_genes_sig.csv",
+          row.names = FALSE)
+
+#Prep for HMDs
+
+HMDs.sig <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'commonHMD' & df.pairs.FINAL$r < (-0.5))
+HMDs.sig <- HMDs.sig %>% arrange(correlation)
+HMDs.sig <- unique(HMDs.sig$symbol)
+HMDs.sig <- data.frame(gene = HMDs.sig)
+
+write.csv(HMDs.sig, "../data/Output/hmd_genes_sig.csv",
+          row.names = FALSE)
+
+#Prep for Neither
+
+neither.sig <- subset(df.pairs.FINAL, df.pairs.FINAL$region == 'neither' & df.pairs.FINAL$r < (-0.5))
+neither.sig <- neither.sig %>% arrange(correlation)
+neither.sig <- unique(neither.sig$symbol)
+neither.sig <- data.frame(gene = neither.sig)
+
+write.csv(neither.sig, "../data/Output/neither_genes_sig.csv",
+          row.names = FALSE)
+
+```
+
+I am now loading up the results from this second set of genewalk runs. I am also adding the log 10 adjusted p value and error to the data frames (useful for plotting)
+
+```{r Loading GW results 2}
+PMD.sig.gw <- read.csv(file = '../data/Output/sig_GW/pmd_sig/genewalk_results.csv')
+
+PMD.sig.gw$mlog10padj <- -log10(PMD.sig.gw$mean_padj)
+PMD.sig.gw$mlog10padj_error <- -log10(PMD.sig.gw$cilow_pval) - PMD.sig.gw$mlog10padj
+
+#HMD results
+
+HMD.sig.gw <- read.csv(file = '../data/Output/sig_GW/hmd_sig/genewalk_results.csv')
+
+HMD.sig.gw$mlog10padj <- -log10(HMD.sig.gw$mean_padj)
+HMD.sig.gw$mlog10padj_error <- -log10(HMD.sig.gw$cilow_pval) - HMD.sig.gw$mlog10padj
+
+#Neither results 
+
+neither.sig.gw <- read.csv(file = '../data/Output/sig_GW/neither_sig/genewalk_results.csv')
+
+neither.sig.gw$mlog10padj <- -log10(neither.sig.gw$mean_padj)
+neither.sig.gw$mlog10padj_error <- -log10(neither.sig.gw$cilow_pval) - neither.sig.gw$mlog10padj
+
+```
+
+Regarding the results obtained from the GeneWalk analysis:
+
+"The output of GeneWalk is a comma separated text file genewalk_results.csv with GO annotations (go_name and go_id columns) ranked quantitatively by statistical significance, the mean FDR adjusted p-value (mean_padj), for each input  gene."
+
+"Next, GeneWalk calculates whether a cosine similarity value between a gene and GO term is higher than expected by chance using a significance test. By comparing the similarity to similarity values between node vectors arising from random networks, we obtain a p-value. Because a gene can have multiple GO annotations, we apply a multiple testing correction (Benjamin-Hochberg false discovery rate FDR procedure), yielding a corrected p-adjust value. This procedure is repeated multiple times to retrieve a robust mean estimate (mean p-adjust) and its uncertainty (95% confidence interval) as final statistical significance relevance results."
+
+Some helpful links when looking at proteins:
+
+Protein Atlas: https://www.proteinatlas.org/  
+MEXPRESS: https://mexpress.be/old/mexpress.php
+
+```{r GW analysis 2}
+PMD.sig.p <- subset(PMD.sig.gw, PMD.sig.gw$mean_padj < .05)
+HMD.sig.p <- subset(HMD.sig.gw, HMD.sig.gw$mean_padj < .05)
+neither.sig.p <- subset(neither.sig.gw, neither.sig.gw$mean_padj < .05)
+```
+
+```{r}
+DT::datatable(PMD.sig.p)
+```
+
+```{r}
+DT::datatable(HMD.sig.p)
+```
+
+```{r}
+DT::datatable(neither.sig.p)
+```
+
+
+Interestingly it looks like one of the genes identified in the GeneWalk that showed significance and is within a PMD is KRT5, which is a favorable prognostic marker in breast cancer - perhaps something to look at more?
+
+Unfortunately, the top three most negatively correlated genes in PMDs (MAEL, TMEM26, and OR51E2) did not show any association with any GO term, a bit weird - might run the analysis again. 
