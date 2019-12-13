@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Kevin Brooks Henry" />
+
+<meta name="date" content="2019-11-27" />
+
+<title>2: Basic Analysis</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PMD_project_workflowr</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/brookshenry3/PMD_project_workflowr">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">2: Basic Analysis</h1>
+<h4 class="author">Kevin Brooks Henry</h4>
+<h4 class="date">November 27, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PMD_project_workflowr/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191128code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191128)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191128code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191128)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/brookshenry3/PMD_project_workflowr/tree/4629dd5846cc531d5ee90955e97e7a62158de2a9" target="_blank">4629dd5</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .gitignore
+    Untracked:  code/
+    Untracked:  data/Input/TFs/
+    Untracked:  data/Input/wgEncodeRegTfbsClusteredV3.bed.gz
+    Untracked:  data/Output/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/brookshenry3/PMD_project_workflowr/blob/19ceff7a3c9b1221d2c431d9ef8ea12b4b762f3d/analysis/Basic_analysis.Rmd" target="_blank">19ceff7</a>
+</td>
+<td>
+GitHub
+</td>
+<td>
+2019-12-13
+</td>
+<td>
+Add files via upload
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>In this section I am running some basic analysis on the ‘regions’ object and PRAD data. This is namely seeing overall coverage of the regions against the hg19 genome and gene density between the different regions. In the second part I am assessing the quality of the PRAD data by looking at LUMP values and GSTP1 expression (explained in more detail below).</p>
+<pre class="r"><code>library(rtracklayer)
+library(GenomicRanges)
+library(ELMER)
+library(MultiAssayExperiment)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(ggplot2)
+library(TCGAbiolinks)
+library(dplyr)</code></pre>
+<pre class="r"><code>load(file = &#39;../data/Output/regions&#39;)
+load(file = &#39;../data/Output/df.regions&#39;)
+load(file = &quot;../data/Output/PRAD_mae&quot;)
+load(file = &quot;../data/Output/PRADexp&quot;)
+load(file = &quot;../data/Output/PRADmeth&quot;)</code></pre>
+<p>First I’ll look at the coverage of the ‘regions’ object against the hg19 genome</p>
+<pre class="r"><code>region.length &lt;- sum(width(regions))
+
+hg19 &lt;- GRangesForBSGenome(genome = &#39;hg19&#39;, chrom = NULL, ranges = NULL)
+df.hg19 &lt;- data.frame(hg19[c(1:22), ])
+hg19 &lt;- makeGRangesFromDataFrame(df.hg19, 
+                                 keep.extra.columns = TRUE,
+                                 seqnames.field = &#39;seqnames&#39;,
+                                 start.field = &#39;start&#39;,
+                                 end.field = &#39;end&#39;)
+
+hg19length &lt;- sum(width(hg19))
+region.length / hg19length * 100</code></pre>
+<pre><code>[1] 93.7085</code></pre>
+<p>So overall the regions object covers 93.7084974 percent of the hg19 genome.</p>
+<p>I think the slight discrepancy might be due to the regions that were lost when I loaded them up (see the warning present in the first code chunk of Regions_and_PRAD.Rmd).</p>
+<pre class="r"><code>PMD.length &lt;- subset(regions, regions$region == &#39;commonPMD&#39;)
+HMD.length &lt;- subset(regions, regions$region == &#39;commonHMD&#39;)
+neither.length &lt;- subset(regions, regions$region == &#39;neither&#39;)
+
+PMD.length &lt;- sum(width(PMD.length))
+HMD.length &lt;- sum(width(HMD.length)) 
+neither.length &lt;- sum(width(neither.length))
+
+region.lengths &lt;- data.frame(region = c(&#39;PMD&#39;, &#39;HMD&#39;, &#39;Neither&#39;, &#39;Other (not in regions object)&#39;),
+                             length = c(PMD.length, HMD.length, neither.length, (hg19length - region.length)),
+                             hg19.length = hg19length,
+                             coverage = NA)
+
+region.lengths$coverage &lt;- region.lengths$length / region.lengths$hg19.length #*100
+
+ggplot(region.lengths, aes(fill=region, y=coverage, x=&#39;region&#39;)) + 
+    geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;, width=0.2) + 
+  coord_flip() +
+  scale_fill_grey(start = 0.25, end = 0.75) +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank()) +
+  labs(y=&#39;Fraction of hg19 genome&#39;, fill=&#39;Region&#39;)</code></pre>
+<p><img src="figure/Basic_analysis.Rmd/region%20coverage%20against%20genome-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>I can also look at the gene density within the different regions to see if it agrees with what has been seen in previously</p>
+<pre class="r"><code>human.genes &lt;- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+gene.density &lt;- regions
+gene.density$totgenes &lt;- countOverlaps(gene.density, human.genes)
+
+df.gene.density &lt;- as.data.frame(gene.density)
+
+ggplot(data=df.gene.density, aes(x=totgenes, group=region, fill=region)) +
+  geom_density(adjust=1.5, alpha=.4) +
+  xlim(0, 10) + 
+  labs(x=&#39;Genes/100kb bin&#39;, y=&#39;Density&#39;, fill=&#39;Region&#39;)</code></pre>
+<pre><code>Warning: Removed 55 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="figure/Basic_analysis.Rmd/gene_density-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#PMD.gene.density &lt;- subset(df.gene.density, df.gene.density$region == &#39;commonPMD&#39;)
+#nonPMD.gene.density &lt;- subset(df.gene.density, df.gene.density$region == c(&#39;neither&#39;,&#39;commonHMD&#39;))</code></pre>
+<p>So as expected, most of the PMD bins contain few/no genes when compared with HMD and ‘neither’ regions</p>
+<p>Here are some other papers looking at PMDs for comparison:</p>
+<p>Toth et al Forest Model: <a href="https://clinicalepigeneticsjournal.biomedcentral.com/articles/10.1186/s13148-019-0736-8#Abs1" class="uri">https://clinicalepigeneticsjournal.biomedcentral.com/articles/10.1186/s13148-019-0736-8#Abs1</a> Brinkman Breast Cancer: <a href="https://www.nature.com/articles/s41467-019-09828-0" class="uri">https://www.nature.com/articles/s41467-019-09828-0</a> Lister Methylomes: <a href="https://www.nature.com/articles/nature08514" class="uri">https://www.nature.com/articles/nature08514</a> Gaidatzis: <a href="https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004143" class="uri">https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004143</a></p>
+<p>I can more empirically test to see if the regions have different distributions of gene density using a KS test(?)</p>
+<p>KS Test: <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test</a></p>
+<pre class="r"><code>PMD.gene.density &lt;- subset(df.gene.density, df.gene.density$region == &#39;commonPMD&#39;)
+nonPMD.gene.density &lt;- subset(df.gene.density, df.gene.density$region == c(&#39;neither&#39;,&#39;commonHMD&#39;))
+
+ks.test(PMD.gene.density$totgenes, nonPMD.gene.density$totgenes)</code></pre>
+<pre><code>Warning in ks.test(PMD.gene.density$totgenes,
+nonPMD.gene.density$totgenes): p-value will be approximate in the presence
+of ties</code></pre>
+<pre><code>
+    Two-sample Kolmogorov-Smirnov test
+
+data:  PMD.gene.density$totgenes and nonPMD.gene.density$totgenes
+D = 0.41125, p-value &lt; 2.2e-16
+alternative hypothesis: two-sided</code></pre>
+<p>Finally, I will do some quality checks on the PRAD data, this can be done by looking at correlation between GSTP1 gene expression and promoter methylation, as well as LUMP values for each of the PRAD patient samples</p>
+<p>GSTP1 reference: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4995330/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4995330/</a> LUMP reference: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4671203/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4671203/</a></p>
+<pre class="r"><code>#LUMP scores can be gotten directly from TCGAbiolinks
+
+Tumor.purity &lt;- Tumor.purity
+
+PRAD.tp &lt;- subset(Tumor.purity, Tumor.purity$Sample.ID %in% PRAD.mae@sampleMap@listData[[&#39;primary&#39;]])
+PRAD.tp$LUMP &lt;- as.numeric(sub(&quot;,&quot;, &quot;.&quot;, sub(&quot;.&quot;, &quot;&quot;, PRAD.tp$LUMP, fixed=TRUE), fixed=TRUE))
+PRAD.tp$CPE &lt;- as.numeric(sub(&quot;,&quot;, &quot;.&quot;, sub(&quot;.&quot;, &quot;&quot;, PRAD.tp$CPE, fixed=TRUE), fixed=TRUE))
+
+ggplot(PRAD.tp, aes(y=LUMP, x=CPE)) +
+  geom_jitter(color=&quot;black&quot;, size=0.4, alpha=0.9) +
+  ggtitle(&#39;PRAD CPE vs LUMP scores&#39;) +
+  xlab(&quot;CPE&quot;)</code></pre>
+<pre><code>Warning: Removed 78 rows containing missing values (geom_point).</code></pre>
+<p><img src="figure/Basic_analysis.Rmd/PRAD%20LUMP-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>scatter.plot(data = PRAD.mae,
+             byPair = list(probe = c(&#39;cg06928838&#39;), gene = c(&#39;ENSG00000084207&#39;)),
+             category = &#39;definition&#39;,
+             save = FALSE,
+             lm_line = TRUE)</code></pre>
+<pre><code>
+  |                                                                       
+  |                                                                 |   0%
+  |                                                                       
+  |=================================================================| 100%</code></pre>
+<p><img src="figure/Basic_analysis.Rmd/PRAD%20LUMP-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>From the above plots it is apparent that the quality of the patient samples is relatively high for the most part, with some lower quality samples and even missing LUMP scores for some of the tumor samples. I think that this is mostly ok for my purposes though, and the GSTP1 correlation looks good.</p>
+<p>Also important to note here that 78 data points were missing either LUMP or CPE values.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-redhat-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /usr/lib64/R/lib/libRblas.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
+ [2] BSgenome_1.50.0                        
+ [3] Biostrings_2.50.2                      
+ [4] XVector_0.22.0                         
+ [5] dplyr_0.8.3                            
+ [6] TCGAbiolinks_2.13.6                    
+ [7] ggplot2_3.2.1                          
+ [8] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+ [9] GenomicFeatures_1.34.8                 
+[10] AnnotationDbi_1.44.0                   
+[11] MultiAssayExperiment_1.8.3             
+[12] SummarizedExperiment_1.12.0            
+[13] DelayedArray_0.8.0                     
+[14] BiocParallel_1.16.6                    
+[15] matrixStats_0.55.0                     
+[16] Biobase_2.42.0                         
+[17] ELMER_2.6.3                            
+[18] ELMER.data_2.6.0                       
+[19] rtracklayer_1.42.2                     
+[20] GenomicRanges_1.34.0                   
+[21] GenomeInfoDb_1.18.2                    
+[22] IRanges_2.16.0                         
+[23] S4Vectors_0.20.1                       
+[24] BiocGenerics_0.28.0                    
+
+loaded via a namespace (and not attached):
+  [1] R.utils_2.9.0               tidyselect_0.2.5           
+  [3] RSQLite_2.1.2               htmlwidgets_1.5.1          
+  [5] grid_3.5.2                  DESeq_1.34.1               
+  [7] munsell_0.5.0               codetools_0.2-15           
+  [9] withr_2.1.2                 colorspace_1.4-2           
+ [11] knitr_1.25                  rstudioapi_0.10            
+ [13] ggsignif_0.6.0              labeling_0.3               
+ [15] git2r_0.26.1                GenomeInfoDbData_1.2.0     
+ [17] hwriter_1.3.2               KMsurv_0.1-5               
+ [19] bit64_0.9-8                 rprojroot_1.3-2            
+ [21] downloader_0.4              vctrs_0.2.0                
+ [23] generics_0.0.2              xfun_0.10                  
+ [25] biovizBase_1.30.1           ggthemes_4.2.0             
+ [27] BiocFileCache_1.6.0         EDASeq_2.16.3              
+ [29] R6_2.4.0                    doParallel_1.0.15          
+ [31] locfit_1.5-9.1              AnnotationFilter_1.6.0     
+ [33] bitops_1.0-6                reshape_0.8.8              
+ [35] assertthat_0.2.1            promises_1.1.0             
+ [37] scales_1.0.0                nnet_7.3-12                
+ [39] gtable_0.3.0                sva_3.30.1                 
+ [41] ensembldb_2.6.8             workflowr_1.5.0            
+ [43] rlang_0.4.0                 zeallot_0.1.0              
+ [45] genefilter_1.64.0           GlobalOptions_0.1.1        
+ [47] splines_3.5.2               lazyeval_0.2.2             
+ [49] acepack_1.4.1               dichromat_2.0-1            
+ [51] selectr_0.4-1               broom_0.5.2                
+ [53] checkmate_1.9.4             yaml_2.2.0                 
+ [55] backports_1.1.5             httpuv_1.5.2               
+ [57] Hmisc_4.2-0                 tools_3.5.2                
+ [59] RColorBrewer_1.1-2          Rcpp_1.0.2                 
+ [61] plyr_1.8.4                  base64enc_0.1-4            
+ [63] progress_1.2.2              zlibbioc_1.28.0            
+ [65] purrr_0.3.3                 RCurl_1.96-0               
+ [67] prettyunits_1.0.2           ggpubr_0.2.3               
+ [69] rpart_4.1-13                openssl_1.4.1              
+ [71] GetoptLong_0.1.7            zoo_1.8-7                  
+ [73] ggrepel_0.8.1               cluster_2.0.7-1            
+ [75] fs_1.3.1                    magrittr_1.5               
+ [77] data.table_1.12.6           circlize_0.4.8             
+ [79] survminer_0.4.6             whisker_0.4                
+ [81] ProtGenerics_1.14.0         aroma.light_3.12.0         
+ [83] hms_0.5.1                   evaluate_0.14              
+ [85] xtable_1.8-5                XML_3.99-0                 
+ [87] gridExtra_2.3               shape_1.4.4                
+ [89] compiler_3.5.2              biomaRt_2.41.9             
+ [91] tibble_2.1.3                crayon_1.3.4               
+ [93] R.oo_1.22.0                 htmltools_0.4.0            
+ [95] mgcv_1.8-26                 later_1.0.0                
+ [97] Formula_1.2-3               tidyr_1.0.0                
+ [99] geneplotter_1.60.0          DBI_1.0.0                  
+[101] dbplyr_1.4.2                matlab_1.0.2               
+[103] ComplexHeatmap_1.20.0       rappdirs_0.3.1             
+[105] ShortRead_1.40.0            Matrix_1.2-15              
+[107] readr_1.3.1                 R.methodsS3_1.7.1          
+[109] Gviz_1.26.5                 pkgconfig_2.0.3            
+[111] km.ci_0.5-2                 GenomicAlignments_1.18.1   
+[113] foreign_0.8-71              plotly_4.9.0               
+[115] xml2_1.2.2                  foreach_1.5.1              
+[117] annotate_1.60.1             rvest_0.3.4                
+[119] stringr_1.4.0               VariantAnnotation_1.28.13  
+[121] digest_0.6.22               ConsensusClusterPlus_1.46.0
+[123] rmarkdown_1.16              survMisc_0.5.5             
+[125] htmlTable_1.13.2            edgeR_3.24.3               
+[127] curl_4.2                    Rsamtools_1.34.1           
+[129] rjson_0.2.20                lifecycle_0.1.0            
+[131] nlme_3.1-137                jsonlite_1.6               
+[133] viridisLite_0.3.0           askpass_1.1                
+[135] limma_3.38.3                pillar_1.4.2               
+[137] lattice_0.20-38             httr_1.4.1                 
+[139] survival_2.43-3             glue_1.3.1                 
+[141] iterators_1.0.12            bit_1.1-14                 
+[143] stringi_1.4.3               blob_1.2.0                 
+[145] latticeExtra_0.6-28         memoise_1.1.0              </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

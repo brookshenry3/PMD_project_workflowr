@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Kevin Brooks Henry" />
+
+<meta name="date" content="2019-11-27" />
+
+<title>8: GeneWalk</title>
+
+<script src="site_libs/jquery-1.12.4/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.9/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.19/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.19/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PMD_project_workflowr</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/brookshenry3/PMD_project_workflowr">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">8: GeneWalk</h1>
+<h4 class="author">Kevin Brooks Henry</h4>
+<h4 class="date">November 27, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PMD_project_workflowr/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191128code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191128)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191128code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191128)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/brookshenry3/PMD_project_workflowr/tree/4629dd5846cc531d5ee90955e97e7a62158de2a9" target="_blank">4629dd5</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .gitignore
+    Untracked:  code/
+    Untracked:  data/Input/TFs/
+    Untracked:  data/Input/wgEncodeRegTfbsClusteredV3.bed.gz
+    Untracked:  data/Output/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/brookshenry3/PMD_project_workflowr/blob/4629dd5846cc531d5ee90955e97e7a62158de2a9/analysis/GeneWalk.Rmd" target="_blank">4629dd5</a>
+</td>
+<td>
+brookshenry3
+</td>
+<td>
+2019-12-13
+</td>
+<td>
+13.12.19 FINAL
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/brookshenry3/PMD_project_workflowr/blob/19ceff7a3c9b1221d2c431d9ef8ea12b4b762f3d/analysis/GeneWalk.Rmd" target="_blank">19ceff7</a>
+</td>
+<td>
+GitHub
+</td>
+<td>
+2019-12-13
+</td>
+<td>
+Add files via upload
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>In this section I am looking at the genes within each of the regions and use the GeneWalk tool in Python to find terms associated with the genes in each of the regions. While I intially focused on all of the genes within each of the given regions (section 1), I don’t know how useful this is, so I went back in my second analysis and just looked at genes that had correlation coefficient values of -0.5 in the second section.</p>
+<p>GeneWalk references: <a href="http://churchman.med.harvard.edu/genewalk" class="uri">http://churchman.med.harvard.edu/genewalk</a> <a href="https://github.com/churchmanlab/genewalk" class="uri">https://github.com/churchmanlab/genewalk</a></p>
+<pre class="r"><code>library(knitr)
+library(dplyr)
+library(ggplot2)
+library(DT)</code></pre>
+<pre class="r"><code>load(file = &#39;../data/Output/df_pairs_cor_methsd_chromhmm_TF&#39;)</code></pre>
+<p>Here I am preparing csv files that contain the lists of genes for each region that will be fed into GeneWalk. I repeat this again using only significantly negatively correlated genes below.</p>
+<pre class="r"><code>#Prep for PMDs
+
+PMDs.all &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$region == &#39;commonPMD&#39;)
+PMDs.all &lt;- PMDs.all %&gt;% arrange(correlation)
+PMDs.all &lt;- unique(PMDs.all$symbol)
+PMDs.all &lt;- data.frame(gene = PMDs.all)
+
+write.csv(PMDs.all, &quot;../data/Output/pmd_genes.csv&quot;,
+          row.names = FALSE)
+
+#Prep for HMDs
+
+HMDs.all &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$region == &#39;commonHMD&#39;)
+HMDs.all &lt;- HMDs.all %&gt;% arrange(correlation)
+HMDs.all &lt;- unique(HMDs.all$symbol)
+HMDs.all &lt;- data.frame(gene = HMDs.all)
+
+write.csv(HMDs.all, &quot;../data/Output/hmd_genes.csv&quot;,
+          row.names = FALSE)
+
+#Prep for Neither
+
+neither.all &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$region == &#39;neither&#39;)
+neither.all &lt;- neither.all %&gt;% arrange(correlation)
+neither.all &lt;- unique(neither.all$symbol)
+neither.all &lt;- data.frame(gene = neither.all)
+
+write.csv(neither.all, &quot;../data/Output/neither_genes.csv&quot;,
+          row.names = FALSE)</code></pre>
+<p>!Before the GW program can be run the gene symbols in the above CSV files need to be converted to HGNC IDs, this can be done using the following:</p>
+<p><a href="https://www.genenames.org/tools/multi-symbol-checker/" class="uri">https://www.genenames.org/tools/multi-symbol-checker/</a></p>
+<p>The next chunk is the bash code used to run GeneWalk. Importantly, because I don’t have admin privileges on the computer that I ran this analysis on I had to use a virtual environment (VE) in which I installed GeneWalk and ran the analysis.</p>
+<pre class="bash"><code>
+bash --version
+#setting up virtual environment
+source ~/Desktop/VE/VE-env/bin/activate
+
+#example of one of the GW runs 
+genewalk --project hmds --genes hmd_genes.csv --id_type hgnc_symbol --nproc 8
+#Change project ^,          gene list ^,          symbol type ^,      cores ^   to desired names/specs
+</code></pre>
+<p>Regarding the results obtained from the GeneWalk analysis:</p>
+<p>“The output of GeneWalk is a comma separated text file genewalk_results.csv with GO annotations (go_name and go_id columns) ranked quantitatively by statistical significance, the mean FDR adjusted p-value (mean_padj), for each input gene.”</p>
+<p>“Next, GeneWalk calculates whether a cosine similarity value between a gene and GO term is higher than expected by chance using a significance test. By comparing the similarity to similarity values between node vectors arising from random networks, we obtain a p-value. Because a gene can have multiple GO annotations, we apply a multiple testing correction (Benjamin-Hochberg false discovery rate FDR procedure), yielding a corrected p-adjust value. This procedure is repeated multiple times to retrieve a robust mean estimate (mean p-adjust) and its uncertainty (95% confidence interval) as final statistical significance relevance results.”</p>
+<pre class="r"><code>#PMD results
+
+PMD.gw &lt;- read.csv(file = &#39;../data/Output/old_GW/pmds/genewalk_results.csv&#39;)
+
+PMD.gw$mlog10padj &lt;- -log10(PMD.gw$mean_padj)
+PMD.gw$mlog10padj_error &lt;- -log10(PMD.gw$cilow_pval) - PMD.gw$mlog10padj
+
+#HMD results
+
+HMD.gw &lt;- read.csv(file = &#39;../data/Output/old_GW/hmds/genewalk_results.csv&#39;)
+
+HMD.gw$mlog10padj &lt;- -log10(HMD.gw$mean_padj)
+HMD.gw$mlog10padj_error &lt;- -log10(HMD.gw$cilow_pval) - HMD.gw$mlog10padj
+
+#Neither results 
+
+neither.gw &lt;- read.csv(file = &#39;../data/Output/old_GW/neither/genewalk_results.csv&#39;)
+
+neither.gw$mlog10padj &lt;- -log10(neither.gw$mean_padj)
+neither.gw$mlog10padj_error &lt;- -log10(neither.gw$cilow_pval) - neither.gw$mlog10padj</code></pre>
+<p>While the above analysis is interesting, looking at all genes is probably not the most useful. I am therefore going to run the GeneWalk analysis again using specifically significantly (&lt; -0.5) negatively correlated genes for each region.</p>
+<pre class="r"><code>PMDs.sig &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$region == &#39;commonPMD&#39; &amp; df.pairs.FINAL$r &lt; (-0.5))
+PMDs.sig &lt;- PMDs.sig %&gt;% arrange(correlation)
+PMDs.sig &lt;- unique(PMDs.sig$symbol)
+PMDs.sig &lt;- data.frame(gene = PMDs.sig)
+
+write.csv(PMDs.sig, &quot;../data/Output/pmd_genes_sig.csv&quot;,
+          row.names = FALSE)
+
+#Prep for HMDs
+
+HMDs.sig &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$region == &#39;commonHMD&#39; &amp; df.pairs.FINAL$r &lt; (-0.5))
+HMDs.sig &lt;- HMDs.sig %&gt;% arrange(correlation)
+HMDs.sig &lt;- unique(HMDs.sig$symbol)
+HMDs.sig &lt;- data.frame(gene = HMDs.sig)
+
+write.csv(HMDs.sig, &quot;../data/Output/hmd_genes_sig.csv&quot;,
+          row.names = FALSE)
+
+#Prep for Neither
+
+neither.sig &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$region == &#39;neither&#39; &amp; df.pairs.FINAL$r &lt; (-0.5))
+neither.sig &lt;- neither.sig %&gt;% arrange(correlation)
+neither.sig &lt;- unique(neither.sig$symbol)
+neither.sig &lt;- data.frame(gene = neither.sig)
+
+write.csv(neither.sig, &quot;../data/Output/neither_genes_sig.csv&quot;,
+          row.names = FALSE)</code></pre>
+<p>I am now loading up the results from this second set of genewalk runs. I am also adding the log 10 adjusted p value and error to the data frames (useful for plotting)</p>
+<pre class="r"><code>PMD.sig.gw &lt;- read.csv(file = &#39;../data/Output/sig_GW/pmd_sig/genewalk_results.csv&#39;)
+
+PMD.sig.gw$mlog10padj &lt;- -log10(PMD.sig.gw$mean_padj)
+PMD.sig.gw$mlog10padj_error &lt;- -log10(PMD.sig.gw$cilow_pval) - PMD.sig.gw$mlog10padj
+
+#HMD results
+
+HMD.sig.gw &lt;- read.csv(file = &#39;../data/Output/sig_GW/hmd_sig/genewalk_results.csv&#39;)
+
+HMD.sig.gw$mlog10padj &lt;- -log10(HMD.sig.gw$mean_padj)
+HMD.sig.gw$mlog10padj_error &lt;- -log10(HMD.sig.gw$cilow_pval) - HMD.sig.gw$mlog10padj
+
+#Neither results 
+
+neither.sig.gw &lt;- read.csv(file = &#39;../data/Output/sig_GW/neither_sig/genewalk_results.csv&#39;)
+
+neither.sig.gw$mlog10padj &lt;- -log10(neither.sig.gw$mean_padj)
+neither.sig.gw$mlog10padj_error &lt;- -log10(neither.sig.gw$cilow_pval) - neither.sig.gw$mlog10padj</code></pre>
+<p>Regarding the results obtained from the GeneWalk analysis:</p>
+<p>“The output of GeneWalk is a comma separated text file genewalk_results.csv with GO annotations (go_name and go_id columns) ranked quantitatively by statistical significance, the mean FDR adjusted p-value (mean_padj), for each input gene.”</p>
+<p>“Next, GeneWalk calculates whether a cosine similarity value between a gene and GO term is higher than expected by chance using a significance test. By comparing the similarity to similarity values between node vectors arising from random networks, we obtain a p-value. Because a gene can have multiple GO annotations, we apply a multiple testing correction (Benjamin-Hochberg false discovery rate FDR procedure), yielding a corrected p-adjust value. This procedure is repeated multiple times to retrieve a robust mean estimate (mean p-adjust) and its uncertainty (95% confidence interval) as final statistical significance relevance results.”</p>
+<p>Some helpful links when looking at proteins:</p>
+<p>Protein Atlas: <a href="https://www.proteinatlas.org/" class="uri">https://www.proteinatlas.org/</a><br />
+MEXPRESS: <a href="https://mexpress.be/old/mexpress.php" class="uri">https://mexpress.be/old/mexpress.php</a></p>
+<pre class="r"><code>PMD.sig.p &lt;- subset(PMD.sig.gw, PMD.sig.gw$mean_padj &lt; .05)
+HMD.sig.p &lt;- subset(HMD.sig.gw, HMD.sig.gw$mean_padj &lt; .05)
+neither.sig.p &lt;- subset(neither.sig.gw, neither.sig.gw$mean_padj &lt; .05)</code></pre>
+<pre class="r"><code>DT::datatable(PMD.sig.p)</code></pre>
+<div id="htmlwidget-9e5d9fcbc780ca720efc" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9e5d9fcbc780ca720efc">{"x":{"filter":"none","data":[["73","74","91","92","93","135","141"],["MKRN3","MKRN3","PCDHGA5","PCDHGA5","PCDHGA9","KRT5","KRT5"],[7114,7114,8703,8703,8707,6442,6442],["identical protein binding","protein binding","cell adhesion","integral component of plasma membrane","cell adhesion","keratin filament","scaffold protein binding"],["GO:0042802","GO:0005515","GO:0007155","GO:0005887","GO:0007155","GO:0045095","GO:0097110"],["molecular function","molecular function","biological process","cellular component","biological process","cellular component","molecular function"],[4,4,3,3,4,9,9],[4,124,11,12,11,2,2],[0.008464,0.02423,0.02282,0.03887,0.03432,0.0435,0.0435],[0.002664,0.01408,0.007765,0.01722,0.0188,0.005446,0.005446],[0.02689,0.04169,0.06709,0.08774,0.06266,0.3474,0.3474],[0.004232,0.02423,0.01477,0.03282,0.0165,0.00819,0.01132],[0.001332,0.01408,0.002644,0.0112,0.002943,0.001694,0.000842],[0.01344,0.04169,0.08254,0.09618,0.09253,0.0396,0.1521],[0.9678,0.8632,0.8951,0.8311,0.8865,0.9367,0.9048],[0.008639,0.01253,0.03116,0.02754,0.035,0.01896,0.03496],[2.07242434530889,1.61564658586249,1.6416843599178,1.41038545936873,1.46445272082333,1.36151074304536,1.36151074304536],[0.803071429856828,0.235750759331413,0.936054189268593,0.540396517961085,1.06675701707706,1.40957585095995,1.71317716545499]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>hgnc_symbol<\/th>\n      <th>hgnc_id<\/th>\n      <th>go_name<\/th>\n      <th>go_id<\/th>\n      <th>go_domain<\/th>\n      <th>ncon_gene<\/th>\n      <th>ncon_go<\/th>\n      <th>mean_padj<\/th>\n      <th>cilow_padj<\/th>\n      <th>ciupp_padj<\/th>\n      <th>mean_pval<\/th>\n      <th>cilow_pval<\/th>\n      <th>ciupp_pval<\/th>\n      <th>mean_sim<\/th>\n      <th>sem_sim<\/th>\n      <th>mlog10padj<\/th>\n      <th>mlog10padj_error<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,6,7,8,9,10,11,12,13,14,15,16,17]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>DT::datatable(HMD.sig.p)</code></pre>
+<div id="htmlwidget-61a3e389d81d122db148" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-61a3e389d81d122db148">{"x":{"filter":"none","data":[["16","17","53","54","57","60","61","62","63","65","66","78","79","80","83","84","85","97","104","106","107","108","110","111","112","113","114","118","119","120","127","128","129","130","131","132","133","134","135","136","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","164","165","166","167","168","169","170","210","211","212","213","224","225","226","227","228","229","230","231","233","234","235","236","237","238","239","240","241","251","252","253","254","256","257","259","260","261","262","264","265","266","267","268","269","270","271","272","311","312","313","314","315","316","317","318","319","326","327","328","329","330","331","332","333","334","335","336","347","348","349","350","351","359","360","361","376","377","378","379","380","381","382","384","385","386","387","388","389","390","392","393","395","400","401","447","448","449","457","458","459","460","461","502","509","513","514","515","518","519","520","523","524","525","526","527","528","529","602","616","617","618","619","620","621","628","629","630","631","632","633","634","635","636","641","642","643","644","645","646","647","648","649","650","651","652","653","654","655","656","657","684","685","686","687","688","689","690","691","692","693","694","695","697","698","700","701","702","704","705","711","712","713","715","716","739","745","746","751","753","754","755","756","758","761","763","800","801","803","804","805","806","808","811","886","887","888","889","890","891","892","893","894","895","896","897","898","899","900","902","903","904","905","906","957","958","983","984","985","986","987","988","993","994","995","996","997","998","1030","1031","1037","1038"],["ITPRIPL1","ITPRIPL1","BIN2","BIN2","BIN2","BIN2","BIN2","ALDH2","ALDH2","PARP6","PARP6","ZNF556","ZNF556","ZNF556","CRLS1","CRLS1","CRLS1","ID3","ID3","ID3","ID3","ID3","CNKSR1","CNKSR1","CNKSR1","CNKSR1","CNKSR1","SFN","SFN","SFN","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","LCK","INPP5B","INPP5B","INPP5B","INPP5B","INPP5B","INPP5B","INPP5B","HMGCS2","HMGCS2","HMGCS2","HMGCS2","S100A16","S100A16","S100A16","S100A16","S100A16","S100A16","S100A16","S100A16","HRNR","HRNR","HRNR","HRNR","HRNR","HRNR","HRNR","HRNR","HRNR","CRABP2","CRABP2","CRABP2","CRABP2","ANGPTL1","ANGPTL1","MR1","MR1","MR1","MR1","MR1","RGS1","RGS1","RGS1","RGS1","RGS1","RGS1","RGS1","RGS1","SDC1","SDC1","SDC1","SDC1","SDC1","SDC1","SDC1","SDC1","SDC1","ZAP70","ZAP70","ZAP70","ZAP70","ZAP70","ZAP70","ZAP70","ZAP70","ZAP70","ZAP70","ZAP70","NMI","NMI","NMI","NMI","NMI","INPP1","INPP1","INPP1","ACADL","ACADL","ACADL","ACADL","ACADL","ACADL","ACADL","CYP27A1","CYP27A1","CYP27A1","CYP27A1","CYP27A1","CYP27A1","CYP27A1","INPP5D","INPP5D","PLCD1","PLCD1","PLCD1","PARP9","PARP9","PARP9","NMNAT3","NMNAT3","NMNAT3","NMNAT3","NMNAT3","NEU1","PLEKHA2","PLEKHA2","PLEKHA2","PLEKHA2","PLAT","PLAT","PLAT","PLAT","PLAT","PLAT","PLAT","PLAT","PLAT","PLAT","STK33","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","SPI1","RASGRP2","RASGRP2","RASGRP2","RASGRP2","RASGRP2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","MAP4K2","ME3","ME3","ME3","ME3","ME3","ME3","PCDHGA5","PCDHGA5","CD3D","CD3D","CD3D","CD3D","CD3D","CD3D","CD3D","CD3D","CD3D","CD3G","CD3G","CD3G","CD3G","CD3G","CD3G","CD3G","ZNF385A","ZNF385A","ZNF385A","ACACB","ACACB","ACACB","ACACB","ACACB","HCAR3","SERP2","SERP2","GPX2","GPX2","BATF","BATF","BATF","BATF","GALC","PLCB2","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","LAT","CTF1","CTF1","CTF1","CTF1","CTF1","LDHD","LDHD","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","STAT5A","SLA2","SLA2","PLA2G3","PLA2G3"],[29371,29371,1053,1053,1053,1053,1053,404,404,26921,26921,25669,25669,25669,16148,16148,16148,5362,5362,5362,5362,5362,19700,19700,19700,19700,19700,10773,10773,10773,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6524,6077,6077,6077,6077,6077,6077,6077,5008,5008,5008,5008,20441,20441,20441,20441,20441,20441,20441,20441,20846,20846,20846,20846,20846,20846,20846,20846,20846,2339,2339,2339,2339,489,489,4975,4975,4975,4975,4975,9991,9991,9991,9991,9991,9991,9991,9991,10658,10658,10658,10658,10658,10658,10658,10658,10658,12858,12858,12858,12858,12858,12858,12858,12858,12858,12858,12858,7854,7854,7854,7854,7854,6071,6071,6071,88,88,88,88,88,88,88,2605,2605,2605,2605,2605,2605,2605,6079,6079,9060,9060,9060,24118,24118,24118,20989,20989,20989,20989,20989,7758,14336,14336,14336,14336,9051,9051,9051,9051,9051,9051,9051,9051,9051,9051,14568,11241,11241,11241,11241,11241,11241,11241,11241,11241,11241,11241,11241,11241,11241,11241,9879,9879,9879,9879,9879,6864,6864,6864,6864,6864,6864,6864,6864,6864,6864,6864,6864,6985,6985,6985,6985,6985,6985,8703,8703,1673,1673,1673,1673,1673,1673,1673,1673,1673,1675,1675,1675,1675,1675,1675,1675,17521,17521,17521,85,85,85,85,85,16824,20607,20607,4554,4554,958,958,958,958,4115,9055,18874,18874,18874,18874,18874,18874,18874,18874,18874,18874,18874,18874,18874,18874,18874,2499,2499,2499,2499,2499,19708,19708,11366,11366,11366,11366,11366,11366,11366,11366,11366,11366,11366,11366,17329,17329,17934,17934],["membrane","protein binding","phagocytosis, engulfment","cell chemotaxis","plasma membrane","phospholipid binding","protein binding","extracellular exosome","aldehyde dehydrogenase (NAD+) activity","protein mono-ADP-ribosylation","protein auto-ADP-ribosylation","nucleus","sequence-specific DNA binding","DNA-binding transcription factor activity","cardiolipin biosynthetic process","glycerophospholipid biosynthetic process","mitochondrion","negative regulation of DNA-binding transcription factor activity","nucleus","transcription factor binding","RNA polymerase II transcription factor binding","DNA-binding transcription factor activity","Rho protein signal transduction","Ras protein signal transduction","cell cortex","protein binding","protein binding, bridging","cytosol","extracellular exosome","identical protein binding","peptidyl-tyrosine autophosphorylation","B cell receptor signaling pathway","positive regulation of heterotypic cell-cell adhesion","positive regulation of leukocyte cell-cell adhesion","peptidyl-tyrosine phosphorylation","positive regulation of T cell activation","T cell differentiation","protein phosphorylation","transmembrane receptor protein tyrosine kinase signaling pathway","cellular zinc ion homeostasis","extrinsic component of cytoplasmic side of plasma membrane","pericentriolar material","immunological synapse","plasma membrane","membrane raft","extracellular exosome","CD8 receptor binding","CD4 receptor binding","protein C-terminus binding","T cell receptor binding","non-membrane spanning protein tyrosine kinase activity","phosphotyrosine residue binding","phosphatidylinositol 3-kinase binding","protein kinase binding","ATPase binding","identical protein binding","SH2 domain binding","protein tyrosine kinase activity","protein binding","signaling receptor binding","protein phosphatase binding","inositol phosphate dephosphorylation","phosphatidylinositol dephosphorylation","membrane","cytosol","phosphatidylinositol-4,5-bisphosphate 5-phosphatase activity","inositol-1,4,5-trisphosphate 5-phosphatase activity","protein binding","farnesyl diphosphate biosynthetic process, mevalonate pathway","acetyl-CoA metabolic process","mitochondrion","hydroxymethylglutaryl-CoA synthase activity","plasma membrane","extracellular exosome","cytosol","extracellular space","nucleolus","protein homodimerization activity","protein binding","calcium ion binding","establishment of skin barrier","cell envelope organization","cornified envelope","keratohyalin granule","nucleus","extracellular exosome","cytoplasm","perinuclear region of cytoplasm","collagen-containing extracellular matrix","cytosol","nucleoplasm","extracellular exosome","protein binding","extracellular exosome","extracellular space","immune response","plasma membrane","endoplasmic reticulum","extracellular space","protein binding","leukotriene signaling pathway","signal transduction","positive regulation of GTPase activity","G protein-coupled receptor signaling pathway","extrinsic component of cytoplasmic side of plasma membrane","cytosol","G-protein alpha-subunit binding","GTPase activator activity","positive regulation of extracellular exosome assembly","positive regulation of exosomal secretion","striated muscle cell development","cell migration","extracellular exosome","cell surface","protein C-terminus binding","identical protein binding","protein binding","positive thymic T cell selection","peptidyl-tyrosine phosphorylation","immune response","protein phosphorylation","positive regulation of T cell differentiation","plasma membrane","T cell receptor complex","membrane raft","phosphotyrosine residue binding","protein binding","protein tyrosine kinase activity","cytosol","cytoplasm","nucleoplasm","identical protein binding","protein binding","inositol phosphate dephosphorylation","inositol-1,4-bisphosphate 1-phosphatase activity","protein binding","fatty acid beta-oxidation using acyl-CoA dehydrogenase","carnitine metabolic process, CoA-linked","long-chain fatty acid catabolic process","mitochondrion","palmitoyl-CoA oxidase activity","flavin adenine dinucleotide binding","long-chain-acyl-CoA dehydrogenase activity","cholesterol catabolic process","bile acid biosynthetic process","calcitriol biosynthetic process from calciol","mitochondrion","vitamin D3 25-hydroxylase activity","heme binding","cholesterol 26-hydroxylase activity","cytosol","protein binding","inositol trisphosphate biosynthetic process","GTPase activating protein binding","phosphatidylinositol-4,5-bisphosphate binding","STAT family protein binding","ubiquitin-like protein ligase binding","ADP-D-ribose binding","NAD biosynthetic process","mitochondrion","nucleus","nicotinamide-nucleotide adenylyltransferase activity","nicotinate-nucleotide adenylyltransferase activity","exo-alpha-sialidase activity","positive regulation of cell-matrix adhesion","fibronectin binding","laminin binding","protein binding","smooth muscle cell migration","plasminogen activation","platelet-derived growth factor receptor signaling pathway","extracellular exosome","cytoplasm","cell surface","extracellular space","phosphoprotein binding","protein binding","signaling receptor binding","mitotic DNA damage checkpoint","negative regulation of gene expression, epigenetic","negative regulation of histone H4 acetylation","positive regulation of transcription, DNA-templated","negative regulation of transcription, DNA-templated","positive regulation of transcription by RNA polymerase II","histone H3 acetylation","nucleus","nucleoplasm","transcription factor complex","nuclear chromatin","protein binding","RNA polymerase II cis-regulatory region sequence-specific DNA binding","DNA-binding transcription factor activity, RNA polymerase II-specific","transcription factor binding","DNA-binding transcription factor activity","cellular response to calcium ion","positive regulation of GTPase activity","plasma membrane","cytosol","guanyl-nucleotide exchange factor activity","protein phosphorylation","activation of protein kinase activity","signal transduction by protein phosphorylation","activation of JUN kinase activity","intracellular signal transduction","positive regulation of JNK cascade","cytoplasm","MAP kinase kinase kinase kinase activity","mitogen-activated protein kinase kinase kinase binding","ATP binding","protein binding","protein serine/threonine kinase activity","oxidation-reduction process","malate metabolic process","pyruvate metabolic process","mitochondrion","malate dehydrogenase (decarboxylating) (NADP+) activity","malic enzyme activity","cell adhesion","integral component of plasma membrane","protein homooligomerization","positive thymic T cell selection","T cell differentiation","cell surface receptor signaling pathway","alpha-beta T cell receptor complex","T cell receptor complex","protein homodimerization activity","transcription coactivator activity","protein heterodimerization activity","protein homooligomerization","positive thymic T cell selection","plasma membrane","cytosol","alpha-beta T cell receptor complex","protein homodimerization activity","protein heterodimerization activity","mRNA localization resulting in posttranscriptional regulation of gene expression","p53 binding","RNA binding","protein homotetramerization","mitochondrion","nucleus","identical protein binding","protein binding","cell junction","protein glycosylation","protein binding","glutathione peroxidase activity","peroxidase activity","nucleus","nucleoplasm","RNA polymerase II cis-regulatory region sequence-specific DNA binding","protein binding","lysosome","inositol trisphosphate biosynthetic process","integrin-mediated signaling pathway","immune response","regulation of T cell activation","inflammatory response","Ras protein signal transduction","calcium-mediated signaling","intracellular signal transduction","positive regulation of protein kinase activity","plasma membrane","Golgi apparatus","immunological synapse","integral component of membrane","SH3/SH2 adaptor activity","protein binding","protein kinase binding","cell surface receptor signaling pathway","positive regulation of tyrosine phosphorylation of STAT protein","extracellular region","protein binding","cytokine activity","mitochondrion","flavin adenine dinucleotide binding","reelin-mediated signaling pathway","positive regulation of blood vessel endothelial cell migration","growth hormone receptor signaling pathway via JAK-STAT","regulation of cell population proliferation","receptor signaling pathway via JAK-STAT","cytokine-mediated signaling pathway","nucleus","nucleoplasm","cytosol","protein binding","DNA-binding transcription activator activity, RNA polymerase II-specific","RNA polymerase II cis-regulatory region sequence-specific DNA binding","protein N-terminus binding","SH3/SH2 adaptor activity","cilium assembly","centriole"],["GO:0016020","GO:0005515","GO:0006911","GO:0060326","GO:0005886","GO:0005543","GO:0005515","GO:0070062","GO:0004029","GO:0140289","GO:0070213","GO:0005634","GO:0043565","GO:0003700","GO:0032049","GO:0046474","GO:0005739","GO:0043433","GO:0005634","GO:0008134","GO:0001085","GO:0003700","GO:0007266","GO:0007265","GO:0005938","GO:0005515","GO:0030674","GO:0005829","GO:0070062","GO:0042802","GO:0038083","GO:0050853","GO:0034116","GO:1903039","GO:0018108","GO:0050870","GO:0030217","GO:0006468","GO:0007169","GO:0006882","GO:0031234","GO:0000242","GO:0001772","GO:0005886","GO:0045121","GO:0070062","GO:0042610","GO:0042609","GO:0008022","GO:0042608","GO:0004715","GO:0001784","GO:0043548","GO:0019901","GO:0051117","GO:0042802","GO:0042169","GO:0004713","GO:0005515","GO:0005102","GO:0019903","GO:0046855","GO:0046856","GO:0016020","GO:0005829","GO:0004439","GO:0052658","GO:0005515","GO:0010142","GO:0006084","GO:0005739","GO:0004421","GO:0005886","GO:0070062","GO:0005829","GO:0005615","GO:0005730","GO:0042803","GO:0005515","GO:0005509","GO:0061436","GO:0043163","GO:0001533","GO:0036457","GO:0005634","GO:0070062","GO:0005737","GO:0048471","GO:0062023","GO:0005829","GO:0005654","GO:0070062","GO:0005515","GO:0070062","GO:0005615","GO:0006955","GO:0005886","GO:0005783","GO:0005615","GO:0005515","GO:0061737","GO:0007165","GO:0043547","GO:0007186","GO:0031234","GO:0005829","GO:0001965","GO:0005096","GO:1903553","GO:1903543","GO:0055002","GO:0016477","GO:0070062","GO:0009986","GO:0008022","GO:0042802","GO:0005515","GO:0045059","GO:0018108","GO:0006955","GO:0006468","GO:0045582","GO:0005886","GO:0042101","GO:0045121","GO:0001784","GO:0005515","GO:0004713","GO:0005829","GO:0005737","GO:0005654","GO:0042802","GO:0005515","GO:0046855","GO:0004441","GO:0005515","GO:0033539","GO:0019254","GO:0042758","GO:0005739","GO:0016401","GO:0050660","GO:0004466","GO:0006707","GO:0006699","GO:0036378","GO:0005739","GO:0030343","GO:0020037","GO:0031073","GO:0005829","GO:0005515","GO:0032959","GO:0032794","GO:0005546","GO:0097677","GO:0044389","GO:0072570","GO:0009435","GO:0005739","GO:0005634","GO:0000309","GO:0004515","GO:0004308","GO:0001954","GO:0001968","GO:0043236","GO:0005515","GO:0014909","GO:0031639","GO:0048008","GO:0070062","GO:0005737","GO:0009986","GO:0005615","GO:0051219","GO:0005515","GO:0005102","GO:0044773","GO:0045814","GO:0090241","GO:0045893","GO:0045892","GO:0045944","GO:0043966","GO:0005634","GO:0005654","GO:0005667","GO:0000790","GO:0005515","GO:0000978","GO:0000981","GO:0008134","GO:0003700","GO:0071277","GO:0043547","GO:0005886","GO:0005829","GO:0005085","GO:0006468","GO:0032147","GO:0023014","GO:0007257","GO:0035556","GO:0046330","GO:0005737","GO:0008349","GO:0031435","GO:0005524","GO:0005515","GO:0004674","GO:0055114","GO:0006108","GO:0006090","GO:0005739","GO:0004473","GO:0004470","GO:0007155","GO:0005887","GO:0051260","GO:0045059","GO:0030217","GO:0007166","GO:0042105","GO:0042101","GO:0042803","GO:0003713","GO:0046982","GO:0051260","GO:0045059","GO:0005886","GO:0005829","GO:0042105","GO:0042803","GO:0046982","GO:0010609","GO:0002039","GO:0003723","GO:0051289","GO:0005739","GO:0005634","GO:0042802","GO:0005515","GO:0030054","GO:0006486","GO:0005515","GO:0004602","GO:0004601","GO:0005634","GO:0005654","GO:0000978","GO:0005515","GO:0005764","GO:0032959","GO:0007229","GO:0006955","GO:0050863","GO:0006954","GO:0007265","GO:0019722","GO:0035556","GO:0045860","GO:0005886","GO:0005794","GO:0001772","GO:0016021","GO:0005070","GO:0005515","GO:0019901","GO:0007166","GO:0042531","GO:0005576","GO:0005515","GO:0005125","GO:0005739","GO:0050660","GO:0038026","GO:0043536","GO:0060397","GO:0042127","GO:0007259","GO:0019221","GO:0005634","GO:0005654","GO:0005829","GO:0005515","GO:0001228","GO:0000978","GO:0047485","GO:0005070","GO:0060271","GO:0005814"],["cellular component","molecular function","biological process","biological process","cellular component","molecular function","molecular function","cellular component","molecular function","biological process","biological process","cellular component","molecular function","molecular function","biological process","biological process","cellular component","biological process","cellular component","molecular function","molecular function","molecular function","biological process","biological process","cellular component","molecular function","molecular function","cellular component","cellular component","molecular function","biological process","biological process","biological process","biological process","biological process","biological process","biological process","biological process","biological process","biological process","cellular component","cellular component","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","biological process","biological process","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","cellular component","molecular function","cellular component","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","cellular component","cellular component","cellular component","cellular component","cellular component","cellular component","cellular component","cellular component","cellular component","cellular component","molecular function","cellular component","cellular component","biological process","cellular component","cellular component","cellular component","molecular function","biological process","biological process","biological process","biological process","cellular component","cellular component","molecular function","molecular function","biological process","biological process","biological process","biological process","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","biological process","biological process","biological process","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","cellular component","cellular component","cellular component","molecular function","molecular function","biological process","molecular function","molecular function","biological process","biological process","biological process","cellular component","molecular function","molecular function","molecular function","biological process","biological process","biological process","cellular component","molecular function","molecular function","molecular function","cellular component","molecular function","biological process","molecular function","molecular function","molecular function","molecular function","molecular function","biological process","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","molecular function","molecular function","molecular function","biological process","biological process","biological process","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","biological process","biological process","biological process","biological process","biological process","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","biological process","biological process","cellular component","cellular component","molecular function","biological process","biological process","biological process","biological process","biological process","biological process","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","biological process","biological process","biological process","cellular component","molecular function","molecular function","biological process","cellular component","biological process","biological process","biological process","biological process","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","cellular component","cellular component","cellular component","molecular function","molecular function","biological process","molecular function","molecular function","biological process","cellular component","cellular component","molecular function","molecular function","cellular component","biological process","molecular function","molecular function","molecular function","cellular component","cellular component","molecular function","molecular function","cellular component","biological process","biological process","biological process","biological process","biological process","biological process","biological process","biological process","biological process","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","cellular component","molecular function","molecular function","cellular component","molecular function","biological process","biological process","biological process","biological process","biological process","biological process","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","biological process","cellular component"],[3,3,10,10,10,10,10,6,6,12,12,4,4,4,5,5,5,16,16,16,16,16,6,6,6,6,6,10,10,10,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,12,12,12,12,12,12,12,9,9,9,9,10,10,10,10,10,10,10,10,11,11,11,11,11,11,11,11,11,5,5,5,5,3,3,7,7,7,7,7,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,21,21,21,21,21,21,21,21,21,21,21,6,6,6,6,6,6,6,6,9,9,9,9,9,9,9,13,13,13,13,13,13,13,10,10,13,13,13,32,32,32,13,13,13,13,13,12,12,12,12,12,14,14,14,14,14,14,14,14,14,14,6,47,47,47,47,47,47,47,47,47,47,47,47,47,47,47,13,13,13,13,13,14,14,14,14,14,14,14,14,14,14,14,14,9,9,9,9,9,9,3,3,22,22,22,22,22,22,22,22,22,24,24,24,24,24,24,24,11,11,11,10,10,10,10,10,3,5,5,6,6,5,5,5,5,8,8,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,6,6,6,6,6,9,9,31,31,31,31,31,31,31,31,31,31,31,31,17,17,3,3],[29,178,3,18,18,12,178,19,22,2,2,34,7,11,3,13,16,7,34,10,2,11,3,11,3,178,12,19,19,10,4,3,3,8,10,14,12,26,22,4,4,2,4,18,5,19,2,2,3,3,4,3,4,15,2,10,3,6,178,60,8,5,3,29,19,3,2,178,3,10,16,2,18,19,19,8,3,8,178,4,2,2,2,2,34,19,25,6,12,19,11,19,178,19,8,14,18,11,8,178,2,46,6,42,4,19,2,4,3,4,5,37,19,7,3,10,178,5,10,14,26,12,18,5,5,3,178,6,19,25,11,10,178,5,2,178,2,2,6,16,2,8,3,4,5,7,16,2,3,2,19,178,4,2,2,2,3,6,5,16,34,2,2,5,6,2,6,178,4,3,5,19,25,7,8,3,178,60,6,4,4,29,28,49,11,34,11,5,7,178,19,6,10,11,3,6,18,19,7,26,12,6,3,29,4,25,3,2,4,178,27,39,2,14,16,3,4,12,12,6,5,12,32,3,5,8,4,3,6,5,18,19,3,8,3,3,2,38,4,16,34,10,178,5,16,178,2,19,34,11,19,178,9,4,2,14,13,8,11,12,29,11,18,7,4,11,3,178,15,32,5,8,178,3,16,8,2,4,2,36,2,43,34,11,19,178,3,19,3,3,8,3],[0.03371,0.03371,0.03861,0.04255,0.03861,0.04255,0.04902,0.03299,0.03802,0.04186,0.04186,0.02341,0.01661,0.02659,0.039,0.04526,0.03826,0.04706,0.04939,0.04218,0.04414,0.04784,0.01547,0.01651,0.01741,0.02128,0.0215,0.04441,0.04695,0.03853,0.03464,0.03464,0.03498,0.03498,0.03498,0.03498,0.03533,0.03814,0.04063,0.04779,0.03464,0.03717,0.03717,0.03868,0.04038,0.04254,0.03464,0.03464,0.03464,0.03464,0.03464,0.03575,0.03575,0.03868,0.03995,0.03995,0.04087,0.04087,0.04161,0.04647,0.0467,0.02772,0.02772,0.02772,0.02772,0.02772,0.02772,0.0318,0.02585,0.0332,0.02354,0.03351,0.03802,0.03853,0.03855,0.03976,0.04715,0.03853,0.04115,0.04694,0.03052,0.04778,0.02617,0.02693,0.03212,0.03212,0.03365,0.03513,0.0377,0.03008,0.03008,0.03008,0.03923,0.04308,0.04308,0.03747,0.03747,0.03814,0.03979,0.03747,0.02594,0.03429,0.03602,0.03724,0.02744,0.03193,0.02897,0.03613,0.03722,0.03953,0.04223,0.04328,0.03729,0.03814,0.03405,0.03729,0.03843,0.02659,0.03234,0.03315,0.03807,0.04468,0.03522,0.03669,0.03903,0.03522,0.03744,0.03788,0.02931,0.02931,0.03002,0.02931,0.02951,0.01643,0.02298,0.02436,0.02907,0.03388,0.03832,0.03067,0.02939,0.03067,0.03067,0.03657,0.04219,0.04642,0.04078,0.03657,0.0459,0.04653,0.01283,0.01143,0.0355,0.03375,0.03478,0.04847,0.04847,0.04916,0.02868,0.01391,0.01391,0.02407,0.02407,0.0454,0.04516,0.02243,0.03213,0.04956,0.04247,0.04825,0.0488,0.04408,0.04408,0.04411,0.0476,0.01972,0.04522,0.04646,0.04452,0.04184,0.04184,0.04251,0.04251,0.04305,0.04827,0.03477,0.03521,0.03852,0.04968,0.03521,0.03616,0.03881,0.03928,0.04237,0.03052,0.03052,0.01961,0.03052,0.01961,0.02582,0.02698,0.03058,0.03232,0.03416,0.03502,0.03367,0.01832,0.02349,0.03041,0.03367,0.03858,0.02631,0.02899,0.03392,0.02541,0.02445,0.02899,0.04485,0.0431,0.03919,0.03964,0.04649,0.0474,0.03875,0.04389,0.03919,0.03964,0.0398,0.0404,0.04528,0.03005,0.03928,0.0401,0.03963,0.04114,0.03746,0.04677,0.0487,0.03714,0.02414,0.04229,0.03855,0.04341,0.03701,0.0347,0.0293,0.008438,0.01064,0.02831,0.02831,0.02949,0.03453,0.03446,0.04573,0.03274,0.03284,0.03293,0.03518,0.03646,0.03788,0.0414,0.04534,0.03274,0.03284,0.03403,0.03414,0.03274,0.03284,0.03414,0.03928,0.04829,0.03928,0.03243,0.04531,0.03526,0.0369,0.04081,0.04165,0.04165,0.04487,0.04719,0.04776,0.03848,0.04002,0.04165,0.03848,0.03848,0.03848,0.04844,0.04844,0.0258,0.0258],[0.02646,0.02646,0.01798,0.0153,0.01798,0.0153,0.02586,0.02469,0.0242,0.01343,0.01343,0.01464,0.00824,0.01082,0.01407,0.008966,0.0134,0.03436,0.03103,0.03498,0.03735,0.04527,0.004956,0.005153,0.005809,0.01379,0.007722,0.01829,0.02297,0.01498,0.02374,0.02374,0.02429,0.02429,0.02429,0.02429,0.02506,0.02381,0.02434,0.0192,0.02374,0.02007,0.02007,0.01824,0.01645,0.01453,0.02374,0.02374,0.02374,0.02374,0.02374,0.02202,0.02202,0.01824,0.01689,0.01689,0.01599,0.01599,0.01531,0.02308,0.01835,0.01957,0.01957,0.01957,0.01957,0.01957,0.01957,0.01945,0.008763,0.0201,0.007757,0.02075,0.01772,0.01872,0.01876,0.0177,0.01882,0.01872,0.0189,0.01661,0.01175,0.01103,0.01082,0.01016,0.01139,0.01139,0.0108,0.01051,0.009116,0.02223,0.02223,0.02223,0.02247,0.03777,0.03777,0.02485,0.02485,0.02459,0.02286,0.02485,0.005566,0.01194,0.01479,0.0156,0.005096,0.01381,0.006372,0.01818,0.01883,0.02294,0.02687,0.01566,0.01889,0.01783,0.01535,0.01889,0.01968,0.01547,0.02547,0.02522,0.02346,0.03793,0.02225,0.0113,0.02026,0.02225,0.01937,0.01885,0.01109,0.01109,0.01225,0.01109,0.01097,0.005514,0.01648,0.01581,0.0194,0.02522,0.03206,0.02327,0.01897,0.02327,0.02327,0.01498,0.01884,0.02861,0.01836,0.01498,0.02525,0.006905,0.01157,0.008355,0.005405,0.00572,0.005538,0.01292,0.01292,0.013,0.01955,0.004243,0.004243,0.009329,0.009329,0.006028,0.007169,0.005511,0.01949,0.02677,0.02702,0.03737,0.02742,0.02722,0.02722,0.02718,0.03501,0.00512,0.02788,0.02589,0.01706,0.01673,0.01673,0.01652,0.01652,0.01747,0.0341,0.01765,0.01857,0.01542,0.008822,0.01857,0.01635,0.01738,0.017,0.01769,0.01222,0.01222,0.003773,0.01222,0.003773,0.009069,0.00925,0.01719,0.01448,0.02208,0.01676,0.02171,0.002155,0.01662,0.01852,0.02171,0.01294,0.01262,0.01545,0.02494,0.01143,0.007449,0.01545,0.02268,0.02464,0.02536,0.02555,0.02075,0.02135,0.02423,0.03601,0.02536,0.02555,0.02696,0.02974,0.02349,0.009944,0.03129,0.03027,0.02944,0.03254,0.01109,0.0271,0.03044,0.022,0.009427,0.02459,0.02388,0.02739,0.004622,0.01252,0.01394,0.00267,0.002851,0.01198,0.01198,0.01129,0.009997,0.01352,0.005027,0.02079,0.02106,0.0213,0.02374,0.03183,0.03285,0.0259,0.01688,0.02079,0.02106,0.02053,0.02081,0.02079,0.02106,0.02081,0.02417,0.01477,0.02417,0.0125,0.01719,0.01849,0.01856,0.03398,0.03304,0.03304,0.02842,0.02537,0.03638,0.03243,0.03435,0.03304,0.03243,0.03243,0.03243,0.03563,0.03563,0.006385,0.006385],[0.04294,0.04294,0.08292,0.1184,0.08292,0.1184,0.09289,0.04408,0.05973,0.1305,0.1305,0.03746,0.0335,0.06536,0.1082,0.2284,0.1092,0.06447,0.07861,0.05086,0.05217,0.05056,0.04829,0.05287,0.05217,0.03283,0.05984,0.1079,0.09599,0.0991,0.05053,0.05053,0.05037,0.05037,0.05037,0.05037,0.04981,0.06107,0.06784,0.1189,0.05053,0.06884,0.06884,0.08201,0.09911,0.1246,0.05053,0.05053,0.05053,0.05053,0.05053,0.05806,0.05806,0.08201,0.09449,0.09449,0.1045,0.1045,0.1131,0.09357,0.1188,0.03925,0.03925,0.03925,0.03925,0.03925,0.03925,0.05199,0.07624,0.05483,0.07146,0.05411,0.08158,0.07929,0.0792,0.0893,0.1181,0.07929,0.0896,0.1326,0.07928,0.2069,0.0633,0.0714,0.09059,0.09059,0.1048,0.1175,0.1559,0.04071,0.04071,0.04071,0.06848,0.04914,0.04914,0.05651,0.05651,0.05915,0.06926,0.05651,0.1209,0.09846,0.08769,0.0889,0.1478,0.07383,0.1317,0.07183,0.07358,0.06812,0.06638,0.1196,0.07363,0.08158,0.07554,0.07363,0.07505,0.04568,0.04107,0.04358,0.06177,0.05264,0.05576,0.1191,0.07522,0.05576,0.07236,0.07615,0.07747,0.07747,0.07356,0.07747,0.07942,0.04898,0.03205,0.03753,0.04356,0.04552,0.04579,0.04042,0.04553,0.04042,0.04042,0.08929,0.09447,0.07533,0.09057,0.08929,0.08345,0.3136,0.01422,0.01563,0.2331,0.1991,0.2184,0.1818,0.1818,0.1859,0.04208,0.04558,0.04558,0.06209,0.06209,0.342,0.2844,0.0913,0.05298,0.09175,0.06675,0.06231,0.08685,0.07138,0.07138,0.07159,0.0647,0.07593,0.07335,0.0834,0.1162,0.1046,0.1046,0.1094,0.1094,0.1061,0.06831,0.06849,0.06678,0.09621,0.2797,0.06678,0.07996,0.08666,0.09073,0.1015,0.07625,0.07625,0.102,0.07625,0.102,0.07348,0.07868,0.05439,0.07217,0.05285,0.07318,0.05224,0.1557,0.03321,0.04992,0.05224,0.1151,0.05488,0.05439,0.04613,0.05647,0.08027,0.05439,0.0887,0.07539,0.06057,0.0615,0.1042,0.1052,0.06198,0.05349,0.06057,0.0615,0.05875,0.0549,0.0873,0.09081,0.04931,0.05312,0.05334,0.05201,0.1265,0.08072,0.07792,0.0627,0.0618,0.07272,0.06222,0.06881,0.2964,0.09619,0.0616,0.02666,0.0397,0.06691,0.06691,0.07702,0.1193,0.08784,0.4159,0.05157,0.05121,0.05091,0.05213,0.04176,0.04367,0.06617,0.1218,0.05157,0.05121,0.05643,0.05602,0.05157,0.05121,0.05602,0.06384,0.1579,0.06384,0.08416,0.1194,0.06724,0.07334,0.04903,0.05251,0.05251,0.07084,0.08778,0.06271,0.04567,0.04663,0.05251,0.04567,0.04567,0.04567,0.06586,0.06586,0.1042,0.1042],[0.03308,0.03169,0.01037,0.02139,0.01688,0.0144,0.02836,0.02098,0.03153,0.01103,0.01128,0.01892,0.01144,0.02081,0.0322,0.03161,0.01928,0.02313,0.01789,0.01097,0.0121,0.02367,0.005379,0.006608,0.01312,0.01666,0.01921,0.02029,0.0262,0.01253,0.006865,0.01168,0.01367,0.01439,0.0159,0.01868,0.01052,0.02279,0.02477,0.0415,0.01189,0.01337,0.01473,0.0208,0.02461,0.02607,0.009823,0.01006,0.01008,0.01309,0.01496,0.01365,0.01915,0.02259,0.01834,0.02113,0.0192,0.02575,0.02766,0.0366,0.0386,0.01212,0.01752,0.01694,0.0258,0.01389,0.02001,0.02573,0.01469,0.02758,0.008723,0.03053,0.01027,0.02185,0.02354,0.02586,0.03824,0.01518,0.03019,0.03712,0.01234,0.03928,0.00924,0.01144,0.01251,0.01755,0.02357,0.03018,0.02798,0.01812,0.01925,0.02483,0.0384,0.02873,0.0425,0.01999,0.01367,0.02379,0.02735,0.02691,0.007909,0.02391,0.02114,0.0312,0.01059,0.01479,0.01581,0.02273,0.02273,0.0212,0.02712,0.03266,0.02871,0.02503,0.004368,0.02181,0.02592,0.01107,0.01713,0.01664,0.0243,0.03758,0.01518,0.01876,0.02618,0.01938,0.02002,0.02413,0.02035,0.02422,0.02428,0.009336,0.02521,0.008153,0.016,0.02436,0.006153,0.02845,0.02964,0.0112,0.01737,0.01689,0.02328,0.02296,0.01727,0.03859,0.01823,0.01587,0.03146,0.02461,0.00952,0.009071,0.01364,0.006602,0.01889,0.003866,0.005888,0.006738,0.02343,0.006691,0.008651,0.02215,0.02206,0.01035,0.01517,0.004125,0.01026,0.02848,0.02105,0.01671,0.02487,0.01972,0.02272,0.02599,0.02837,0.002975,0.03157,0.02543,0.01523,0.01594,0.01901,0.01559,0.01548,0.02186,0.02712,0.006967,0.008142,0.01781,0.01756,0.009016,0.008081,0.02243,0.02194,0.01965,0.02281,0.03001,0.00644,0.02374,0.008385,0.009493,0.01554,0.01985,0.01882,0.0251,0.0283,0.02265,0.003523,0.004987,0.01691,0.0191,0.02307,0.01661,0.02255,0.02518,0.0126,0.008322,0.02058,0.04485,0.02547,0.01987,0.01916,0.0291,0.03215,0.005355,0.01752,0.01475,0.02323,0.02008,0.01783,0.02081,0.005545,0.007518,0.00904,0.01059,0.01838,0.01399,0.01096,0.03102,0.01531,0.006636,0.03333,0.01774,0.03502,0.03701,0.02522,0.01332,0.005152,0.01064,0.016,0.02213,0.017,0.03131,0.01622,0.01761,0.0106,0.01972,0.01966,0.03039,0.02755,0.03324,0.03297,0.03742,0.01022,0.01873,0.01279,0.01562,0.006953,0.01237,0.02504,0.02418,0.04636,0.0202,0.016,0.03265,0.007674,0.01189,0.01737,0.02076,0.02975,0.0304,0.03493,0.03164,0.01215,0.0172,0.02253,0.01523,0.01598,0.01813,0.01737,0.02032,0.0258,0.01866],[0.0245,0.0269,0.007214,0.007551,0.006477,0.00372,0.01537,0.01094,0.01088,0.004582,0.004667,0.0161,0.001657,0.004785,0.01346,0.003114,0.005666,0.005997,0.007652,0.001233,0.004582,0.007252,0.0007686,0.002125,0.00308,0.008602,0.005547,0.005144,0.01102,0.003427,0.004692,0.00579,0.00561,0.004973,0.007071,0.01006,0.001553,0.01365,0.008632,0.01519,0.003299,0.003811,0.004488,0.007923,0.007004,0.005224,0.005729,0.005928,0.00469,0.005063,0.00616,0.004118,0.01683,0.01085,0.003733,0.005987,0.003014,0.007631,0.007683,0.01805,0.01396,0.004803,0.005713,0.00687,0.01695,0.002357,0.0104,0.01183,0.002154,0.01225,0.002437,0.02527,0.0011,0.008203,0.01139,0.006273,0.01033,0.00964,0.01842,0.01281,0.006419,0.007252,0.002837,0.001935,0.0009437,0.006373,0.008375,0.008049,0.004916,0.0137,0.01154,0.01725,0.02048,0.01526,0.03621,0.01412,0.006143,0.0074,0.01214,0.02291,0.001153,0.004617,0.003125,0.01157,0.000426,0.00637,0.001974,0.007252,0.008847,0.00365,0.01371,0.005139,0.01417,0.00677,0.001577,0.01476,0.01314,0.001605,0.00513,0.01148,0.01031,0.02783,0.005256,0.0007372,0.006941,0.008624,0.005115,0.00567,0.008225,0.00738,0.01476,0.003906,0.00763,0.001448,0.009875,0.01581,0.002341,0.01387,0.01107,0.006795,0.003215,0.01152,0.01797,0.007527,0.002873,0.02812,0.007564,0.002041,0.01411,0.001553,0.004554,0.003037,0.0003871,0.002017,0.001639,0.002411,0.001387,0.0001527,0.01886,0.001663,0.001138,0.006844,0.006711,0.0002886,0.0006701,0.0004673,0.006369,0.01685,0.003079,0.003397,0.00654,0.01209,0.006332,0.006807,0.007579,7.926e-05,0.01257,0.003258,0.001457,0.003386,0.003041,0.001936,0.001194,0.005807,0.008308,0.005436,0.003808,0.002479,0.0003306,0.003028,0.0009958,0.008842,0.007082,0.005795,0.00509,0.01271,0.001196,0.01008,0.001071,0.000804,0.001339,0.009116,0.003285,0.01544,0.007025,0.01077,9.791e-05,0.0006973,0.002893,0.009737,0.002026,0.003859,0.01395,0.0124,0.002726,0.0003941,0.006776,0.02268,0.01575,0.01366,0.00645,0.007405,0.00876,0.001439,0.003281,0.009849,0.007872,0.01731,0.008439,0.004775,0.0003519,0.001501,0.001577,0.002917,0.009479,0.000562,0.002332,0.02337,0.01272,0.0008493,0.01167,0.006626,0.01861,0.004622,0.00313,0.008223,0.002436,0.002851,0.005525,0.01451,0.003217,0.009217,0.002008,0.0006228,0.002561,0.01106,0.01304,0.01792,0.01432,0.02756,0.01593,0.007298,0.003848,0.01188,0.003219,0.006581,0.001058,0.005032,0.007968,0.01293,0.01308,0.01027,0.001487,0.009857,0.005372,0.005346,0.01371,0.009851,0.02226,0.01303,0.01404,0.0093,0.003349,0.0104,0.01019,0.004384,0.002807,0.004343,0.005264,0.005877,0.006385,0.006938],[0.04465,0.03733,0.0149,0.06061,0.04402,0.05575,0.05234,0.04023,0.09136,0.02657,0.02728,0.02222,0.07901,0.0905,0.07704,0.3209,0.06563,0.08917,0.04185,0.0976,0.03193,0.07726,0.03765,0.02055,0.05587,0.03227,0.06654,0.08001,0.06233,0.04582,0.01005,0.02356,0.03329,0.04165,0.03575,0.0347,0.07134,0.03808,0.07106,0.1133,0.04285,0.04693,0.04837,0.05462,0.08649,0.1301,0.01684,0.01707,0.02166,0.03383,0.03632,0.04525,0.0218,0.04701,0.09011,0.07458,0.1223,0.08687,0.09955,0.07421,0.1068,0.03058,0.05373,0.04177,0.03927,0.08187,0.03852,0.05594,0.1003,0.06211,0.03122,0.03688,0.09594,0.0582,0.04866,0.1066,0.1416,0.02391,0.04948,0.1076,0.02371,0.2128,0.03009,0.06767,0.1659,0.04832,0.06635,0.1132,0.1592,0.02396,0.0321,0.03574,0.07202,0.05408,0.04988,0.0283,0.03041,0.07648,0.06162,0.03161,0.05426,0.1238,0.143,0.08416,0.2634,0.03435,0.1266,0.07122,0.05837,0.1231,0.05364,0.2076,0.05816,0.09257,0.0121,0.03223,0.05115,0.07631,0.05723,0.02412,0.05725,0.05075,0.04382,0.4774,0.09872,0.04354,0.07838,0.1027,0.05034,0.0795,0.03994,0.02232,0.08332,0.0459,0.02591,0.03753,0.01617,0.05832,0.07937,0.01847,0.09383,0.02477,0.03015,0.07004,0.1038,0.05295,0.04393,0.1234,0.07012,0.3898,0.0199,0.02709,0.4809,0.02161,0.2177,0.006199,0.025,0.2972,0.02911,0.02692,0.06577,0.07168,0.0725,0.3713,0.3432,0.03641,0.01654,0.04812,0.1439,0.08219,0.09458,0.03217,0.08151,0.09925,0.1062,0.1117,0.07928,0.1984,0.1592,0.07505,0.1188,0.1255,0.2007,0.0823,0.08856,0.008929,0.01741,0.1279,0.9327,0.02684,0.06558,0.05687,0.06798,0.06661,0.1023,0.07082,0.03467,0.05588,0.06564,0.1121,0.1802,0.04323,0.1079,0.04081,0.114,0.04764,0.1267,0.03567,0.09881,0.03746,0.2626,0.07154,0.03645,0.05116,0.05819,0.1757,0.06254,0.0887,0.04118,0.02892,0.0569,0.1143,0.118,0.01992,0.0935,0.0221,0.06854,0.0233,0.03766,0.09066,0.08737,0.03765,0.05184,0.03848,0.03562,0.3484,0.05149,0.04116,0.01842,0.05184,0.09525,0.04752,0.06589,0.2964,0.2032,0.02159,0.01089,0.0397,0.04632,0.03376,0.0898,0.1064,0.131,0.4982,0.04388,0.03516,0.02966,0.05152,0.05303,0.04009,0.06825,0.1919,0.02717,0.02951,0.0508,0.03709,0.0457,0.0304,0.07871,0.04522,0.1642,0.03972,0.1721,0.1081,0.01096,0.02646,0.022,0.04377,0.03978,0.0709,0.08691,0.1076,0.04411,0.02845,0.04984,0.05292,0.09095,0.07565,0.05732,0.07029,0.1042,0.05021],[0.823,0.8278,0.9204,0.8644,0.8843,0.8922,0.8388,0.8683,0.8257,0.9144,0.913,0.8797,0.9026,0.8622,0.8247,0.8147,0.8714,0.8548,0.8806,0.9026,0.9081,0.853,0.9406,0.9387,0.8984,0.8879,0.8713,0.8654,0.8456,0.902,0.9389,0.9123,0.9003,0.8956,0.8905,0.8788,0.9071,0.8613,0.8505,0.7963,0.9071,0.8983,0.8923,0.867,0.8491,0.8418,0.9225,0.9214,0.92,0.9035,0.8943,0.8983,0.8786,0.8612,0.8713,0.8633,0.8644,0.846,0.8389,0.8113,0.8044,0.9081,0.88,0.8845,0.8492,0.8903,0.8727,0.8485,0.8839,0.8413,0.9239,0.8318,0.9066,0.8617,0.8576,0.8425,0.8044,0.8963,0.8326,0.8085,0.9091,0.799,0.9219,0.902,0.8869,0.8809,0.855,0.8277,0.8331,0.883,0.8768,0.8531,0.806,0.8377,0.7952,0.8741,0.9017,0.8528,0.842,0.8451,0.9247,0.8489,0.8543,0.8274,0.8886,0.8952,0.876,0.857,0.8595,0.8557,0.8433,0.8152,0.8374,0.8473,0.954,0.8657,0.8478,0.905,0.8803,0.8894,0.8533,0.809,0.8914,0.8431,0.8422,0.8741,0.8669,0.8503,0.8689,0.8503,0.855,0.9238,0.847,0.9256,0.8921,0.8548,0.942,0.8382,0.8325,0.9155,0.8737,0.8881,0.8597,0.8564,0.8736,0.8061,0.8789,0.876,0.8272,0.8316,0.9231,0.9243,0.8629,0.9385,0.8551,0.9588,0.9411,0.9029,0.8593,0.9371,0.9177,0.8591,0.8591,0.8837,0.8617,0.9499,0.9204,0.8387,0.8539,0.8779,0.8476,0.8748,0.8571,0.8441,0.835,0.9396,0.8264,0.8352,0.8746,0.8825,0.8636,0.8771,0.8704,0.8601,0.8396,0.9385,0.9309,0.8685,0.8358,0.9239,0.9175,0.8608,0.8615,0.8686,0.8539,0.832,0.9359,0.8558,0.9179,0.9063,0.8714,0.8725,0.8675,0.8518,0.8336,0.8605,0.943,0.9446,0.8749,0.8761,0.8396,0.8806,0.8623,0.8503,0.8989,0.9012,0.8661,0.7885,0.8503,0.8747,0.8722,0.8325,0.8229,0.946,0.8738,0.8986,0.8554,0.8742,0.8816,0.8617,0.9334,0.9297,0.9197,0.9137,0.8798,0.8672,0.9092,0.83,0.8965,0.9328,0.82,0.8797,0.8164,0.7991,0.8352,0.9052,0.949,0.9138,0.8875,0.8643,0.8764,0.8259,0.8741,0.8465,0.9125,0.8743,0.8754,0.832,0.8417,0.8226,0.8224,0.803,0.918,0.8794,0.9,0.891,0.9285,0.9076,0.8475,0.8548,0.7828,0.8717,0.8702,0.8219,0.9344,0.9106,0.887,0.8689,0.8344,0.8308,0.8158,0.824,0.9057,0.8862,0.8602,0.8892,0.8799,0.8733,0.88,0.8659,0.8447,0.8762],[0.007779,0.004258,0.004354,0.0247,0.01909,0.02545,0.01532,0.01479,0.02629,0.01247,0.0131,0.003519,0.02369,0.032,0.02327,0.06113,0.02778,0.03316,0.01834,0.02617,0.01331,0.02671,0.02095,0.01013,0.01975,0.01196,0.02616,0.02944,0.0205,0.02261,0.003607,0.009158,0.01498,0.01757,0.01414,0.01358,0.02609,0.01206,0.02551,0.02734,0.01629,0.02226,0.0213,0.02206,0.02981,0.0406,0.00684,0.006793,0.01026,0.01371,0.01471,0.01693,0.002896,0.01747,0.03365,0.02856,0.04039,0.03094,0.03338,0.01851,0.02766,0.01461,0.0242,0.01567,0.01052,0.02595,0.01481,0.01924,0.03379,0.02076,0.01634,0.004834,0.02606,0.02043,0.01794,0.03323,0.03568,0.007587,0.01258,0.02844,0.009349,0.04779,0.01518,0.02965,0.03586,0.02119,0.02421,0.03116,0.04336,0.005912,0.01143,0.008752,0.01664,0.01636,0.004416,0.007355,0.01152,0.02696,0.02061,0.004009,0.021,0.03966,0.03853,0.02563,0.04198,0.01566,0.03353,0.02511,0.0226,0.03367,0.01729,0.04437,0.01793,0.032,0.008299,0.009035,0.0162,0.02328,0.02052,0.00699,0.02054,0.008061,0.0201,0.05344,0.03124,0.01698,0.03154,0.03617,0.01863,0.02557,0.01193,0.009388,0.02804,0.01709,0.008835,0.0104,0.008411,0.0176,0.02389,0.006429,0.03041,0.007614,0.006181,0.02528,0.03609,0.008528,0.01927,0.03404,0.02056,0.07067,0.00858,0.01156,0.05025,0.01041,0.04058,0.003393,0.01429,0.04899,0.005336,0.01235,0.02518,0.02538,0.02542,0.03994,0.06704,0.01337,0.006242,0.01353,0.03612,0.02717,0.03254,0.0112,0.03119,0.03393,0.03284,0.03564,0.02326,0.0418,0.04833,0.02764,0.03175,0.04128,0.03888,0.03188,0.02684,0.00226,0.007469,0.04055,0.07963,0.01285,0.03088,0.02226,0.02707,0.02323,0.03485,0.0224,0.01716,0.02088,0.02747,0.03353,0.03672,0.0175,0.03622,0.01164,0.03251,0.01696,0.02039,0.01451,0.03106,0.01331,0.04972,0.02692,0.01124,0.01652,0.02651,0.04992,0.02282,0.01889,0.01159,0.008648,0.02051,0.03474,0.03389,0.01059,0.03214,0.006594,0.0235,0.003362,0.01406,0.03074,0.02197,0.01741,0.01836,0.01662,0.01429,0.04371,0.02073,0.007295,0.00321,0.01727,0.02639,0.01799,0.01647,0.04866,0.04179,0.007594,0.00642,0.01542,0.01764,0.009642,0.03598,0.03142,0.04461,0.05312,0.01827,0.01323,0.009153,0.01336,0.016,0.004891,0.01937,0.04026,0.01286,0.009977,0.02336,0.01657,0.02411,0.01205,0.02513,0.01455,0.03607,0.01563,0.03603,0.03168,0.003483,0.01053,0.004496,0.01726,0.007376,0.02122,0.0246,0.02958,0.01658,0.009448,0.01741,0.0244,0.02956,0.02542,0.02489,0.02519,0.03562,0.02184],[1.47224124747903,1.47224124747903,1.41330019837595,1.37110043557939,1.41330019837595,1.37110043557939,1.30962669308394,1.48161768445466,1.41998788747058,1.37820077599733,1.37820077599733,1.63059858630338,1.77963036754861,1.57528166266843,1.4089353929735,1.34428545038129,1.41725503430872,1.32734807716,1.30636097383845,1.37489342459653,1.35516767117436,1.32020882901965,1.81050968630063,1.78225292673721,1.75920122888267,1.67202837637699,1.66756154008439,1.35251922682632,1.32836440339787,1.414200990987,1.46042211665469,1.46042211665469,1.45618019485734,1.45618019485734,1.45618019485734,1.45618019485734,1.45185636256515,1.41861931129001,1.39115317767359,1.32066296947921,1.46042211665469,1.42980743890427,1.42980743890427,1.41251353458904,1.39383368539238,1.37120251443329,1.46042211665469,1.46042211665469,1.46042211665469,1.46042211665469,1.46042211665469,1.4467239538629,1.4467239538629,1.41251353458904,1.39848321634999,1.39848321634999,1.38859536228841,1.38859536228841,1.38080228420705,1.33282732752113,1.33068311943389,1.55720677406023,1.55720677406023,1.55720677406023,1.55720677406023,1.55720677406023,1.55720677406023,1.49757288001557,1.58753945257004,1.47886191629596,1.62819354149258,1.47482557216473,1.41998788747058,1.414200990987,1.41397561761302,1.40055362427472,1.32651830292665,1.414200990987,1.38563016045171,1.32845691473743,1.51541547071716,1.32075385458614,1.58219627736012,1.56976364658849,1.49322446339336,1.49322446339336,1.47301493144,1.45432185020797,1.42365864979421,1.5217221680804,1.5217221680804,1.5217221680804,1.40638169187046,1.36572430537406,1.36572430537406,1.4263163069062,1.4263163069062,1.41861931129001,1.40022606085361,1.4263163069062,1.58603002825194,1.46483251488506,1.44345629151649,1.4289903276907,1.56161589296529,1.49580108146056,1.53805150479624,1.44213203843198,1.42922363120525,1.40307318565703,1.37437891857509,1.36371274790149,1.42840761663869,1.41861931129001,1.4678828837512,1.42840761663869,1.41532961553565,1.57528166266843,1.49025998442962,1.47951646725921,1.41941712318563,1.34988683555643,1.45321064836874,1.43545228824405,1.40860144871875,1.45321064836874,1.42666415993393,1.42159002966876,1.53298418156156,1.53298418156156,1.52258931209275,1.53298418156156,1.53003079050004,1.78436243656494,1.63864997564773,1.61332271603916,1.53655496822957,1.47005659834133,1.41657449959349,1.51328622401751,1.53180041392739,1.51328622401751,1.51328622401751,1.43687503966196,1.37479047461812,1.3332948638801,1.38955277855788,1.43687503966196,1.33818731446274,1.33226694746673,1.89177334362507,1.94195376960472,1.44977164694491,1.47172622283296,1.45867042233331,1.31452698027724,1.31452698027724,1.30838812578558,1.54242085300424,1.85667287000795,1.85667287000795,1.61852390972497,1.61852390972497,1.3429441471429,1.34524606674707,1.64917072641703,1.49308927444848,1.30486870229597,1.37191773900932,1.31650268232019,1.31158017799729,1.35575841415627,1.35575841415627,1.35546294222159,1.32239304727951,1.70509308939481,1.34466944199066,1.33292079453578,1.35144484433733,1.37840832414078,1.37840832414078,1.37150889503288,1.37150889503288,1.36602684421033,1.31632270118131,1.45879530931674,1.45333397492982,1.4143137215475,1.30381841283148,1.45333397492982,1.44177157819667,1.41105635725999,1.40582852088509,1.37294153599901,1.51541547071716,1.51541547071716,1.70752240633222,1.51541547071716,1.70752240633222,1.5880437620696,1.56895805466411,1.5145625189237,1.49052864789745,1.46648213798303,1.45568385825257,1.47275688361191,1.73707453066817,1.62911698322239,1.51698357985587,1.47275688361191,1.41363777669213,1.5798791519143,1.537751784645,1.46954415641532,1.59499533494963,1.61172113654036,1.537751784645,1.34823755261989,1.36552272983927,1.4068247365219,1.40186635418676,1.33264045381691,1.32422165832591,1.41172829315767,1.35763441915503,1.4068247365219,1.40186635418676,1.40011692792631,1.3936186348894,1.34409358181978,1.52215552366124,1.40582852088509,1.39685562737982,1.40197592766581,1.38573571264129,1.42643222696078,1.3300326300915,1.31247103878537,1.43015810059624,1.61726273423867,1.3737623148531,1.41397561761302,1.3624102141613,1.43168091490489,1.45967052520913,1.53313237964589,2.07376047895414,1.97305837204097,1.5480601306349,1.5480601306349,1.5303252274482,1.46180342165055,1.46268472688799,1.33979879861932,1.48492132492408,1.4835968515526,1.48240826928809,1.45370416487856,1.43818333568104,1.42159002966876,1.3829996588791,1.3435184842095,1.48492132492408,1.4835968515526,1.46813805090419,1.46673648322129,1.48492132492408,1.4835968515526,1.46673648322129,1.40582852088509,1.31614279459965,1.40582852088509,1.48905305132703,1.34380593782081,1.4527176920367,1.43297363384094,1.38923340522673,1.38038499425719,1.38038499425719,1.34804393046693,1.32615002265705,1.32093568187869,1.41476493663422,1.39772291569981,1.38038499425719,1.41476493663422,1.41476493663422,1.41476493663422,1.31479586552899,1.31479586552899,1.58838029403677,1.58838029403677],[0.138592668156439,0.0980064725185639,0.728523663641705,0.750895094152581,0.775325904570156,1.05835662453871,0.503699439416314,0.479364993547932,0.543383217167263,0.960744139149289,0.952761423117512,0.162575537664775,1.00104712403206,0.744836395218705,0.462019547138541,1.16239594138661,0.829468395506859,0.894717874002223,0.80986406480629,1.53414349880774,0.983777243972257,0.819333375556883,1.30378993357104,0.890388138876463,0.752248054616887,0.393372185404938,0.58838029403677,0.93617981325751,0.629454002086363,1.05088490458313,0.868219879901817,0.776899319617873,0.794856943886496,0.847201345910433,0.694338967898671,0.541221824422749,1.35697218170629,0.446248037333212,0.672735390651557,0.497779256658008,1.02119556779996,0.989153612323559,0.918139712847621,0.688596809484378,0.760820177196212,0.910794317299693,0.781499061095696,0.766669688374037,0.868405040630225,0.835169955958468,0.749997171180883,0.938589703855087,0.327191930161276,0.552056727226416,1.02945879372371,0.824307525504325,1.13226138973298,0.728823184157142,0.733666882604855,0.410695466237192,0.52443146227897,0.761280639300807,0.68592900187922,0.605836488880219,0.213623523400668,1.07043364341545,0.425759886640989,0.429442375356502,1.079214848468,0.433001995003485,0.984950929322692,0.122569185915357,1.5386194273712,0.67182629746203,0.529500658307875,0.801971088187941,0.659381375553727,0.60172197511017,0.349080213687458,0.563993955517888,0.677117153598565,0.818788349990388,0.964944386844029,1.14355538405658,1.5319415815581,0.702431618126778,0.604000252851113,0.639936222400424,0.884729475991376,0.341557264763198,0.416072023099892,0.241488732510312,0.282288355825743,0.450721161007082,0.0754471698089323,0.423848996378013,0.785303177774235,0.712148968979011,0.51555525240715,0.2136586039044,1.35214066445336,0.870807610563803,1.06169368680342,0.507676313357555,1.808974507932,0.700059486204095,1.16660134687014,0.697410166144551,0.623980341523288,1.0346339498865,0.488583626635395,0.92540863441334,0.420222533113847,0.750792020024843,1.3342854229199,0.402506025874285,0.466075019240587,1.21924330059068,0.799622650458566,0.460541644678837,0.567324211530851,0.205599958109528,0.826133995079534,1.69696238520891,0.74997650687889,0.611080603788595,0.864490202017889,0.824826911438329,0.551879911816423,0.598959456615394,0.308324330420229,0.8752835794866,0.587444671545079,1.05486900157393,0.366812920053768,0.187745414028629,1.0940436180738,0.387866940585384,0.539277879527784,0.654524314913972,0.961018608812372,0.425261296895292,0.232165698873512,0.686503044303771,1.16687389938993,0.217689819772113,0.731695701269119,1.25328195562197,0.512285671782913,1.47656159680471,0.449833630095805,0.575601438477017,1.96240518173614,1.22356787895428,1.32675062409619,1.30327580934531,1.54339655864947,2.507772837158,0.182037458594453,0.922434880772527,1.08718486793299,0.546166089405967,0.554688851458738,2.19675952609963,1.82861431531702,1.68123349255865,0.702839476665857,0.468531392496669,1.13967257208748,1.15240177080978,0.872842073678443,0.561815284982957,0.84270067965341,0.811581307173809,0.797995045654642,2.39585284260702,0.555995280323383,1.15412812549173,1.48509560389268,1.0919047220863,1.13857525571509,1.34158575199475,1.55148677817377,0.870021329756349,0.76418081095563,0.805925242622802,0.965969085357747,1.19140975168468,2.17687873793309,1.06551015424215,1.56005629986389,0.64239313217016,0.74401555669282,0.864005023701375,0.777866746946084,0.380438978728835,1.21474641401539,0.481123997173336,1.26268812283593,1.50670018918195,1.30426136832388,0.525633164567963,0.992935978206749,0.34487056601725,0.69766981317031,0.495027413090107,2.27209841876435,1.52746335157269,1.02166798649615,0.538817946381785,1.2797227822836,0.833646069514306,0.317674007745381,0.437034158422441,0.969478813551715,1.79267242859404,0.631274818032347,0.296119397159242,0.437196712035112,0.457724564132589,0.78857393117797,0.79783448332586,0.733274235506004,1.43021091290572,1.12635935045893,0.5997831260291,0.702048560389953,0.361586004198294,0.680090378225741,0.97693304226045,1.93142520950357,1.41779078687164,1.40531267929128,1.13308764321246,0.637501764091244,1.82383145747016,1.30223882382153,0.318870248822407,0.465354788091366,1.45367614167656,0.55916682910153,0.764772950841034,0.367843412707933,0.903489143952021,1.04478513724443,0.551837330094949,0.539562237085025,0.571944410649569,0.709607587007954,0.290272456927367,0.962223711649828,0.573606990859551,1.23455156463903,1.8658525974846,1.10666909660749,0.472648021478724,0.402314139316006,0.292957829795336,0.405873646347121,0.138130757095648,0.414784565319767,0.793277656761869,0.929843611710147,0.441586707802228,1.0241409724102,0.714971625978719,1.49059300737676,0.814662516010191,0.631914191363073,0.482572954234518,0.567249461412098,0.582601035517634,1.33863598015102,0.662449305624724,0.817146303966626,0.838997411738542,0.473729139983758,0.62613468667281,0.272089845744117,0.537011653820489,0.526482869549163,0.710581369567377,1.06031991582591,0.585243745001412,0.61144082173638,0.943364517889462,1.13699265073134,0.947445234003546,0.963888253865116,0.916048443756616,0.606458804363796,0.570385410457189]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>hgnc_symbol<\/th>\n      <th>hgnc_id<\/th>\n      <th>go_name<\/th>\n      <th>go_id<\/th>\n      <th>go_domain<\/th>\n      <th>ncon_gene<\/th>\n      <th>ncon_go<\/th>\n      <th>mean_padj<\/th>\n      <th>cilow_padj<\/th>\n      <th>ciupp_padj<\/th>\n      <th>mean_pval<\/th>\n      <th>cilow_pval<\/th>\n      <th>ciupp_pval<\/th>\n      <th>mean_sim<\/th>\n      <th>sem_sim<\/th>\n      <th>mlog10padj<\/th>\n      <th>mlog10padj_error<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,6,7,8,9,10,11,12,13,14,15,16,17]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>DT::datatable(neither.sig.p)</code></pre>
+<div id="htmlwidget-8fbb18a708bc0cd7ea83" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-8fbb18a708bc0cd7ea83">{"x":{"filter":"none","data":[["5","6","7","82","83","85","97","98","100","101","102","103","104","105","175","176","177","178","179","180","181","182","183","184","185","187","190","191","192","195","196","197","198","200","201","202","203","204","312","313","314","315","316","317","318","319","324","326","349","355","356","527","528","529","541","542","543","554","555","556","557","560","561","624","628","629","630","631","665","721","799","800","801","802","834","835","836","837","838","839","840","841","842","843","845","846","847","848","849","850","852","853","854","855","856","858","859","863","864","865","866","868","869","870","871","876","877","878","879","880","881","899","900","906","907","908","909","910","916","917","918","947","948","949","950","952","953","956","957","962","963","965","966","971","972","973","974","975","988","989","990","991","1017","1018","1019","1020","1021","1022","1024","1025","1030","1031"],["GPX7","GPX7","GPX7","HNF1A","HNF1A","HNF1A","CES3","CES3","LGALS3BP","LGALS3BP","LGALS3BP","LGALS3BP","LGALS3BP","LGALS3BP","CD247","CD247","CD247","CD247","CD247","CD247","CD247","CD247","CD247","CD247","CD247","TRAF3IP3","GJC2","GJC2","GJC2","NID1","NID1","NID1","NID1","NID1","NID1","NID1","NID1","NID1","SLC15A2","SLC15A2","SLC15A2","SLC15A2","SLC15A2","SLC15A2","SLC15A2","SLC15A2","KLHL6","KLHL7","ADH6","ADH6","ADH6","MRVI1","LDHC","LDHC","GSTP1","GSTP1","GSTP1","GSTP1","GSTP1","GSTP1","GSTP1","GSTP1","GSTP1","NCKAP5L","KRT7","KRT7","KRT7","KRT7","GPR132","GGT6","KRT15","KRT15","KRT15","KRT15","HLF","HLF","HLF","HLF","HLF","EPAS1","EPAS1","EPAS1","EPAS1","EPAS1","EPAS1","EPAS1","EPAS1","EPAS1","EPAS1","EPAS1","CD79B","CD79B","CD79B","CD79B","CD79B","CD79B","CD79B","DSC2","DSC2","DSC2","DSC2","DSC2","DSC2","DSC2","DSC2","DSC3","DSC3","DSC3","DSC3","DSC3","DSC3","GNA15","GNA15","VAV1","VAV1","VAV1","VAV1","VAV1","ZNF439","ZNF439","ZNF439","CD79A","CD79A","CD79A","CD79A","CD79A","CD79A","GRIK5","GRIK5","GRIK5","GRIK5","CBLC","CBLC","CBLC","CBLC","CBLC","CBLC","CBLC","PPP1R16B","PPP1R16B","PPP1R16B","PPP1R16B","SIM2","SIM2","SIM2","SIM2","SIM2","SIM2","UBASH3A","UBASH3A","CYTH4","CYTH4"],[4559,4559,4559,11621,11621,11621,1865,1865,6564,6564,6564,6564,6564,6564,1677,1677,1677,1677,1677,1677,1677,1677,1677,1677,1677,30766,17494,17494,17494,7821,7821,7821,7821,7821,7821,7821,7821,7821,10921,10921,10921,10921,10921,10921,10921,10921,18653,15646,255,255,255,7237,6544,6544,4638,4638,4638,4638,4638,4638,4638,4638,4638,29321,6445,6445,6445,6445,17482,26891,6421,6421,6421,6421,4977,4977,4977,4977,4977,3374,3374,3374,3374,3374,3374,3374,3374,3374,3374,3374,1699,1699,1699,1699,1699,1699,1699,3036,3036,3036,3036,3036,3036,3036,3036,3037,3037,3037,3037,3037,3037,4383,4383,12657,12657,12657,12657,12657,20873,20873,20873,1698,1698,1698,1698,1698,1698,4583,4583,4583,4583,15961,15961,15961,15961,15961,15961,15961,15850,15850,15850,15850,10883,10883,10883,10883,10883,10883,12462,12462,9505,9505],["endoplasmic reticulum","catalase activity","peroxidase activity","cytoplasm","nucleus","protein dimerization activity","sterol esterase activity","triglyceride lipase activity","collagen-containing extracellular matrix","blood microparticle","extracellular region","extracellular exosome","extracellular space","protein binding","T cell receptor signaling pathway","protein homotetramerization","protein homotrimerization","alpha-beta T cell receptor complex","T cell receptor complex","plasma membrane","cytoplasm","protein tyrosine kinase binding","protein homodimerization activity","identical protein binding","protein binding","protein binding","cell communication by electrical coupling","gap junction","gap junction channel activity involved in cell communication by electrical coupling","collagen-containing extracellular matrix","plasma membrane","extracellular exosome","basement membrane","Wnt-protein binding","collagen binding","proteoglycan binding","Wnt-activated receptor activity","laminin binding","integral component of membrane","extracellular exosome","integral component of plasma membrane","oligopeptide transmembrane transporter activity","dipeptide transmembrane transporter activity","peptide transmembrane transporter activity","peptide:proton symporter activity","protein binding","protein binding","nucleolus","response to ethanol","alcohol dehydrogenase activity, zinc-dependent","alcohol dehydrogenase (NAD+) activity","protein binding","extracellular exosome","nucleus","negative regulation of ERK1 and ERK2 cascade","negative regulation of MAP kinase activity","negative regulation of JUN kinase activity","cytosol","extracellular exosome","extracellular space","TRAF2-GSTP1 complex","protein binding","dinitrosyl-iron complex binding","centrosome","cytoplasm","extracellular exosome","nucleus","protein binding","negative regulation of G2/M transition of mitotic cell cycle","extracellular exosome","extracellular exosome","nucleus","scaffold protein binding","protein binding","nucleoplasm","nucleus","sequence-specific DNA binding","RNA polymerase II regulatory region sequence-specific DNA binding","DNA-binding transcription activator activity, RNA polymerase II-specific","cellular response to hypoxia","response to hypoxia","regulation of transcription by RNA polymerase II","positive regulation of transcription by RNA polymerase II","nucleus","DNA-binding transcription factor activity, RNA polymerase II-specific","sequence-specific DNA binding","protein heterodimerization activity","DNA binding","histone acetyltransferase binding","transcription factor binding","protein homooligomerization","B cell receptor signaling pathway","B cell differentiation","extracellular exosome","external side of plasma membrane","protein homodimerization activity","protein binding","bundle of His cell-Purkinje myocyte adhesion involved in cell communication","cardiac muscle cell-cardiac muscle cell adhesion","regulation of heart rate by cardiac conduction","cell-cell adhesion","desmosome","intercalated disc","cell-cell junction","plasma membrane","cell-cell adhesion","desmosome","cell-cell junction","plasma membrane","cell junction","gamma-catenin binding","adenylate cyclase-modulating G protein-coupled receptor signaling pathway","phospholipase C-activating dopamine receptor signaling pathway","regulation of cell size","regulation of GTPase activity","protein binding","phosphotyrosine residue binding","guanyl-nucleotide exchange factor activity","nucleus","sequence-specific DNA binding","protein binding","protein homotetramerization","B cell receptor signaling pathway","B cell differentiation","external side of plasma membrane","protein homodimerization activity","protein binding","presynaptic membrane","postsynaptic density membrane","transmitter-gated ion channel activity involved in regulation of postsynaptic membrane potential","glutamate receptor activity","negative regulation of MAP kinase activity","ubiquitin-dependent protein catabolic process","plasma membrane","membrane raft","SH3 domain binding","receptor tyrosine kinase binding","phosphotyrosine residue binding","negative regulation of peptidyl-serine dephosphorylation","positive regulation of protein dephosphorylation","positive regulation of blood vessel endothelial cell proliferation involved in sprouting angiogenesis","negative regulation of protein dephosphorylation","regulation of transcription by RNA polymerase II","positive regulation of transcription by RNA polymerase II","nucleoplasm","nuclear body","nucleus","DNA-binding transcription factor activity, RNA polymerase II-specific","Golgi apparatus","nucleoplasm","plasma membrane","ARF guanyl-nucleotide exchange factor activity"],["GO:0005783","GO:0004096","GO:0004601","GO:0005737","GO:0005634","GO:0046983","GO:0004771","GO:0004806","GO:0062023","GO:0072562","GO:0005576","GO:0070062","GO:0005615","GO:0005515","GO:0050852","GO:0051289","GO:0070207","GO:0042105","GO:0042101","GO:0005886","GO:0005737","GO:1990782","GO:0042803","GO:0042802","GO:0005515","GO:0005515","GO:0010644","GO:0005921","GO:1903763","GO:0062023","GO:0005886","GO:0070062","GO:0005604","GO:0017147","GO:0005518","GO:0043394","GO:0042813","GO:0043236","GO:0016021","GO:0070062","GO:0005887","GO:0035673","GO:0071916","GO:1904680","GO:0015333","GO:0005515","GO:0005515","GO:0005730","GO:0045471","GO:0004024","GO:0004022","GO:0005515","GO:0070062","GO:0005634","GO:0070373","GO:0043407","GO:0043508","GO:0005829","GO:0070062","GO:0005615","GO:0097057","GO:0005515","GO:0035731","GO:0005813","GO:0005737","GO:0070062","GO:0005634","GO:0005515","GO:0010972","GO:0070062","GO:0070062","GO:0005634","GO:0097110","GO:0005515","GO:0005654","GO:0005634","GO:0043565","GO:0000977","GO:0001228","GO:0071456","GO:0001666","GO:0006357","GO:0045944","GO:0005634","GO:0000981","GO:0043565","GO:0046982","GO:0003677","GO:0035035","GO:0008134","GO:0051260","GO:0050853","GO:0030183","GO:0070062","GO:0009897","GO:0042803","GO:0005515","GO:0086073","GO:0086042","GO:0086091","GO:0098609","GO:0030057","GO:0014704","GO:0005911","GO:0005886","GO:0098609","GO:0030057","GO:0005911","GO:0005886","GO:0030054","GO:0045295","GO:0007188","GO:0060158","GO:0008361","GO:0043087","GO:0005515","GO:0001784","GO:0005085","GO:0005634","GO:0043565","GO:0005515","GO:0051289","GO:0050853","GO:0030183","GO:0009897","GO:0042803","GO:0005515","GO:0042734","GO:0098839","GO:1904315","GO:0008066","GO:0043407","GO:0006511","GO:0005886","GO:0045121","GO:0017124","GO:0030971","GO:0001784","GO:1902309","GO:0035307","GO:1903589","GO:0035308","GO:0006357","GO:0045944","GO:0005654","GO:0016604","GO:0005634","GO:0000981","GO:0005794","GO:0005654","GO:0005886","GO:0005086"],["cellular component","molecular function","molecular function","cellular component","cellular component","molecular function","molecular function","molecular function","cellular component","cellular component","cellular component","cellular component","cellular component","molecular function","biological process","biological process","biological process","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","biological process","cellular component","molecular function","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","cellular component","cellular component","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","cellular component","biological process","molecular function","molecular function","molecular function","cellular component","cellular component","biological process","biological process","biological process","cellular component","cellular component","cellular component","cellular component","molecular function","molecular function","cellular component","cellular component","cellular component","cellular component","molecular function","biological process","cellular component","cellular component","cellular component","molecular function","molecular function","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","biological process","biological process","cellular component","molecular function","molecular function","molecular function","molecular function","molecular function","molecular function","biological process","biological process","biological process","cellular component","cellular component","molecular function","molecular function","biological process","biological process","biological process","biological process","cellular component","cellular component","cellular component","cellular component","biological process","cellular component","cellular component","cellular component","cellular component","molecular function","biological process","biological process","biological process","biological process","molecular function","molecular function","molecular function","cellular component","molecular function","molecular function","biological process","biological process","biological process","cellular component","molecular function","molecular function","cellular component","cellular component","molecular function","molecular function","biological process","biological process","cellular component","cellular component","molecular function","molecular function","molecular function","biological process","biological process","biological process","biological process","biological process","biological process","cellular component","cellular component","cellular component","molecular function","cellular component","cellular component","cellular component","molecular function"],[5,5,5,35,35,35,8,8,10,10,10,10,10,10,20,20,20,20,20,20,20,20,20,20,20,2,4,4,4,12,12,12,12,12,12,12,12,12,9,9,9,9,9,9,9,9,2,14,18,18,18,2,6,6,33,33,33,33,33,33,33,33,33,6,8,8,8,8,3,4,8,8,8,8,9,9,9,9,9,14,14,14,14,14,14,14,14,14,14,14,13,13,13,13,13,13,13,16,16,16,16,16,16,16,16,9,9,9,9,9,9,14,14,14,14,14,14,14,5,5,5,12,12,12,12,12,12,12,12,12,12,16,16,16,16,16,16,16,16,16,16,16,7,7,7,7,7,7,7,7,3,3],[11,2,19,21,29,5,3,4,12,3,6,25,9,177,2,4,3,3,5,31,21,3,9,7,177,177,4,3,4,12,31,25,2,2,5,6,2,5,11,25,15,8,4,10,3,177,177,3,6,2,9,177,25,29,3,7,4,21,25,9,2,177,2,5,21,25,29,177,8,25,25,29,2,177,15,29,10,6,3,4,6,44,49,29,8,10,5,22,2,7,6,6,6,25,8,9,177,3,7,3,24,3,3,17,31,24,3,17,31,5,2,4,3,7,4,177,3,7,29,10,177,4,6,6,8,9,177,2,2,4,4,7,5,31,3,4,4,3,3,7,4,6,44,49,15,15,29,8,6,15,31,2],[0.04334,0.02508,0.03108,0.03185,0.0404,0.04122,0.0216,0.0216,0.03777,0.04152,0.04152,0.04152,0.04636,0.04299,0.01241,0.01719,0.01831,0.01231,0.0173,0.02433,0.02767,0.01847,0.02134,0.02134,0.02596,0.0204,0.01651,0.0159,0.01363,0.04339,0.04339,0.04757,0.04775,0.04775,0.04775,0.04832,0.04842,0.04925,0.03776,0.03841,0.04006,0.03776,0.03776,0.03776,0.04006,0.04124,0.02227,0.04323,0.0485,0.0485,0.04973,0.03539,0.01637,0.01775,0.04479,0.04479,0.04709,0.04479,0.04479,0.04569,0.04609,0.04569,0.04607,0.04305,0.02465,0.02465,0.02465,0.02494,0.04227,0.005736,0.01576,0.01664,0.009409,0.01576,0.03496,0.03496,0.03569,0.03698,0.04471,0.04013,0.04395,0.0481,0.04849,0.04224,0.04013,0.04013,0.04224,0.04224,0.04272,0.04829,0.03741,0.04174,0.04954,0.04174,0.04174,0.03741,0.04174,0.04063,0.04063,0.04749,0.04886,0.04063,0.04063,0.04063,0.04816,0.03705,0.02996,0.02996,0.04439,0.04721,0.02996,0.04611,0.04692,0.03771,0.04707,0.02048,0.03771,0.03771,0.03781,0.03781,0.03937,0.03164,0.03467,0.04096,0.03629,0.03467,0.03623,0.04611,0.04769,0.04611,0.04713,0.04185,0.04519,0.04086,0.04303,0.04086,0.04421,0.04519,0.04545,0.04545,0.04545,0.04741,0.04323,0.04323,0.04323,0.04323,0.04552,0.04323,0.04785,0.04884,0.02155,0.01766],[0.02506,0.01039,0.01292,0.004672,0.006505,0.006583,0.0145,0.0145,0.008777,0.007064,0.007064,0.007064,0.005469,0.00791,0.0106,0.005201,0.006205,0.01071,0.005117,0.006564,0.007909,0.006356,0.007242,0.007242,0.006039,0.007745,0.001478,0.001411,0.0007773,0.02312,0.02312,0.01859,0.02646,0.02646,0.02646,0.02778,0.02584,0.02663,0.02434,0.02614,0.03095,0.02434,0.02434,0.02434,0.03095,0.02549,0.01426,0.02112,0.03907,0.03907,0.03693,0.01476,0.004161,0.005201,0.04307,0.04307,0.03832,0.04307,0.04307,0.04233,0.04034,0.04233,0.04163,0.01288,0.005732,0.005732,0.005732,0.005577,0.01256,0.0006112,0.008073,0.008658,0.004532,0.008073,0.02585,0.02585,0.02508,0.02353,0.01833,0.02369,0.03442,0.03926,0.03986,0.02178,0.02369,0.02369,0.02178,0.02178,0.02726,0.01936,0.00703,0.00963,0.01531,0.00963,0.00963,0.00703,0.00963,0.02985,0.02985,0.03097,0.03154,0.02985,0.02985,0.02985,0.02765,0.01804,0.01365,0.01365,0.02549,0.03112,0.01365,0.009034,0.009198,0.01095,0.01105,0.00868,0.01095,0.01095,0.01831,0.01831,0.01877,0.01377,0.01106,0.0135,0.009995,0.01106,0.009952,0.02019,0.01987,0.02019,0.01918,0.02026,0.02579,0.02145,0.02413,0.02145,0.02518,0.02579,0.03052,0.03052,0.03052,0.03458,0.01311,0.01311,0.01311,0.01311,0.01166,0.01311,0.0106,0.01043,0.007111,0.002962],[0.07496,0.0605,0.07478,0.2171,0.2509,0.2581,0.03219,0.03219,0.1625,0.244,0.244,0.244,0.3929,0.2337,0.01454,0.05679,0.05405,0.01414,0.05852,0.09021,0.09678,0.05367,0.0629,0.0629,0.1116,0.05374,0.1843,0.1792,0.2389,0.08145,0.08145,0.1217,0.08618,0.08618,0.08618,0.08404,0.09072,0.0911,0.05857,0.05643,0.05186,0.05857,0.05857,0.05857,0.05186,0.06672,0.03478,0.08851,0.06021,0.06021,0.06698,0.08484,0.06437,0.0606,0.04658,0.04658,0.05788,0.04658,0.04658,0.04933,0.05266,0.04933,0.05099,0.1439,0.106,0.106,0.106,0.1116,0.1423,0.05384,0.03078,0.032,0.01953,0.03078,0.04728,0.04728,0.05079,0.05811,0.1091,0.06798,0.05613,0.05895,0.05899,0.08193,0.06798,0.06798,0.08193,0.08193,0.06696,0.1205,0.1991,0.1809,0.1603,0.1809,0.1809,0.1991,0.1809,0.05532,0.05532,0.07284,0.07569,0.05532,0.05532,0.05532,0.08388,0.07611,0.06574,0.06574,0.07729,0.07163,0.06574,0.2353,0.2393,0.1299,0.2005,0.04834,0.1299,0.1299,0.0781,0.0781,0.08257,0.07268,0.1087,0.1243,0.1318,0.1087,0.1319,0.1053,0.1144,0.1053,0.1158,0.08648,0.07918,0.07785,0.07673,0.07785,0.07761,0.07918,0.06767,0.06767,0.06767,0.065,0.1426,0.1426,0.1426,0.1426,0.1777,0.1426,0.2161,0.2286,0.06534,0.1053],[0.03097,0.006469,0.01845,0.004677,0.008587,0.01308,0.005971,0.0072,0.01265,0.02317,0.02646,0.03118,0.03719,0.04046,0.004929,0.009154,0.01204,0.001963,0.009247,0.01335,0.02161,0.01425,0.008982,0.008466,0.02008,0.0204,0.01622,0.01176,0.006232,0.01338,0.01857,0.02624,0.01149,0.01789,0.03143,0.03147,0.02526,0.02909,0.01835,0.0298,0.02578,0.01069,0.01975,0.02313,0.02285,0.03747,0.02227,0.01264,0.01617,0.008381,0.01992,0.03539,0.01299,0.01621,0.0147,0.01631,0.02433,0.01698,0.01813,0.0215,0.01626,0.02265,0.017,0.01091,0.01856,0.01952,0.01996,0.02344,0.03237,0.005736,0.01261,0.01568,0.002836,0.01432,0.01232,0.01971,0.01815,0.02489,0.03944,0.01621,0.02734,0.03527,0.0256,0.02107,0.01187,0.01658,0.02866,0.03041,0.02414,0.01802,0.01651,0.02208,0.04527,0.02836,0.03203,0.01182,0.03059,0.0168,0.02413,0.03264,0.02965,0.009735,0.01309,0.01591,0.02844,0.02774,0.009123,0.01218,0.02604,0.03998,0.01096,0.02035,0.02275,0.03222,0.04707,0.004952,0.02355,0.02938,0.02504,0.02248,0.02915,0.009721,0.01838,0.03624,0.02623,0.01162,0.0286,0.02027,0.02593,0.02192,0.02221,0.01521,0.02877,0.01973,0.01768,0.0148,0.02845,0.02418,0.01505,0.01595,0.01722,0.01427,0.02862,0.02806,0.02942,0.03223,0.02216,0.02645,0.02885,0.03135,0.02043,0.01398],[0.01966,0.002802,0.005142,0.000182,0.0004593,0.001058,0.003113,0.004832,0.003548,0.002872,0.003223,0.007978,0.003071,0.009117,0.001341,0.001397,0.001867,0.001378,0.0009389,0.001569,0.006347,0.003444,0.001682,0.001022,0.003579,0.007745,0.001532,0.0007699,0.000258,0.003559,0.004594,0.003709,0.002937,0.007649,0.01722,0.02854,0.004861,0.01359,0.002141,0.016,0.01209,0.006094,0.005524,0.007293,0.01241,0.01675,0.01426,0.001234,0.006865,0.005802,0.004582,0.01476,0.001872,0.004722,0.009994,0.008858,0.01418,0.009827,0.0133,0.01351,0.007797,0.01368,0.003968,0.004828,0.004303,0.005059,0.006556,0.004803,0.0182,0.0006112,0.006246,0.008681,0.0007251,0.006395,0.00788,0.009877,0.01352,0.01628,0.0132,0.004821,0.02295,0.01882,0.008615,0.004177,0.004913,0.01236,0.006994,0.01133,0.01362,0.001569,0.001924,0.01161,0.01507,0.003997,0.007274,0.001624,0.005441,0.01025,0.01653,0.01467,0.006409,0.001967,0.003815,0.005479,0.01003,0.008571,0.003675,0.005878,0.0042,0.01902,0.001846,0.001868,0.002099,0.01002,0.01105,0.00152,0.004664,0.007779,0.0105,0.009193,0.01343,0.005416,0.009639,0.01423,0.007541,0.002118,0.005593,0.008385,0.009097,0.01004,0.003588,0.002268,0.01857,0.006537,0.009034,0.007596,0.01993,0.01516,0.007244,0.007911,0.01407,0.007423,0.01626,0.00866,0.008575,0.007146,0.001734,0.01124,0.007185,0.006484,0.007321,0.001075],[0.04879,0.01493,0.06618,0.1202,0.1605,0.1617,0.01145,0.01073,0.04512,0.1869,0.2172,0.1218,0.4504,0.1795,0.01811,0.05998,0.07764,0.002795,0.09106,0.1136,0.07355,0.05896,0.04798,0.07012,0.1127,0.05374,0.1718,0.1797,0.1505,0.05033,0.07508,0.1857,0.04498,0.04183,0.05737,0.0347,0.1313,0.06225,0.1572,0.0555,0.05493,0.01874,0.07062,0.07336,0.04208,0.0838,0.03478,0.1296,0.03808,0.01211,0.08657,0.08484,0.09015,0.05565,0.02163,0.03005,0.04177,0.02935,0.02473,0.03421,0.03393,0.03751,0.07286,0.02467,0.08004,0.07529,0.06078,0.1144,0.05757,0.05384,0.02546,0.02833,0.01109,0.03207,0.01926,0.03933,0.02437,0.03805,0.1179,0.05447,0.03257,0.06611,0.07608,0.1063,0.02866,0.02224,0.1175,0.08162,0.04279,0.2069,0.1417,0.04198,0.136,0.2013,0.141,0.0861,0.1719,0.02756,0.03522,0.07259,0.1372,0.04819,0.04493,0.04617,0.08065,0.0898,0.02264,0.02522,0.1614,0.08403,0.06505,0.2216,0.2465,0.1037,0.2005,0.01613,0.1189,0.111,0.05973,0.05499,0.06326,0.01745,0.03505,0.09229,0.09124,0.06376,0.1463,0.04901,0.0739,0.04784,0.1375,0.102,0.04455,0.05952,0.03461,0.02884,0.0406,0.03856,0.03129,0.03215,0.02106,0.02742,0.05036,0.09091,0.101,0.1454,0.2832,0.06222,0.1158,0.1516,0.05703,0.182],[0.8294,0.9474,0.8768,0.9308,0.9107,0.8875,0.952,0.9448,0.9074,0.8493,0.8372,0.8264,0.7967,0.7965,0.9565,0.9195,0.9026,0.981,0.9124,0.8919,0.864,0.896,0.9242,0.9231,0.8647,0.87,0.8746,0.8906,0.9245,0.9028,0.875,0.8376,0.9136,0.8833,0.8277,0.8279,0.8423,0.8365,0.8652,0.8335,0.8485,0.9236,0.8692,0.8558,0.8623,0.808,0.8655,0.8935,0.8917,0.9374,0.8666,0.8141,0.8961,0.8878,0.9031,0.8932,0.8561,0.8906,0.8862,0.8689,0.8925,0.8636,0.8815,0.9208,0.8744,0.8717,0.8716,0.8543,0.8246,0.9398,0.9114,0.8966,0.9712,0.9015,0.9151,0.8759,0.886,0.8538,0.8013,0.8884,0.8436,0.8148,0.8491,0.8629,0.9147,0.8939,0.8332,0.8305,0.8566,0.8651,0.8748,0.8655,0.7848,0.8315,0.8233,0.9017,0.827,0.8919,0.8571,0.8229,0.828,0.9202,0.9056,0.891,0.8375,0.8378,0.9306,0.9148,0.838,0.8004,0.9124,0.8539,0.8424,0.8238,0.7781,0.9569,0.8529,0.8332,0.8519,0.8627,0.8355,0.9289,0.8829,0.8111,0.8459,0.9066,0.8347,0.8723,0.8479,0.8657,0.855,0.8852,0.8379,0.8712,0.886,0.9008,0.8391,0.8566,0.8989,0.8945,0.891,0.9032,0.8383,0.8369,0.8341,0.8215,0.8464,0.8457,0.8324,0.8229,0.8687,0.8805],[0.01242,0.009327,0.02803,0.04174,0.0331,0.03694,0.006594,0.004458,0.02017,0.05294,0.0554,0.03646,0.07384,0.04267,0.009438,0.0308,0.0322,0.001096,0.03987,0.03368,0.03069,0.02777,0.02513,0.02666,0.03769,0.0213,0.04745,0.05452,0.03185,0.02169,0.03145,0.04821,0.01875,0.01648,0.01634,0.002545,0.03653,0.02074,0.04042,0.01664,0.01911,0.008253,0.02564,0.02586,0.01576,0.0218,0.01126,0.03632,0.01783,0.004434,0.02952,0.02403,0.03601,0.02692,0.006743,0.01305,0.01432,0.01119,0.006851,0.01178,0.01564,0.01293,0.02863,0.01239,0.0318,0.03268,0.02636,0.04073,0.01576,0.02763,0.01215,0.01073,0.008436,0.01577,0.006806,0.01467,0.006548,0.01113,0.03064,0.0233,0.004768,0.01704,0.02872,0.03935,0.0152,0.005676,0.03459,0.02602,0.01482,0.05728,0.03983,0.01619,0.03151,0.05159,0.04088,0.03603,0.04756,0.00994,0.009987,0.02143,0.03644,0.02478,0.01842,0.02242,0.02716,0.0287,0.01128,0.01132,0.04155,0.02035,0.02276,0.04872,0.04797,0.03165,0.04265,0.008836,0.04077,0.03531,0.02286,0.0232,0.02062,0.008035,0.01497,0.02581,0.0326,0.02972,0.04434,0.02148,0.02774,0.01964,0.04217,0.03647,0.01179,0.02242,0.01394,0.01118,0.009562,0.01198,0.0129,0.01441,0.004349,0.01202,0.01542,0.02891,0.03344,0.0397,0.06429,0.02234,0.03374,0.03981,0.02172,0.03812],[1.3631110930162,1.60067246784132,1.50751898987112,1.49689056332863,1.3936186348894,1.38489201255681,1.66554624884907,1.66554624884907,1.42285301517247,1.3817426551596,1.3817426551596,1.3817426551596,1.33385657270844,1.36663255488299,1.90622821850127,1.76472412331295,1.7373116556983,1.90974194706868,1.7619538968712,1.61385789106918,1.55799084085905,1.73353310455976,1.67080558491155,1.67080558491155,1.58569531187167,1.6903698325741,1.78225292673721,1.79860287567955,1.86550414416533,1.36261034987079,1.36261034987079,1.3226668485801,1.32102662408023,1.32102662408023,1.32102662408023,1.31587307438692,1.31497521489429,1.30759376516637,1.42296801437397,1.41555569283482,1.39728905504244,1.42296801437397,1.42296801437397,1.42296801437397,1.39728905504244,1.38468134338852,1.65227978296596,1.36421476446635,1.31425826139774,1.31425826139774,1.30338154076778,1.45111943736249,1.78595132058806,1.75080164260889,1.34881893755531,1.34881893755531,1.32707130955728,1.34881893755531,1.34881893755531,1.3401788419443,1.33639329187548,1.3401788419443,1.33658178774732,1.36602684421033,1.60818307638675,1.60818307638675,1.60818307638675,1.60310355085748,1.37396775217098,2.24139085734026,1.80244378684646,1.77884667804529,2.02645653146751,1.80244378684646,1.45642857603763,1.45642857603763,1.44745345204434,1.43203309317685,1.34959533013197,1.39653084026616,1.35704112059021,1.31785492362617,1.31434781588448,1.37427609047424,1.39653084026616,1.39653084026616,1.37427609047424,1.37427609047424,1.3693687559795,1.31614279459965,1.42701229180179,1.37944755527056,1.30504399775018,1.37944755527056,1.37944755527056,1.42701229180179,1.37944755527056,1.39115317767359,1.39115317767359,1.32339783041798,1.31104653736258,1.39115317767359,1.39115317767359,1.39115317767359,1.31731352175023,1.43121178768465,1.52345819097257,1.52345819097257,1.35271485497463,1.32596599956875,1.52345819097257,1.33620487778059,1.32864199655651,1.42354346759438,1.3272558016934,1.68867004769621,1.42354346759438,1.42354346759438,1.42239332263746,1.42239332263746,1.40483458520977,1.49976352517436,1.4600461583436,1.38764005203223,1.44021303179944,1.4600461583436,1.44093166596546,1.33620487778059,1.32157267756613,1.33620487778059,1.32670256024036,1.37830453767072,1.3449576586688,1.38870163770357,1.36622865391744,1.38870163770357,1.35447948509413,1.3449576586688,1.34246611244201,1.34246611244201,1.34246611244201,1.32413004468104,1.36421476446635,1.36421476446635,1.36421476446635,1.36421476446635,1.34179774661299,1.36421476446635,1.32011805788714,1.31122434472716,1.66655272550325,1.75300930075845],[0.343305393487682,0.951859401208923,0.781348937822035,2.24303804868629,1.94428491969268,1.59062231974403,0.841274630468416,0.650326825537855,1.02716337366784,1.16007290927014,1.10999703932807,0.716363312866581,1.17886361084849,0.673515490317402,0.966343003647131,1.09007947057287,0.991544026352618,0.951008835359709,1.26542676406917,1.19051916534388,0.639440660826996,0.729403752658624,1.10336842362656,1.31974351928976,0.860542989738327,0.420608745330674,1.03248830796621,1.31496280469151,1.72287614987144,1.08606166212537,0.975198659270205,1.10807631809129,1.21106942939696,0.795368714997473,0.442940228802129,0.228672956834447,0.998299164031172,0.559186778101136,1.24641531833159,0.380324324509251,0.520284644096785,0.792129535739377,0.834778315719438,0.714125772063033,0.508939163458828,0.391303845238615,0.193600691518192,1.54447007583643,0.84910119702949,0.922164014135618,1.03556337437885,0.379794205150492,0.941742835009855,0.575072374648405,0.65144171733812,0.703845386495948,0.521252459595675,0.658760106392664,0.527329421477602,0.529165809033674,0.771679173903845,0.523735060671608,1.06484654877054,0.950205894364362,0.758045577530693,0.687752244204681,0.575177978714787,0.715383862503562,0.365960859843944,0.97242579709211,0.401954233259357,0.282583565733644,1.11314556340518,0.391715664338864,0.64704520647281,0.548946370193761,0.421569856350043,0.356312506269972,0.529830738662182,0.920332028250832,0.282176189536511,0.407525457282593,0.750396902331477,1.00485943426063,0.912122395599017,0.511450688981042,0.78099828155253,0.571493999662358,0.496454136443734,1.48823426181341,1.28878264049641,0.555720224990861,0.516842749935186,1.01881829646933,0.758779148010742,1.36240168329305,0.884873718823531,0.598122956934638,0.390573968754964,0.510172055738736,0.882163191053351,1.31504246240707,1.02735228003551,0.870145521891702,0.68138554522935,0.635756717212941,0.911284465607215,0.707312227290835,1.02403585462747,0.39482348782986,1.21031011233754,1.39241825032533,1.34934556486109,0.575588810874393,0.62938192028547,1.12948636435902,0.907697990654662,0.685532760916606,0.556417378292598,0.614149417245828,0.467089402121514,0.766557819148551,0.555921861385216,0.45915504788349,0.682358027412337,1.21402788588493,0.811423514706289,0.740292055277303,0.719529127723096,0.662061409410407,1.11844500538758,1.26605241210841,0.386230437591421,0.795919877330511,0.67789125985718,0.730713406231449,0.346013216205386,0.474343140035167,0.797555445915965,0.759302503044889,0.50923979012324,0.805290494766272,0.424664694275602,0.698267343516305,0.702551106818843,0.781722223667231,1.41915316024682,0.585018924300609,0.823455169642618,0.876932649096368,0.46887686764332,1.21558223498993]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>hgnc_symbol<\/th>\n      <th>hgnc_id<\/th>\n      <th>go_name<\/th>\n      <th>go_id<\/th>\n      <th>go_domain<\/th>\n      <th>ncon_gene<\/th>\n      <th>ncon_go<\/th>\n      <th>mean_padj<\/th>\n      <th>cilow_padj<\/th>\n      <th>ciupp_padj<\/th>\n      <th>mean_pval<\/th>\n      <th>cilow_pval<\/th>\n      <th>ciupp_pval<\/th>\n      <th>mean_sim<\/th>\n      <th>sem_sim<\/th>\n      <th>mlog10padj<\/th>\n      <th>mlog10padj_error<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,6,7,8,9,10,11,12,13,14,15,16,17]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Interestingly it looks like one of the genes identified in the GeneWalk that showed significance and is within a PMD is KRT5, which is a favorable prognostic marker in breast cancer - perhaps something to look at more?</p>
+<p>Unfortunately, the top three most negatively correlated genes in PMDs (MAEL, TMEM26, and OR51E2) did not show any association with any GO term, a bit weird - might run the analysis again.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-redhat-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /usr/lib64/R/lib/libRblas.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] DT_0.9        ggplot2_3.2.1 dplyr_0.8.3   knitr_1.25   
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.2        pillar_1.4.2      compiler_3.5.2   
+ [4] later_1.0.0       git2r_0.26.1      workflowr_1.5.0  
+ [7] tools_3.5.2       digest_0.6.22     jsonlite_1.6     
+[10] evaluate_0.14     tibble_2.1.3      gtable_0.3.0     
+[13] pkgconfig_2.0.3   rlang_0.4.0       shiny_1.4.0      
+[16] crosstalk_1.0.0   yaml_2.2.0        xfun_0.10        
+[19] fastmap_1.0.1     withr_2.1.2       stringr_1.4.0    
+[22] fs_1.3.1          htmlwidgets_1.5.1 rprojroot_1.3-2  
+[25] grid_3.5.2        tidyselect_0.2.5  glue_1.3.1       
+[28] R6_2.4.0          rmarkdown_1.16    purrr_0.3.3      
+[31] magrittr_1.5      whisker_0.4       backports_1.1.5  
+[34] scales_1.0.0      promises_1.1.0    htmltools_0.4.0  
+[37] assertthat_0.2.1  xtable_1.8-5      mime_0.7.1       
+[40] colorspace_1.4-2  httpuv_1.5.2      stringi_1.4.3    
+[43] lazyeval_0.2.2    munsell_0.5.0     crayon_1.3.4     </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

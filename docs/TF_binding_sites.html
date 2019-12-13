@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Kevin Brooks Henry" />
+
+<meta name="date" content="2019-11-28" />
+
+<title>7: Transcription Factor Binding Sites</title>
+
+<script src="site_libs/jquery-1.12.4/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.9/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.19/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.19/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PMD_project_workflowr</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/brookshenry3/PMD_project_workflowr">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">7: Transcription Factor Binding Sites</h1>
+<h4 class="author">Kevin Brooks Henry</h4>
+<h4 class="date">November 28, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PMD_project_workflowr/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191128code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191128)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191128code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191128)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/brookshenry3/PMD_project_workflowr/tree/4629dd5846cc531d5ee90955e97e7a62158de2a9" target="_blank">4629dd5</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .gitignore
+    Untracked:  code/
+    Untracked:  data/Input/TFs/
+    Untracked:  data/Input/wgEncodeRegTfbsClusteredV3.bed.gz
+    Untracked:  data/Output/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/brookshenry3/PMD_project_workflowr/blob/19ceff7a3c9b1221d2c431d9ef8ea12b4b762f3d/analysis/TF_binding_sites.Rmd" target="_blank">19ceff7</a>
+</td>
+<td>
+GitHub
+</td>
+<td>
+2019-12-13
+</td>
+<td>
+Add files via upload
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>In this section I am adding transcription factor binding sites to the df.pairs.FINAL object. Here, it will be interesting to see if PMDs are enriched in any specific TFs, and if there is an association between these TF binding sites and the correlation coefficients obtained during the correlation testing. It is also interesting here to compare and see if CTCF binding sites are enriched here as they were in the ChromHMM annotations</p>
+<p>Some background on TFs and TFs in prostate cancer (which informed which TFs I added to the data):</p>
+<p><a href="https://www.cell.com/cell/pdf/S0092-8674(18)30106-5.pdf" class="uri">https://www.cell.com/cell/pdf/S0092-8674(18)30106-5.pdf</a> <a href="http://perspectivesinmedicine.cshlp.org/content/early/2018/03/12/cshperspect.a030437" class="uri">http://perspectivesinmedicine.cshlp.org/content/early/2018/03/12/cshperspect.a030437</a></p>
+<pre class="r"><code>library(rtracklayer)
+library(GenomicRanges)
+library(splicejam)
+library(dplyr)
+library(ggplot2)
+library(data.table)
+library(DT)
+library(ggrepel)</code></pre>
+<pre class="r"><code>load(file = &#39;../data/Output/df_pairs_cor_methsd_chromhmm&#39;)
+load(file = &#39;../data/Output/GR_pairs_cor_methsd_chromhmm&#39;)
+load(file = &#39;../data/Output/regions&#39;)</code></pre>
+<p>Transcription factor binding sites were obtained from the link below. Important to note though is that these are ALL binding sites across the hg19 genome, and peaks have been merged. This means that unlike the ChromHMM annotations earlier these are not necessarily prostate cancer specific.</p>
+<p>TF database: <a href="http://tagc.univ-mrs.fr/remap/index.php?page=download" class="uri">http://tagc.univ-mrs.fr/remap/index.php?page=download</a></p>
+<pre class="r"><code>#I am now adding transcription factor binding sites to my &quot;master&quot; data object
+
+
+TF.CTCF.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_CTCF_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)</code></pre>
+<pre><code>
+Attaching package: &#39;Biostrings&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:base&#39;:
+
+    strsplit</code></pre>
+<pre class="r"><code>TF.AR.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_AR_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.ETS1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_ETS1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                       genome = &#39;hg19&#39;)
+
+TF.TP53.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_TP53_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.SP1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_SP1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.FOXA1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_FOXA1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                        genome = &#39;hg19&#39;)
+
+TF.RB1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_RB1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                        genome = &#39;hg19&#39;)
+
+TF.STAT1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_STAT1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                        genome = &#39;hg19&#39;)
+
+TF.FOXJ2.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_FOXJ2_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                        genome = &#39;hg19&#39;)
+
+TF.TAF1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_TAF1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.NRF1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_NRF1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.REST.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_REST_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.E2F6.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_E2F6_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.CEBPA.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_CEBPA_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                         genome = &#39;hg19&#39;)
+
+TF.SPI1.gr &lt;- import.bed(&quot;../data/Input/TFs/remap2018_SPI1_nr_macs2_hg19_v1_2.bed.gz&quot;,
+                          genome = &#39;hg19&#39;)</code></pre>
+<p>Once the data has been loaded I can use splicejam again to annotate df.pairs.FINAL with the binding sites. In this next code chunk I am also renaming the columns, assigning NAs to ‘X’ (I originally used ‘none’ however, because some of the TF names start with a letter after N this messes up my enrichment analysis, so I went with X to be safe), and changing the TF binding site columns to factors (instead of characters).</p>
+<pre class="r"><code>pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.AR.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.CTCF.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.ETS1.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.SP1.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.TP53.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.FOXA1.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.RB1.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.STAT1.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.FOXJ2.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.NRF1.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.TAF1.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.CEBPA.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.E2F6.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.REST.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(pairs.FINAL.gr,
+                                              TF.SPI1.gr)
+
+
+df.pairs.FINAL &lt;- as.data.frame(pairs.FINAL.gr)
+
+
+df.pairs.FINAL &lt;- df.pairs.FINAL[ , c(1:18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60)]
+names(df.pairs.FINAL)[16] &lt;- &#39;PC3.annots&#39;
+names(df.pairs.FINAL)[17] &lt;- &#39;PrEC.annots&#39;
+names(df.pairs.FINAL)[18] &lt;- &#39;AR.binding.sites&#39;
+names(df.pairs.FINAL)[19] &lt;- &#39;CTCF.binding.sites&#39;
+names(df.pairs.FINAL)[20] &lt;- &#39;ETS1.binding.sites&#39;
+names(df.pairs.FINAL)[21] &lt;- &#39;SP1.binding.sites&#39;
+names(df.pairs.FINAL)[22] &lt;- &#39;TP53.binding.sites&#39;
+names(df.pairs.FINAL)[23] &lt;- &#39;FOXA1.binding.sites&#39;
+names(df.pairs.FINAL)[24] &lt;- &#39;RB1.binding.sites&#39;
+names(df.pairs.FINAL)[25] &lt;- &#39;STAT1.binding.sites&#39;
+names(df.pairs.FINAL)[26] &lt;- &#39;FOXJ2.binding.sites&#39;
+names(df.pairs.FINAL)[27] &lt;- &#39;NRF1.binding.sites&#39;
+names(df.pairs.FINAL)[28] &lt;- &#39;TAF1.binding.sites&#39;
+names(df.pairs.FINAL)[29] &lt;- &#39;CEBPA.binding.sites&#39;
+names(df.pairs.FINAL)[30] &lt;- &#39;E2F6.binding.sites&#39;
+names(df.pairs.FINAL)[31] &lt;- &#39;REST.binding.sites&#39;
+names(df.pairs.FINAL)[32] &lt;- &#39;SPI1.binding.sites&#39;
+
+df.pairs.FINAL[, 18:32][is.na(df.pairs.FINAL[, 18:32])] &lt;- &#39;X&#39;
+
+#Have to convert them to factors after this step ^
+#Also using &#39;X&#39; instead of &#39;none&#39; because alphabetically using none will make it so that the second half of my TFs show up SECOND instead of first (ruining the for loop below that I created)
+
+cols &lt;- colnames(df.pairs.FINAL[, 16:32])
+
+df.pairs.FINAL[cols] &lt;- lapply(df.pairs.FINAL[cols], factor)</code></pre>
+<p>Now that the TF binding sites have been added to my main data frame, I can begin doing enrichment analysis.</p>
+<pre class="r"><code>#Need to do enrichment analysis on TF binding sites to see if PMDs are enriched in any in particular (maybe AR or CTCF?)
+
+grouped.data &lt;- data.frame(binding.site = rep(colnames(df.pairs.FINAL[18:32]), 3),
+                           region = c(rep(&#39;commonHMD&#39;, 15), rep(&#39;commonPMD&#39;, 15), rep(&#39;neither&#39;, 15)),
+                           count = NA,
+                           total = c(rep(46854, 15), rep(14105, 15), rep(34817, 15)), 
+                           percent = NA)
+
+for (i in 18:32) {
+  sum &lt;- group_by(df.pairs.FINAL, df.pairs.FINAL[, i], region) %&gt;% dplyr::summarise(count = n())
+  grouped.data$count[c(i-17, i-2, i+13)] &lt;- sum$count[c(1:3)]
+  grouped.data$percent[c(i-17, i-2, i+13)] &lt;- grouped.data$count[c(i-17, i-2, i+13)] / grouped.data$total[c(i-17, i-2, i+13)] * 100
+}</code></pre>
+<p>Once the enrichment data is summarized it can be plotted.</p>
+<pre class="r"><code>ggplot(grouped.data, aes(fill=region, y=percent, x=binding.site)) + 
+  geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x=&#39;Binding Site&#39;, y=&#39;Percent&#39;, fill=&#39;Region&#39;)</code></pre>
+<p><img src="figure/TF_binding_sites.Rmd/Plotting%20TF%20enrichment-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Interesting, so the expected TFs don&#39;t show really any enrichment in PMDs
+#TAF1 &amp; NRF1 are known to only bind to non-methylated DNA, so it&#39;s interesting that they&#39;re enriched in PMDs
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5559737/</code></pre>
+<p>Weirdly it looks like none of the binding sites are enriched greatly in PMDs, even CTCF binding sites which was a bit surprising to me. However, given that the TF binding site data is for ALL peaks and is not necessarily PRAD specific, it makes sense as HMDs and neither regions cover a much larger portion of the genome.</p>
+<p>I can look specifically at negatively correlated probe-gene pairs in PMDs and HMDs to see if there is any enrichment in specific TFs in negatively correlated regions, perahps these influence gene expression, etc.</p>
+<pre class="r"><code>#Now I will break up the enrichment above by region and correlation to see if there are any in PMDs or HMDs that stand out
+
+PMD.corr &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$r &lt;= (-.5) &amp; df.pairs.FINAL$region == &#39;commonPMD&#39;)
+
+HMD.corr &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$r &lt;= (-.5) &amp; df.pairs.FINAL$region == &#39;commonHMD&#39;)
+
+region.grouped &lt;- data.frame(binding.site = rep(colnames(df.pairs.FINAL[18:32]), 2),
+                        region = c(rep(&#39;PMD&#39;, 15), rep(&#39;HMD&#39;, 15)),
+                        count = NA,
+                        total = c(rep(150, 15), rep(552, 15)),
+                        percent = NA)
+
+for (i in 18:32) {
+  sum &lt;- summary(PMD.corr[[i]])
+  region.grouped$count[c(i-17)] &lt;- sum[1]
+}
+
+for (i in 18:32) {
+  sum &lt;- summary(HMD.corr[[i]])
+  region.grouped$count[c(i-2)] &lt;- sum[1]
+}
+
+region.grouped$count &lt;- as.numeric(region.grouped$count)
+
+region.grouped$percent &lt;- region.grouped$count / region.grouped$total * 100</code></pre>
+<p>Once the data is collected it can be plotted.</p>
+<pre class="r"><code>ggplot(region.grouped, aes(fill=region, y=percent, x=binding.site)) + 
+  geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x=&#39;Binding Site&#39;, y=&#39;Percent&#39;, fill=&#39;Region&#39;)</code></pre>
+<p><img src="figure/TF_binding_sites.Rmd/Plotting%20region%20&%20correlation%20TF%20enrichment-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Here once again it doesn’t look like any of the TFs I looked at are enriched in PMDs (the exception being FOXJ2 but I think there were only 1-2 sites so not really). Interestingly like the other enrichment figure above all of the TFs share the same pattern - I am hoping this is something inherent with the data and not a problem with my analysis, will have to ask Reka about this.</p>
+<p>Below I am using a different set of TF binding sites that Reka sent me<br />
+Source: <a href="http://hgdownload.soe.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeRegTfbsClustered/" class="uri">http://hgdownload.soe.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeRegTfbsClustered/</a></p>
+<pre class="r"><code>#also importing them with fread from the data.table package, this works much faster than using rtracklayer and gives me a data table right away
+
+TF.all &lt;- fread(&quot;../data/Input/wgEncodeRegTfbsClusteredV3.bed.gz&quot;)
+TF.all &lt;- TF.all[, c(1:4)]
+colnames &lt;- c(&quot;chr&quot;, &#39;start&#39;, &#39;end&#39;, &#39;TF&#39;)
+names(TF.all) &lt;- colnames
+
+TF.all.gr &lt;- makeGRangesFromDataFrame(TF.all, 
+                                       keep.extra.columns = TRUE,
+                                       seqnames.field = &#39;chr&#39;,
+                                       start.field = &#39;start&#39;,
+                                       end.field = &#39;end&#39;)
+
+TFs.annot &lt;- splicejam::annotateGRfromGR(TF.all.gr, regions)
+
+df.TFs.annot &lt;- data.frame(TFs.annot)
+
+df.TFs.annot$TF &lt;- factor(df.TFs.annot$TF)
+df.TFs.annot$region &lt;- factor(df.TFs.annot$region)
+
+df.TFs.annot &lt;- subset(df.TFs.annot, df.TFs.annot$region == &#39;commonHMD&#39; | df.TFs.annot$region == &#39;commonPMD&#39; | df.TFs.annot$region == &#39;neither&#39;)
+
+sum2 &lt;- group_by(df.TFs.annot, TF, region) %&gt;% dplyr::summarise(count = n())
+
+sum2$total &lt;- rep(tapply(sum2$count, sum2$TF, sum), each=3)
+
+sum2$percent &lt;- sum2$count / sum2$total * 100
+
+
+sum2$region &lt;- gsub(x = sum2$region, pattern = &#39;commonPMD&#39;, replacement = &#39;3.PMD&#39;)
+sum2$region &lt;- gsub(x = sum2$region, pattern = &#39;commonHMD&#39;, replacement = &#39;2.HMD&#39;)
+sum2$region &lt;- gsub(x = sum2$region, pattern = &#39;neither&#39;, replacement = &#39;1.neither&#39;)
+
+sum2.pmd &lt;- subset(sum2, sum2$region == &#39;3.PMD&#39;)
+sum2.pmd$rank &lt;- rank(-sum2.pmd$percent)
+
+sum2$rank &lt;- rep(sum2.pmd$rank, each=3)
+
+#axis.labs &lt;- sum2
+
+# Hide all of the text labels.
+#axis.labs$TF &lt;- &quot;&quot;
+# Let&#39;s just label these items.
+#ix_label &lt;- c(1:5, 479:483)
+#sum2$TF[ix_label] &lt;- rownames(sum2)[ix_label]
+
+
+
+ggplot(sum2, aes(fill=region, y=percent, x=rank)) + 
+  geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_x_discrete(name = &#39;Transcription Factor&#39;) +
+  scale_fill_discrete(name=&quot;Region&quot;,
+                         breaks=c(&quot;1.neither&quot;, &quot;2.HMD&quot;, &quot;3.PMD&quot;),
+                         labels=c(&quot;Neither&quot;, &quot;HMD&quot;, &quot;PMD&quot;)) #+</code></pre>
+<p><img src="figure/TF_binding_sites.Rmd/Alternative%20TF%20binding%20site%20analysis-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The data table below shows all of the sums for each of the TFBSs from the analysis above used to plot the enrichment. (as well as showing their rank which is important for interpreting the above figure)</p>
+<pre class="r"><code>DT::datatable(sum2)</code></pre>
+<div id="htmlwidget-c780ca720efc61a3e389" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c780ca720efc61a3e389">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299","300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483"],["ARID3A","ARID3A","ARID3A","ATF1","ATF1","ATF1","ATF2","ATF2","ATF2","ATF3","ATF3","ATF3","BACH1","BACH1","BACH1","BATF","BATF","BATF","BCL11A","BCL11A","BCL11A","BCL3","BCL3","BCL3","BCLAF1","BCLAF1","BCLAF1","BDP1","BDP1","BDP1","BHLHE40","BHLHE40","BHLHE40","BRCA1","BRCA1","BRCA1","BRF1","BRF1","BRF1","BRF2","BRF2","BRF2","CBX3","CBX3","CBX3","CCNT2","CCNT2","CCNT2","CEBPB","CEBPB","CEBPB","CEBPD","CEBPD","CEBPD","CHD1","CHD1","CHD1","CHD2","CHD2","CHD2","CREB1","CREB1","CREB1","CTBP2","CTBP2","CTBP2","CTCF","CTCF","CTCF","CTCFL","CTCFL","CTCFL","E2F1","E2F1","E2F1","E2F4","E2F4","E2F4","E2F6","E2F6","E2F6","EBF1","EBF1","EBF1","EGR1","EGR1","EGR1","ELF1","ELF1","ELF1","ELK1","ELK1","ELK1","ELK4","ELK4","ELK4","EP300","EP300","EP300","ESR1","ESR1","ESR1","ESRRA","ESRRA","ESRRA","ETS1","ETS1","ETS1","EZH2","EZH2","EZH2","FAM48A","FAM48A","FAM48A","FOS","FOS","FOS","FOSL1","FOSL1","FOSL1","FOSL2","FOSL2","FOSL2","FOXA1","FOXA1","FOXA1","FOXA2","FOXA2","FOXA2","FOXM1","FOXM1","FOXM1","FOXP2","FOXP2","FOXP2","GABPA","GABPA","GABPA","GATA1","GATA1","GATA1","GATA2","GATA2","GATA2","GATA3","GATA3","GATA3","GRp20","GRp20","GRp20","GTF2B","GTF2B","GTF2B","GTF2F1","GTF2F1","GTF2F1","GTF3C2","GTF3C2","GTF3C2","HDAC1","HDAC1","HDAC1","HDAC2","HDAC2","HDAC2","HDAC6","HDAC6","HDAC6","HDAC8","HDAC8","HDAC8","HMGN3","HMGN3","HMGN3","HNF4A","HNF4A","HNF4A","HNF4G","HNF4G","HNF4G","HSF1","HSF1","HSF1","IKZF1","IKZF1","IKZF1","IRF1","IRF1","IRF1","IRF3","IRF3","IRF3","IRF4","IRF4","IRF4","JUN","JUN","JUN","JUNB","JUNB","JUNB","JUND","JUND","JUND","KAP1","KAP1","KAP1","KDM5A","KDM5A","KDM5A","KDM5B","KDM5B","KDM5B","MAFF","MAFF","MAFF","MAFK","MAFK","MAFK","MAX","MAX","MAX","MAZ","MAZ","MAZ","MBD4","MBD4","MBD4","MEF2A","MEF2A","MEF2A","MEF2C","MEF2C","MEF2C","MTA3","MTA3","MTA3","MXI1","MXI1","MXI1","MYBL2","MYBL2","MYBL2","MYC","MYC","MYC","NANOG","NANOG","NANOG","NFATC1","NFATC1","NFATC1","NFE2","NFE2","NFE2","NFIC","NFIC","NFIC","NFYA","NFYA","NFYA","NFYB","NFYB","NFYB","NR2C2","NR2C2","NR2C2","NR2F2","NR2F2","NR2F2","NR3C1","NR3C1","NR3C1","NRF1","NRF1","NRF1","PAX5","PAX5","PAX5","PBX3","PBX3","PBX3","PHF8","PHF8","PHF8","PML","PML","PML","POLR2A","POLR2A","POLR2A","POLR3G","POLR3G","POLR3G","POU2F2","POU2F2","POU2F2","POU5F1","POU5F1","POU5F1","PPARGC1A","PPARGC1A","PPARGC1A","PRDM1","PRDM1","PRDM1","RAD21","RAD21","RAD21","RBBP5","RBBP5","RBBP5","RCOR1","RCOR1","RCOR1","RDBP","RDBP","RDBP","RELA","RELA","RELA","REST","REST","REST","RFX5","RFX5","RFX5","RPC155","RPC155","RPC155","RUNX3","RUNX3","RUNX3","RXRA","RXRA","RXRA","SAP30","SAP30","SAP30","SETDB1","SETDB1","SETDB1","SIN3A","SIN3A","SIN3A","SIN3AK20","SIN3AK20","SIN3AK20","SIRT6","SIRT6","SIRT6","SIX5","SIX5","SIX5","SMARCA4","SMARCA4","SMARCA4","SMARCB1","SMARCB1","SMARCB1","SMARCC1","SMARCC1","SMARCC1","SMARCC2","SMARCC2","SMARCC2","SMC3","SMC3","SMC3","SP1","SP1","SP1","SP2","SP2","SP2","SP4","SP4","SP4","SPI1","SPI1","SPI1","SREBP1","SREBP1","SREBP1","SRF","SRF","SRF","STAT1","STAT1","STAT1","STAT2","STAT2","STAT2","STAT3","STAT3","STAT3","STAT5A","STAT5A","STAT5A","SUZ12","SUZ12","SUZ12","TAF1","TAF1","TAF1","TAF7","TAF7","TAF7","TAL1","TAL1","TAL1","TBL1XR1","TBL1XR1","TBL1XR1","TBP","TBP","TBP","TCF12","TCF12","TCF12","TCF3","TCF3","TCF3","TCF7L2","TCF7L2","TCF7L2","TEAD4","TEAD4","TEAD4","TFAP2A","TFAP2A","TFAP2A","TFAP2C","TFAP2C","TFAP2C","THAP1","THAP1","THAP1","TRIM28","TRIM28","TRIM28","UBTF","UBTF","UBTF","USF1","USF1","USF1","USF2","USF2","USF2","WRNIP1","WRNIP1","WRNIP1","YY1","YY1","YY1","ZBTB33","ZBTB33","ZBTB33","ZBTB7A","ZBTB7A","ZBTB7A","ZEB1","ZEB1","ZEB1","ZKSCAN1","ZKSCAN1","ZKSCAN1","ZNF143","ZNF143","ZNF143","ZNF217","ZNF217","ZNF217","ZNF263","ZNF263","ZNF263","ZNF274","ZNF274","ZNF274","ZZZ3","ZZZ3","ZZZ3"],["2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither"],[12687,3652,7626,7629,2009,4842,12646,4559,8316,11461,3142,8075,5819,2898,4341,13979,7667,9954,8508,4880,6455,10622,3876,7715,5126,771,2916,357,134,290,19211,5044,13816,4894,1077,3028,145,24,120,587,412,365,10291,2560,7074,10100,1631,5891,58167,40753,44160,6762,874,3645,9584,1749,5361,16811,4282,11739,8855,1114,5490,2295,1620,2546,57810,47643,52037,5441,1590,4266,9647,1839,6074,9976,2107,6175,13192,2562,9199,22016,9150,16524,22807,5363,15824,22956,4709,15563,4992,510,2783,3424,520,1730,56366,36388,43040,10452,6250,8646,668,105,392,7973,897,4628,3361,4814,6391,1164,2114,746,47532,41306,38874,6209,1445,4074,20051,7952,14579,39413,20538,28053,20232,6984,12807,10851,3234,7165,12789,5345,9087,13577,3266,9587,11116,2483,6205,28530,21779,22071,20489,18099,15861,385,18,182,1773,191,813,8044,1449,4949,2095,372,1266,6364,521,3382,16727,4120,10791,516,179,413,937,106,553,7525,874,4390,11389,3241,7400,10528,2677,6790,793,111,518,3599,1402,2562,11260,1844,6662,1036,70,565,8355,3279,5731,24290,14762,18215,5921,1842,4135,41488,22715,31151,10376,6858,8189,1000,46,511,7953,583,4097,16580,17165,12253,27674,32742,21648,39902,13838,30416,22588,4387,16003,3083,666,1754,10999,3689,6755,4505,1632,2895,5908,1452,3607,20223,3357,12071,9275,1630,5073,43843,17789,33461,1733,2081,1513,4965,1760,3287,1592,468,1049,19240,6719,12128,3768,825,2538,7311,3804,5887,2436,512,1565,8741,1938,5262,16566,5825,12081,4397,676,2580,16869,4490,11104,4932,1452,3333,10100,931,5680,12687,2658,7360,61587,25691,44876,113,9,106,13742,3388,8777,1153,1642,1106,731,151,401,1806,1168,1491,41552,36965,37122,9842,2428,6583,24911,6359,17504,247,55,130,18520,5280,12340,24546,13156,19292,12384,3622,8308,1461,329,953,32386,11405,20883,9833,2541,6571,5391,343,2544,7071,7352,7088,12005,2815,7892,20106,4577,12128,1211,284,755,4193,876,2657,1888,417,1075,4956,610,2771,3980,861,2655,1339,259,898,22994,12710,19424,23845,7505,16594,2419,1008,1893,2999,403,1902,29215,14905,21634,1559,134,816,7892,2533,5291,9272,3014,6455,2162,465,1245,26132,19010,21064,8065,2469,5222,1072,2030,2590,20657,4943,13720,6339,1252,3781,12617,4611,8224,11691,2775,7231,23280,5907,15402,19813,7896,15035,8337,1841,5472,19018,10259,14619,26332,11928,18512,8409,2261,5733,11146,3009,7769,2113,155,1146,6176,1715,3785,7913,979,4534,24315,13121,20007,10731,4231,8261,7512,1269,4512,29475,11053,22218,6546,1550,4436,13672,1932,9063,2662,368,1733,2231,325,1435,17687,10318,16120,3779,2362,2943,12606,4851,9536,706,470,643,310,218,279],[23965,23965,23965,14480,14480,14480,25521,25521,25521,22678,22678,22678,13058,13058,13058,31600,31600,31600,19843,19843,19843,22213,22213,22213,8813,8813,8813,781,781,781,38071,38071,38071,8999,8999,8999,289,289,289,1364,1364,1364,19925,19925,19925,17622,17622,17622,143080,143080,143080,11281,11281,11281,16694,16694,16694,32832,32832,32832,15459,15459,15459,6461,6461,6461,157490,157490,157490,11297,11297,11297,17560,17560,17560,18258,18258,18258,24953,24953,24953,47690,47690,47690,43994,43994,43994,43228,43228,43228,8285,8285,8285,5674,5674,5674,135794,135794,135794,25348,25348,25348,1165,1165,1165,13498,13498,13498,14566,14566,14566,4024,4024,4024,127712,127712,127712,11728,11728,11728,42582,42582,42582,88004,88004,88004,40023,40023,40023,21250,21250,21250,27221,27221,27221,26430,26430,26430,19804,19804,19804,72380,72380,72380,54449,54449,54449,585,585,585,2777,2777,2777,14442,14442,14442,3733,3733,3733,10267,10267,10267,31638,31638,31638,1108,1108,1108,1596,1596,1596,12789,12789,12789,22030,22030,22030,19995,19995,19995,1422,1422,1422,7563,7563,7563,19766,19766,19766,1671,1671,1671,17365,17365,17365,57267,57267,57267,11898,11898,11898,95354,95354,95354,25423,25423,25423,1557,1557,1557,12633,12633,12633,45998,45998,45998,82064,82064,82064,84156,84156,84156,42978,42978,42978,5503,5503,5503,21443,21443,21443,9032,9032,9032,10967,10967,10967,35651,35651,35651,15978,15978,15978,95093,95093,95093,5327,5327,5327,10012,10012,10012,3109,3109,3109,38087,38087,38087,7131,7131,7131,17002,17002,17002,4513,4513,4513,15941,15941,15941,34472,34472,34472,7653,7653,7653,32463,32463,32463,9717,9717,9717,16711,16711,16711,22705,22705,22705,132154,132154,132154,228,228,228,25907,25907,25907,3901,3901,3901,1283,1283,1283,4465,4465,4465,115639,115639,115639,18853,18853,18853,48774,48774,48774,432,432,432,36140,36140,36140,56994,56994,56994,24314,24314,24314,2743,2743,2743,64674,64674,64674,18945,18945,18945,8278,8278,8278,21511,21511,21511,22712,22712,22712,36811,36811,36811,2250,2250,2250,7726,7726,7726,3380,3380,3380,8337,8337,8337,7496,7496,7496,2496,2496,2496,55128,55128,55128,47944,47944,47944,5320,5320,5320,5304,5304,5304,65754,65754,65754,2509,2509,2509,15716,15716,15716,18741,18741,18741,3872,3872,3872,66206,66206,66206,15756,15756,15756,5692,5692,5692,39320,39320,39320,11372,11372,11372,25452,25452,25452,21697,21697,21697,44589,44589,44589,42744,42744,42744,15650,15650,15650,43896,43896,43896,56772,56772,56772,16403,16403,16403,21924,21924,21924,3414,3414,3414,11676,11676,11676,13426,13426,13426,57443,57443,57443,23223,23223,23223,13293,13293,13293,62746,62746,62746,12532,12532,12532,24667,24667,24667,4763,4763,4763,3991,3991,3991,44125,44125,44125,9084,9084,9084,26993,26993,26993,1819,1819,1819,807,807,807],[52.939703734613,15.2388900479866,31.8214062174004,52.6864640883978,13.8743093922652,33.439226519337,49.5513498687355,17.8637200736648,32.5849300575996,50.5379663109622,13.8548372872387,35.6071964017991,44.5627201715423,22.1932914688314,33.2439883596263,44.2373417721519,24.2626582278481,31.5,42.8765811621227,24.5930554855617,32.5303633523157,47.8188448206005,17.4492414351956,34.7319137442038,58.1640757971179,8.74843980483377,33.0874843980483,45.7106274007682,17.157490396927,37.1318822023047,50.4609807990334,13.248929631478,36.2900895694886,54.3838204244916,11.9679964440493,33.648183131459,50.1730103806228,8.30449826989619,41.522491349481,43.0351906158358,30.2052785923754,26.7595307917889,51.6486825595985,12.8481806775408,35.5031367628607,57.3147202360686,9.25547610940869,33.4298036545228,40.6534805703103,28.4826670394185,30.8638523902712,59.9414945483556,7.74754011169223,32.3109653399521,57.4098478495268,10.4768180184497,32.1133341320235,51.2030945419103,13.0421539961014,35.7547514619883,57.2805485477715,7.20615822498221,35.5132932272463,35.5208172109581,25.0735180312645,39.4056647577774,36.7070925138104,30.251444536161,33.0414629500286,48.1632291758874,14.0745330618748,37.7622377622378,54.9373576309795,10.4726651480638,34.5899772209567,54.6390623288421,11.540146784971,33.8207908861869,52.8673906945057,10.2673025287541,36.8653067767403,46.1648144265045,19.1864122457538,34.6487733277417,51.8411601582034,12.1902986770923,35.9685411647043,53.1044693254372,10.8934024243546,36.0021282502082,60.2534701267351,6.15570307785154,33.5908267954134,60.3454353189989,9.16461050405358,30.4899541769475,41.5084613458621,26.7964711253811,31.6950675287568,41.2340224080795,24.6567776550418,34.1091999368786,57.3390557939914,9.01287553648069,33.6480686695279,59.0680100755667,6.6454289524374,34.2865609719958,23.0742825758616,33.0495674859261,43.8761499382123,28.9264413518887,52.5347912524851,18.5387673956262,37.218115760461,32.34308443999,30.438799799549,52.9416780354707,12.3209413369713,34.737380627558,47.0879714433329,18.6745573246912,34.237471231976,44.7854642970774,23.3375755647471,31.8769601381755,50.5509332134023,17.4499662693951,31.9991005172026,51.0635294117647,15.2188235294118,33.7176470588235,46.9821094008302,19.6355754748172,33.3823151243525,51.3696556942868,12.357169882709,36.2731744230042,56.1300747323773,12.537871137144,31.3320541304787,39.4169660127107,30.0898038132081,30.4932301740812,37.629708534592,33.2402798949476,29.1300115704604,65.8119658119658,3.07692307692308,31.1111111111111,63.8458768455167,6.87792581922938,29.2761973352539,55.6986566957485,10.0332363938513,34.2681069104002,56.1210822394857,9.96517546209483,33.9137422984195,61.9850004869972,5.07451056783871,32.9404889451641,52.8699664959858,13.0223149377331,34.1077185662811,46.5703971119134,16.1552346570397,37.2743682310469,58.7092731829574,6.64160401002506,34.6491228070175,58.839627805145,6.83399796700289,34.3263742278521,51.697684975034,14.7117566954153,33.5905583295506,52.6531632908227,13.3883470867717,33.9584896224056,55.7665260196906,7.80590717299578,36.4275668073136,47.5869364008991,18.5376173476134,33.8754462514875,56.9665081453,9.32915106748963,33.7043407872104,61.998803111909,4.18910831837223,33.8120885697187,48.1140224589692,18.8828102505039,33.0031672905269,42.4153526463758,25.7774983847591,31.8071489688651,49.7646663304757,15.4815935451336,34.7537401243907,43.5094490005663,23.8217589193951,32.6687920800386,40.8134366518507,26.9755732997679,32.2109900483814,64.2260757867694,2.95439948619139,32.8195247270392,62.9541676561387,4.61489749069896,32.4309348531624,36.0450454367581,37.3168398626027,26.6381147006392,33.7224605186196,39.898128290115,26.3794111912654,47.4143257759399,16.4432720186321,36.142402205428,52.5571222485923,10.2075480478384,37.2353297035693,56.0239869162275,12.1024895511539,31.8735235326186,51.2941286200625,17.2037494753533,31.5021219045842,49.878210806023,18.0690876882197,32.0527015057573,53.8707030181453,13.2397191574724,32.8895778243822,56.7249165521304,9.41628565818631,33.8587977896833,58.0485667793216,10.2015270997622,31.7499061209163,46.1053915640478,18.7069500383835,35.1876583975687,32.5323822038671,39.0651398535761,28.4024779425568,49.5904914103076,17.5789053136237,32.8306032760687,51.2061756191701,15.0530717272435,33.7407526535864,50.5159240685798,17.6411899073175,31.8428860241027,52.8397139251157,11.569204880101,35.5910811947833,43.0008234325374,22.3738383719562,34.6253381955064,53.977398626191,11.3450033237314,34.6775980500775,54.8334483407565,12.1573301549464,33.0092215042971,48.0563935948016,16.8977721048967,35.0458343003017,57.4545929700771,8.83313733176532,33.7122696981576,51.9637741428703,13.8311308258633,34.2050950312664,50.7564062982402,14.9428836060513,34.3007100957086,60.4392316438274,5.57118065944587,33.9895876967267,55.8775600088086,11.7066725390883,32.4157674521031,46.6024486583834,19.4401985562299,33.9573527853867,49.5614035087719,3.94736842105263,46.4912280701754,53.0435789554947,13.0775466090246,33.8788744354808,29.5565239682133,42.0917713406819,28.3517046911048,56.9758378799688,11.7692907248636,31.2548713951676,40.447928331467,26.1590145576708,33.3930571108623,35.9325141172096,31.9658592689318,32.1016266138586,52.2038932795841,12.8785869622872,34.9175197581287,51.0743428876041,13.0376840119736,35.8879731004224,57.1759259259259,12.7314814814815,30.0925925925926,51.2451577199779,14.6098505810736,34.1449916989485,43.0676913359301,23.0831315577078,33.8491771063621,50.9336184914041,14.8967672945628,34.1696142140331,53.2628508931826,11.9941669704703,34.7429821363471,50.075764604014,17.6345981383554,32.2896372576306,51.9028767484824,13.4125098970705,34.6846133544471,65.1244261899009,4.14351292582749,30.7320608842716,32.8715540886058,34.1778624889591,32.950583422435,52.8575202536104,12.3943289890807,34.7481507573089,54.6195430713645,12.4337833799679,32.9466735486675,53.8222222222222,12.6222222222222,33.5555555555556,54.2712917421693,11.338338079213,34.3903701786177,55.8579881656805,12.3372781065089,31.8047337278107,59.4458438287154,7.31678061652873,33.2373755547559,53.0949839914621,11.4861259338314,35.4188900747065,53.6458333333333,10.3766025641026,35.9775641025641,41.7102017123785,23.055434624873,35.2343636627485,49.7351076255632,15.6536792925079,34.6112130819289,45.4699248120301,18.9473684210526,35.5827067669173,56.5422322775264,7.59803921568627,35.8597285067873,44.430757064209,22.6678224898865,32.9014204459044,62.1363092865684,5.34077321642088,32.5229174970108,50.2163400356325,16.1173326546195,33.666327309748,49.4744143855717,16.0823862120484,34.4431994023798,55.8367768595041,12.0092975206612,32.1539256198347,39.4707428329759,28.7134096607558,31.8158475062683,51.1868494541762,15.6702208682407,33.1429296775831,18.8334504567814,35.6640899508082,45.5024595924104,52.5356052899288,12.5712105798576,34.8931841302136,55.7421737601126,11.0094970102005,33.248329229687,49.5717428885746,18.1164545025931,32.3118026088323,53.8830253030373,12.7897866064433,33.3271880905194,52.2101863688354,13.247661979412,34.5421516517527,46.3527044731424,18.4727681078046,35.174527419053,53.2715654952077,11.7635782747604,34.9648562300319,43.3251321304903,23.3711499908876,33.3037178786222,46.3820193052913,21.0103572183471,32.6076234763616,51.2650124977138,13.7840638907517,34.9509236115345,50.8392629082284,13.7246852764094,35.4360518153622,61.892208553017,4.54012888107791,33.5676625659051,52.8948269955464,14.6882494004796,32.416923603974,58.9378817220319,7.29182183822434,33.7702964397438,42.3289173615584,22.8417735842487,34.8293090541929,46.2085001937734,18.2190070189037,35.5724927873229,56.5109456104717,9.54637779282329,33.942676596705,46.9751059828515,17.615465527683,35.4094284894655,52.234280242579,12.3683370571337,35.3973827002873,55.42627802327,7.83232659018121,36.7413953865488,55.8891454965358,7.72622296871719,36.384631534747,55.9007767476823,8.14332247557003,35.9559007767477,40.0838526912181,23.3835694050991,36.5325779036827,41.6006164685161,26.0017613386174,32.3976221928666,46.7009965546623,17.9713258993072,35.3276775460305,38.8125343595382,25.8383727322705,35.3490929081913,38.4138785625774,27.0136307311029,34.5724907063197],[69,69,69,78,78,78,52,52,52,79,79,79,37,37,37,27,27,27,26,26,26,58,58,58,136,136,136,60,60,60,85,85,85,110,110,110,137,137,137,13,13,13,93,93,93,132,132,132,16,16,16,141,141,141,121,121,121,89,89,89,146,146,146,24,24,24,12,12,12,77,77,77,122,122,122,115,115,115,124,124,124,41,41,41,105,105,105,120,120,120,151,151,151,133,133,133,19,19,19,25,25,25,134,134,134,149,149,149,9,9,9,1,1,1,10,10,10,104,104,104,45,45,45,31,31,31,57,57,57,70,70,70,39,39,39,102,102,102,98,98,98,14,14,14,8,8,8,160,160,160,147,147,147,127,127,127,128,128,128,154,154,154,91,91,91,63,63,63,150,150,150,148,148,148,74,74,74,84,84,84,140,140,140,46,46,46,131,131,131,157,157,157,43,43,43,23,23,23,68,68,68,28,28,28,18,18,18,161,161,161,155,155,155,5,5,5,3,3,3,62,62,62,125,125,125,107,107,107,59,59,59,50,50,50,87,87,87,130,130,130,126,126,126,44,44,44,4,4,4,56,56,56,71,71,71,53,53,53,114,114,114,36,36,36,117,117,117,106,106,106,61,61,61,135,135,135,80,80,80,72,72,72,152,152,152,113,113,113,40,40,40,159,159,159,88,88,88,2,2,2,111,111,111,20,20,20,11,11,11,92,92,92,90,90,90,95,95,95,76,76,76,32,32,32,73,73,73,109,109,109,54,54,54,83,83,83,158,158,158,7,7,7,100,100,100,99,99,99,96,96,96,118,118,118,103,103,103,144,144,144,116,116,116,123,123,123,33,33,33,67,67,67,42,42,42,143,143,143,35,35,35,153,153,153,64,64,64,65,65,65,108,108,108,15,15,15,66,66,66,6,6,6,97,97,97,119,119,119,49,49,49,94,94,94,86,86,86,47,47,47,112,112,112,30,30,30,38,38,38,81,81,81,82,82,82,156,156,156,75,75,75,145,145,145,34,34,34,48,48,48,129,129,129,55,55,55,101,101,101,139,139,139,142,142,142,138,138,138,29,29,29,21,21,21,51,51,51,22,22,22,17,17,17]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>TF<\/th>\n      <th>region<\/th>\n      <th>count<\/th>\n      <th>total<\/th>\n      <th>percent<\/th>\n      <th>rank<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[3,4,5,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Now I’m repeating the above figure but only looking at significantly negatively correlated promoters</p>
+<pre class="r"><code>neg.corr &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$r &lt; (-0.3))
+sig.neg.TFs &lt;- subset(df.TFs.annot, df.TFs.annot$TF %in% neg.corr$symbol)
+sum3 &lt;- group_by(sig.neg.TFs, TF, region) %&gt;% dplyr::summarise(count = n())
+sum3 &lt;- droplevels(sum3)
+sum3$total &lt;- rep(tapply(sum3$count, sum3$TF, sum), each=3)
+sum3$percent &lt;- sum3$count / sum3$total * 100
+
+
+sum3$region &lt;- gsub(x = sum3$region, pattern = &#39;commonPMD&#39;, replacement = &#39;3.PMD&#39;)
+sum3$region &lt;- gsub(x = sum3$region, pattern = &#39;commonHMD&#39;, replacement = &#39;2.HMD&#39;)
+sum3$region &lt;- gsub(x = sum3$region, pattern = &#39;neither&#39;, replacement = &#39;1.neither&#39;)
+
+sum3.pmd &lt;- subset(sum3, sum3$region == &#39;3.PMD&#39;)
+sum3.pmd$rank &lt;- rank(-sum3.pmd$percent)
+
+sum3$rank &lt;- rep(sum3.pmd$rank, each=3)
+
+
+#Fix to get TF factor labels 
+ggplot(sum3, aes(fill=region, y=percent, x=rank)) + 
+  geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_x_discrete(name = &#39;Transcription Factor&#39;, labels = c(&#39;1&#39;=&#39;GATA3&#39;, &#39;2&#39;=&#39;GATA2&#39;, &#39;3&#39;=&#39;BCL11A&#39;, &#39;4&#39;=&#39;BATF&#39;, &#39;5&#39;=&#39;SPI1&#39;, &#39;6&#39;=&#39;TAL1&#39;, &#39;7&#39;=&#39;RUNX3&#39;, &#39;8&#39;=&#39;MEF2A&#39;, &#39;9&#39;=&#39;STAT5A&#39;, &#39;10&#39;=&#39;CHD1&#39;, &#39;11&#39;=&#39;IRF1&#39;, &#39;12&#39;=&#39;HSF1&#39;, &#39;13&#39;=&#39;THAP1&#39;)) +
+  scale_fill_discrete(name=&quot;Region&quot;,
+                         breaks=c(&quot;1.neither&quot;, &quot;2.HMD&quot;, &quot;3.PMD&quot;),
+                         labels=c(&quot;Neither&quot;, &quot;HMD&quot;, &quot;PMD&quot;))</code></pre>
+<p><img src="figure/TF_binding_sites.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>DT::datatable(sum3)</code></pre>
+<div id="htmlwidget-d81d122db1488fbb18a7" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d81d122db1488fbb18a7">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"],["BATF","BATF","BATF","BCL11A","BCL11A","BCL11A","CHD1","CHD1","CHD1","GATA2","GATA2","GATA2","GATA3","GATA3","GATA3","HSF1","HSF1","HSF1","IRF1","IRF1","IRF1","MEF2A","MEF2A","MEF2A","RUNX3","RUNX3","RUNX3","SPI1","SPI1","SPI1","STAT5A","STAT5A","STAT5A","TAL1","TAL1","TAL1","THAP1","THAP1","THAP1"],["2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither","2.HMD","3.PMD","1.neither"],[13979,7667,9954,8508,4880,6455,9584,1749,5361,28530,21779,22071,20489,18099,15861,793,111,518,11260,1844,6662,10999,3689,6755,32386,11405,20883,29215,14905,21634,8065,2469,5222,12617,4611,8224,2113,155,1146],[31600,31600,31600,19843,19843,19843,16694,16694,16694,72380,72380,72380,54449,54449,54449,1422,1422,1422,19766,19766,19766,21443,21443,21443,64674,64674,64674,65754,65754,65754,15756,15756,15756,25452,25452,25452,3414,3414,3414],[44.2373417721519,24.2626582278481,31.5,42.8765811621227,24.5930554855617,32.5303633523157,57.4098478495268,10.4768180184497,32.1133341320235,39.4169660127107,30.0898038132081,30.4932301740812,37.629708534592,33.2402798949476,29.1300115704604,55.7665260196906,7.80590717299578,36.4275668073136,56.9665081453,9.32915106748963,33.7043407872104,51.2941286200625,17.2037494753533,31.5021219045842,50.075764604014,17.6345981383554,32.2896372576306,44.430757064209,22.6678224898865,32.9014204459044,51.1868494541762,15.6702208682407,33.1429296775831,49.5717428885746,18.1164545025931,32.3118026088323,61.892208553017,4.54012888107791,33.5676625659051],[4,4,4,3,3,3,10,10,10,2,2,2,1,1,1,12,12,12,11,11,11,8,8,8,7,7,7,5,5,5,9,9,9,6,6,6,13,13,13]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>TF<\/th>\n      <th>region<\/th>\n      <th>count<\/th>\n      <th>total<\/th>\n      <th>percent<\/th>\n      <th>rank<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[3,4,5,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>TF.density &lt;- regions
+TF.density$tottfs &lt;- countOverlaps(regions, TF.all.gr)
+
+df.TF.density &lt;- as.data.frame(TF.density)
+
+ggplot(data=df.TF.density, aes(x=tottfs, group=region, fill=region)) +
+  geom_density(adjust=1.5, alpha=.4) +
+  xlim(0, 750) + 
+  labs(x=&#39;TFBSs/100kb bin&#39;, y=&#39;Density&#39;, fill=&#39;Region&#39;)</code></pre>
+<pre><code>Warning: Removed 300 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="figure/TF_binding_sites.Rmd/TF%20binding%20site%20density-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>rm(cols, grouped.data, sum, i, TF.AR.gr, TF.CTCF.gr, TF.ETS1.gr, TF.TP53.gr, TF.SP1.gr, TF.FOXA1.gr, TF.RB1.gr, TF.STAT1.gr, 
+   TF.FOXJ2.gr, TF.NRF1.gr, TF.TAF1.gr, TF.CEBPA.gr, TF.E2F6.gr, TF.REST.gr, TF.SPI1.gr, region.grouped, HMD.corr, PMD.corr, colnames, sum2)</code></pre>
+<pre class="r"><code>save(df.pairs.FINAL, file = &#39;../data/Output/df_pairs_cor_methsd_chromhmm_TF&#39;)
+save(df.TFs.annot, file = &#39;../data/Output/df_TFs_annot_2&#39;)</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-redhat-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /usr/lib64/R/lib/libRblas.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] BSgenome.Hsapiens.UCSC.hg19_1.4.0 BSgenome_1.50.0                  
+ [3] Biostrings_2.50.2                 XVector_0.22.0                   
+ [5] ggrepel_0.8.1                     DT_0.9                           
+ [7] data.table_1.12.6                 ggplot2_3.2.1                    
+ [9] dplyr_0.8.3                       splicejam_0.0.57.900             
+[11] rtracklayer_1.42.2                GenomicRanges_1.34.0             
+[13] GenomeInfoDb_1.18.2               IRanges_2.16.0                   
+[15] S4Vectors_0.20.1                  BiocGenerics_0.28.0              
+
+loaded via a namespace (and not attached):
+ [1] Biobase_2.42.0                httr_1.4.1                   
+ [3] tidyr_1.0.0                   jsonlite_1.6                 
+ [5] viridisLite_0.3.0             R.utils_2.9.0                
+ [7] shiny_1.4.0                   assertthat_0.2.1             
+ [9] GenomeInfoDbData_1.2.0        Rsamtools_1.34.1             
+[11] yaml_2.2.0                    pillar_1.4.2                 
+[13] backports_1.1.5               lattice_0.20-38              
+[15] glue_1.3.1                    digest_0.6.22                
+[17] promises_1.1.0                colorspace_1.4-2             
+[19] R.oo_1.22.0                   htmltools_0.4.0              
+[21] httpuv_1.5.2                  Matrix_1.2-15                
+[23] XML_3.99-0                    pkgconfig_2.0.3              
+[25] jamba_0.0.45.900              zlibbioc_1.28.0              
+[27] purrr_0.3.3                   xtable_1.8-5                 
+[29] scales_1.0.0                  whisker_0.4                  
+[31] later_1.0.0                   BiocParallel_1.16.6          
+[33] git2r_0.26.1                  tibble_2.1.3                 
+[35] withr_2.1.2                   SummarizedExperiment_1.12.0  
+[37] lazyeval_0.2.2                magrittr_1.5                 
+[39] crayon_1.3.4                  mime_0.7.1                   
+[41] evaluate_0.14                 R.methodsS3_1.7.1            
+[43] fs_1.3.1                      shinydashboard_0.7.1         
+[45] tools_3.5.2                   lifecycle_0.1.0              
+[47] matrixStats_0.55.0            stringr_1.4.0                
+[49] plotly_4.9.0                  munsell_0.5.0                
+[51] DelayedArray_0.8.0            compiler_3.5.2               
+[53] rlang_0.4.0                   grid_3.5.2                   
+[55] RCurl_1.96-0                  shinydashboardPlus_0.7.5.9000
+[57] htmlwidgets_1.5.1             crosstalk_1.0.0              
+[59] labeling_0.3                  shinyWidgets_0.4.9           
+[61] bitops_1.0-6                  rmarkdown_1.16               
+[63] gtable_0.3.0                  R6_2.4.0                     
+[65] GenomicAlignments_1.18.1      knitr_1.25                   
+[67] fastmap_1.0.1                 zeallot_0.1.0                
+[69] workflowr_1.5.0               rprojroot_1.3-2              
+[71] stringi_1.4.3                 Rcpp_1.0.2                   
+[73] vctrs_0.2.0                   tidyselect_0.2.5             
+[75] xfun_0.10                    </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

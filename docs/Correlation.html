@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Kevin Brooks Henry" />
+
+<meta name="date" content="2019-11-27" />
+
+<title>4: Probe-gene pair correlation testing</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PMD_project_workflowr</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/brookshenry3/PMD_project_workflowr">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">4: Probe-gene pair correlation testing</h1>
+<h4 class="author">Kevin Brooks Henry</h4>
+<h4 class="date">November 27, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PMD_project_workflowr/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191128code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191128)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191128code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191128)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/brookshenry3/PMD_project_workflowr/tree/4629dd5846cc531d5ee90955e97e7a62158de2a9" target="_blank">4629dd5</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .gitignore
+    Untracked:  code/
+    Untracked:  data/Input/TFs/
+    Untracked:  data/Input/wgEncodeRegTfbsClusteredV3.bed.gz
+    Untracked:  data/Output/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/brookshenry3/PMD_project_workflowr/blob/19ceff7a3c9b1221d2c431d9ef8ea12b4b762f3d/analysis/Correlation.Rmd" target="_blank">19ceff7</a>
+</td>
+<td>
+GitHub
+</td>
+<td>
+2019-12-13
+</td>
+<td>
+Add files via upload
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>In this section I am testing the correlation between probe-gene pairs within the PRAD dataset. In particular I am interested in cases where when the probe becomes hypomethylated gene expression increases (i.e. negative correlation). Once this is done, I can look at pairs that show significant negative correlation to see if there is a connection between the correlation and being within a PMD.</p>
+<pre class="r"><code>library(ggplot2)
+library(plyr)
+library(dplyr)</code></pre>
+<pre class="r"><code>load(file = &#39;../data/Output/regions&#39;)
+load(file = &#39;../data/Output/df.regions&#39;)
+load(file = &quot;../data/Output/PRAD_mae&quot;)
+load(file = &quot;../data/Output/PRADexp&quot;)
+load(file = &quot;../data/Output/PRADmeth&quot;)
+load(file = &#39;../data/Output/df_pairs&#39;)</code></pre>
+<p>Now I will determine the correlation between each probe-gene pair identified above using a for loop. Once this is done I have correlation coefficient (r) and p values for each probe gene pair to see how much they are correlated. of particular interest to me are probe-gene pairs that display significant negative correlation, that is, as the probe become less methylated (hypomethylated), expression of the gene increases</p>
+<p>The hope/interest here is that perhaps promoters that become hypomethylated (by virtue of being in PMDs) control expression of genes that are implicated in prostate cancer (i.e. oncogenes)</p>
+<pre class="r"><code>df.probes.regions.genes$r &lt;- NA
+df.probes.regions.genes$p.value &lt;- NA
+
+for (i in seq_len(nrow(df.probes.regions.genes))) {
+  test &lt;- cor.test(PRADmeth[df.probes.regions.genes$ID[i], ], PRADexp[df.probes.regions.genes$ENSEMBL[i], ])
+  df.probes.regions.genes$p.value[i] &lt;- test$p.value
+  df.probes.regions.genes$r[i] &lt;- test$estimate
+}</code></pre>
+<p>After the correlation test is run above, the distribution of r values can be visualized for each region using violin plots. Additionally, I am renaming the probe-gene pairs dataframe object to be something a bit shorter.</p>
+<pre class="r"><code>df.probes.regions.genes &lt;- na.omit(df.probes.regions.genes)
+df.probes.regions.genes$region &lt;- as.factor(df.probes.regions.genes$region)
+
+ggplot(df.probes.regions.genes, aes(x=region, y=r, fill=region)) + 
+  ylim(-1, 1) +
+  geom_violin() +
+  labs(y=&#39;Correlation Coefficient (r)&#39;, fill=&#39;Region&#39;, x=&#39;Region&#39;) +
+  theme(legend.position = &#39;none&#39;)</code></pre>
+<p><img src="figure/Correlation.Rmd/Plotting%20correlation-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>df.pairs.FINAL &lt;- df.probes.regions.genes
+#renaming my main data frame so that it&#39;s a bit shorter</code></pre>
+<p>From the above plot, it can be seen that no region stands out as having more or less correlation between methylation and gene expression, which is surprising as one would think that the aberrent methylation levels in PMDs might impact gene expression to a greater extenct than regions in HMDs or neither.</p>
+<p>As a next step, I can classify each probe-gene pairs correlation on a scale from “highly negatively correlated” to ‘highly positively correlated’. The ranges for each classification were found here: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3576830/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3576830/</a></p>
+<pre class="r"><code>#21.11.19: After meeting with Reka, moving forward I will break up genes in PMD regions into those that are not expressed, 
+#negatively correlated, positively correlated, and not correlated and use annotatr to look at TF binding sites, ChromHMM annots, 
+#and other thigns
+#The below ranges were found using: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3576830/
+
+Correlation &lt;- data.frame(correlation = c(&#39;very high negative&#39;, &#39;high negative&#39;, &#39;moderate negative&#39;, &#39;low negative&#39;, &#39;none&#39;, &#39;low positive&#39;, &#39;moderate positive&#39;, &#39;high positive&#39;, &#39;very high positive&#39;),
+                          lower = c(-1, -.9, -.7, -.5, -.3, .3, .5, .7, .9),
+                          upper = c(-.9, -.7, -.5, -.3, .3, .5, .7, .9, 1))
+
+df.pairs.FINAL &lt;- data.frame(df.pairs.FINAL,
+                      &#39;correlation&#39; = cut(df.pairs.FINAL$r,
+                                          breaks = Correlation$lower,
+                                          right = T,
+                                          include.lowest = T))
+#unique(df.pairs.FINAL$correlation)
+df.pairs.FINAL$correlation &lt;- revalue(df.pairs.FINAL$correlation,
+                               c(&#39;(-0.3,0.3]&#39;=&#39;none&#39;, &#39;(-0.5,-0.3]&#39;=&#39;low negative&#39;,
+                                 &#39;(0.3,0.5]&#39;=&#39;low positive&#39;, &#39;(-0.7,-0.5]&#39;=&#39;moderate negative&#39;,
+                                 &#39;(0.5,0.7]&#39;=&#39;moderate positive&#39;, &#39;(-0.9,-0.7]&#39;=&#39;high negative&#39;,
+                                 &#39;[-1,-0.9]&#39;=&#39;very high negative&#39;, &#39;(0.7,0.9]&#39;=&#39;high positive&#39;))
+summary(df.pairs.FINAL$correlation)</code></pre>
+<pre><code>very high negative      high negative  moderate negative 
+                 3                115               1158 
+      low negative               none       low positive 
+              4176              90031                438 
+ moderate positive      high positive 
+                34                  0 </code></pre>
+<p>From the above it can be seen that while not many probe-gene pairs in any regions have very high negative/positive correlation, several have high negative correlation.</p>
+<p>Looking specifically at the PMDs:</p>
+<pre class="r"><code>PMDs &lt;- subset(df.pairs.FINAL, df.pairs.FINAL$region == &#39;commonPMD&#39;)
+summary(PMDs$correlation)</code></pre>
+<pre><code>very high negative      high negative  moderate negative 
+                 0                 13                137 
+      low negative               none       low positive 
+               663              13196                118 
+ moderate positive      high positive 
+                 7                  0 </code></pre>
+<p>The 13 probe-gene pairs with high negative correlation are of particular interest - and will be investigated further. Lastly I am breaking up each of the correlation classifications by region.</p>
+<pre class="r"><code>sum &lt;- group_by(df.pairs.FINAL, correlation, region) %&gt;% dplyr::summarise(count = n())
+
+ggplot(sum, aes(fill=region, y=count, x=correlation)) + 
+  geom_bar(position=&quot;fill&quot;, stat=&quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x=&#39;Correlation&#39;, y=&#39;Fraction of total counts&#39;, fill=&#39;Region&#39;)</code></pre>
+<p><img src="figure/Correlation.Rmd/visualizing%20correlation%20classification-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>save(df.pairs.FINAL, file = &#39;../data/Output/df_pairs_correlation&#39;)</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-redhat-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /usr/lib64/R/lib/libRblas.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] dplyr_0.8.3   plyr_1.8.4    ggplot2_3.2.1
+
+loaded via a namespace (and not attached):
+ [1] SummarizedExperiment_1.12.0 tidyselect_0.2.5           
+ [3] xfun_0.10                   purrr_0.3.3                
+ [5] lattice_0.20-38             colorspace_1.4-2           
+ [7] htmltools_0.4.0             stats4_3.5.2               
+ [9] yaml_2.2.0                  rlang_0.4.0                
+[11] later_1.0.0                 pillar_1.4.2               
+[13] glue_1.3.1                  withr_2.1.2                
+[15] BiocParallel_1.16.6         BiocGenerics_0.28.0        
+[17] matrixStats_0.55.0          GenomeInfoDbData_1.2.0     
+[19] stringr_1.4.0               zlibbioc_1.28.0            
+[21] munsell_0.5.0               gtable_0.3.0               
+[23] workflowr_1.5.0             evaluate_0.14              
+[25] labeling_0.3                Biobase_2.42.0             
+[27] knitr_1.25                  IRanges_2.16.0             
+[29] httpuv_1.5.2                GenomeInfoDb_1.18.2        
+[31] parallel_3.5.2              Rcpp_1.0.2                 
+[33] promises_1.1.0              scales_1.0.0               
+[35] backports_1.1.5             DelayedArray_0.8.0         
+[37] S4Vectors_0.20.1            XVector_0.22.0             
+[39] fs_1.3.1                    digest_0.6.22              
+[41] stringi_1.4.3               GenomicRanges_1.34.0       
+[43] grid_3.5.2                  rprojroot_1.3-2            
+[45] tools_3.5.2                 bitops_1.0-6               
+[47] magrittr_1.5                lazyeval_0.2.2             
+[49] RCurl_1.96-0                tibble_2.1.3               
+[51] crayon_1.3.4                whisker_0.4                
+[53] pkgconfig_2.0.3             Matrix_1.2-15              
+[55] assertthat_0.2.1            rmarkdown_1.16             
+[57] R6_2.4.0                    git2r_0.26.1               
+[59] compiler_3.5.2             </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

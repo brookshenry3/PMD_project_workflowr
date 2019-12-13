@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Kevin Brooks Henry" />
+
+<meta name="date" content="2019-11-27" />
+
+<title>1: Loading and formatting regions and the PRAD data</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PMD_project_workflowr</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/brookshenry3/PMD_project_workflowr">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">1: Loading and formatting regions and the PRAD data</h1>
+<h4 class="author">Kevin Brooks Henry</h4>
+<h4 class="date">November 27, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PMD_project_workflowr/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191128code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191128)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191128code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191128)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/brookshenry3/PMD_project_workflowr/tree/4629dd5846cc531d5ee90955e97e7a62158de2a9" target="_blank">4629dd5</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .gitignore
+    Untracked:  code/
+    Untracked:  data/Input/TFs/
+    Untracked:  data/Input/wgEncodeRegTfbsClusteredV3.bed.gz
+    Untracked:  data/Output/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/brookshenry3/PMD_project_workflowr/blob/19ceff7a3c9b1221d2c431d9ef8ea12b4b762f3d/analysis/Regions_and_PRAD.Rmd" target="_blank">19ceff7</a>
+</td>
+<td>
+GitHub
+</td>
+<td>
+2019-12-13
+</td>
+<td>
+Add files via upload
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>Loading the required packages for this section</p>
+<pre class="r"><code>library(rtracklayer)
+library(GenomicRanges)
+library(ELMER)
+library(MultiAssayExperiment)
+library(RnBeads)</code></pre>
+<p>I can now import the partially methylated domain (PMD) coordinates data file (in bedGraph format) that I obtained from <a href="https://zwdzwd.github.io/pmd">Zhou (2018)</a> using the rtracklayer package. The arguement below also coerces the file into a Genomic Ranges (GRanges) object, useful for downstream analysis.</p>
+<p>Region annotation reference: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5893360/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5893360/</a></p>
+<pre class="r"><code>regions &lt;- import.bedGraph(&quot;../data/Input/PMD_coordinates_hg19.bed.gz&quot;, genome = &quot;hg19&quot;)</code></pre>
+<pre><code>Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 13 out-of-bound ranges located on
+  sequences chr1, chr10, chr12, chr13, chr15, chr17, chr18, chr19,
+  chr2, chr21, chr5, chr7, and chr8. Note that ranges located on a
+  sequence whose length is unknown (NA) or on a circular sequence
+  are not considered out-of-bound (use seqlengths() and isCircular()
+  to get the lengths and circularity flags of the underlying
+  sequences). You can use trim() to trim these ranges. See
+  ?`trim,GenomicRanges-method` for more information.</code></pre>
+<p><span style="color:red"> Of note should be that using the import.bedGraph() function and setting the genome to hg19 will result in 13 out-of-bound ranges, see warning above </span></p>
+<p>The above “regions” GRanges object contains the coordinates of the PMDs and also coordinates of HMDs and regions that are defined as “neither” (The genome is segmented into 100kb bins). While I was initially planning on focusing just on the PMDs, I ended up using all regions, as it makes for good comparisons to see how things like methylation, gene density/expression, etc. vary between regions that are considered PMDs vs HMDs vs neither.</p>
+<p>The code below is to convert the regions GRanges to a data frame and clean it up.</p>
+<pre class="r"><code>df.regions &lt;- as.data.frame(regions)
+df.regions &lt;- df.regions[, c(&#39;seqnames&#39;, &#39;start&#39;, &#39;end&#39;, &#39;NA.1&#39;)]
+names(df.regions)[4] &lt;- &#39;region&#39;
+regions &lt;- makeGRangesFromDataFrame(df.regions, 
+                                 keep.extra.columns = TRUE,
+                                 seqnames.field = &#39;seqnames&#39;,
+                                 start.field = &#39;start&#39;,
+                                 end.field = &#39;end&#39;)</code></pre>
+<p>Now after loading the regions, the next step is to load up the prostate adenocarcinoma (PRAD) data available from TCGA. Here, I am loading up an already downloaded data set that I created using ELMER. I am also creating matrices of the methylation and expression data for use in downstream analysis, as well as summarizing patient profiles in the final bit. The MultiAssayExperiement (MAE) that I load in containing the PRAD data was created using ELMER, and is a convenient container for methylation and expression data as well as sample metadata. In the MAE, expression data (in this case Illumina HiSeq normalized expression counts) and methylation data (Illumina 450k methylation beta values) were used.</p>
+<p>!Of important note is that I am using legacy data, which is aligned to the hg19 (not hg38) genome, all subsequent analysis was performed in reference to the hg19 genome.</p>
+<p>ELMER: <a href="https://bioconductor.org/packages/release/bioc/vignettes/ELMER/inst/doc/index.html" class="uri">https://bioconductor.org/packages/release/bioc/vignettes/ELMER/inst/doc/index.html</a></p>
+<p>TCGA-PRAD data: <a href="https://portal.gdc.cancer.gov/legacy-archive/search/f?filters=%7B%22op%22:%22and%22,%22content%22:%5B%7B%22op%22:%22in%22,%22content%22:%7B%22field%22:%22cases.project.primary_site%22,%22value%22:%5B%22Prostate%22%5D%7D%7D,%7B%22op%22:%22in%22,%22content%22:%7B%22field%22:%22cases.project.project_id%22,%22value%22:%5B%22TCGA-PRAD%22%5D%7D%7D%5D%7D">https://portal.gdc.cancer.gov/legacy-archive/search/f?filters=%7B%22op%22:%22and%22,%22content%22:%5B%7B%22op%22:%22in%22,%22content%22:%7B%22field%22:%22cases.project.primary_site%22,%22value%22:%5B%22Prostate%22%5D%7D%7D,%7B%22op%22:%22in%22,%22content%22:%7B%22field%22:%22cases.project.project_id%22,%22value%22:%5B%22TCGA-PRAD%22%5D%7D%7D%5D%7D</a></p>
+<pre class="r"><code>#Downloading expression data 
+
+query.exp.PRAD &lt;- GDCquery(project = &#39;TCGA-PRAD&#39;,
+                           data.category = &#39;Gene expression&#39;,
+                           data.type = &#39;Gene expression quantification&#39;,
+                           platform = &#39;Illumina HiSeq&#39;,
+                           file.type = &#39;normalized_results&#39;,
+                           legacy = TRUE)
+
+
+query.exp.PRAD[[1]][[1]] &lt;- query.exp.PRAD[[1]][[1]][!duplicated(query.exp.PRAD[[1]][[1]]$cases),]
+
+GDCdownload(query.exp.PRAD)
+PRADexp &lt;- GDCprepare(query.exp.PRAD)
+
+rownames(PRADexp) &lt;- values(PRADexp)$ensembl_gene_id
+
+#now downloading the methylation data
+
+query.meth.PRAD &lt;- GDCquery(project = &#39;TCGA-PRAD&#39;,
+                            data.category = &#39;DNA methylation&#39;,
+                            platform = &#39;Illumina Human Methylation 450&#39;,
+                            legacy = TRUE)
+
+GDCdownload(query.meth.PRAD, method = &#39;api&#39;)
+PRADmeth &lt;- GDCprepare(query.meth.PRAD)
+
+#Now to create a MAE that contains ALL info (sorting out PMDs/promoters/etc can be done later)
+
+PRAD.mae &lt;- createMAE(exp = PRADexp,
+                      met = PRADmeth,
+                      met.platform = &#39;450K&#39;,
+                      genome = &#39;hg19&#39;,
+                      save = TRUE,
+                      save.filename = &quot;PRAD-MAE&quot;,
+                      TCGA = TRUE)
+
+summary(complete.cases(PRAD.mae))
+
+intersectColumns(PRAD.mae)</code></pre>
+<p>Once the PRAD MAE is created above using ELMER, I can make expression and methylation matrices, these are useful later as it takes far less time to loop operations over matrices than using assay() to obtain values from the MAE for every operation. Additionally I am seeing what the makeup of the PRAD dataset is using summary to look at various elements of the metadata.</p>
+<pre class="r"><code>load(file = &quot;../data/Output/PRAD_mae&quot;)
+
+PRADmeth &lt;- assay(PRAD.mae[, , 1])
+PRADexp &lt;- assay(PRAD.mae[, , 2])
+
+summary(as.factor(PRAD.mae@colData@listData[[&quot;definition&quot;]]))</code></pre>
+<pre><code>         Metastatic Primary solid Tumor Solid Tissue Normal 
+                  1                 501                  35 </code></pre>
+<pre class="r"><code>summary(as.factor(PRAD.mae@colData@listData[[&#39;ajcc_clinical_t&#39;]]))</code></pre>
+<pre><code> T1a  T1b  T1c   T2  T2a  T2b  T2c  T3a  T3b   T4 NA&#39;s 
+   1    2  190   13   60   57   55   38   17    2  102 </code></pre>
+<pre class="r"><code>summary(as.factor(PRAD.mae@colData@listData[[&#39;ajcc_clinical_m&#39;]]))</code></pre>
+<pre><code>  M0  M1a  M1b  M1c NA&#39;s 
+ 490    1    1    1   44 </code></pre>
+<pre class="r"><code>summary(as.factor(PRAD.mae@colData@listData[[&#39;primary_gleason_grade&#39;]]))</code></pre>
+<pre><code>Pattern 2 Pattern 3 Pattern 4 Pattern 5 
+        2       220       263        52 </code></pre>
+<pre class="r"><code>summary(as.factor(PRAD.mae@colData@listData[[&#39;TN&#39;]]))</code></pre>
+<pre><code>Normal  Tumor 
+    35    502 </code></pre>
+<pre class="r"><code>#Removing SNP probes &amp; probes in &quot;blacklist&quot; that Reka sent me
+
+probe.names &lt;- data.frame(probe = rownames(PRADmeth))
+
+PRADmeth &lt;- PRADmeth[c(1:394289), ]
+
+rm(mae, probe.names)</code></pre>
+<pre><code>Warning in rm(mae, probe.names): object &#39;mae&#39; not found</code></pre>
+<p>From the above the number of samples falling into several different categories (including Tumor/normal, primary gleason grade, stage, etc.) can be assessed to look at what the overall data looks like.</p>
+<p>It can be noted that most of the patient samples come from primary solid tumor tissue, while 35 are from normal tissue. This means that there aren’t a lot of normal samples to compare differences in expression and methylation, something to keep in mind.</p>
+<p>The last line of code in the above is to remove SNP and other probes that by their nature contain very high variation and need to be excluded from analysis.</p>
+<pre class="r"><code>save(df.regions, file = &#39;../data/Output/df.regions&#39;)
+save(regions, file = &#39;../data/Output/regions&#39;)
+save(PRAD.mae, file = &#39;../data/Output/PRAD_mae&#39;)
+save(PRADexp, file = &#39;../data/Output/PRADexp&#39;)
+save(PRADmeth, file = &#39;../data/Output/PRADmeth&#39;)</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-redhat-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /usr/lib64/R/lib/libRblas.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+ [1] grid      parallel  stats4    stats     graphics  grDevices utils    
+ [8] datasets  methods   base     
+
+other attached packages:
+ [1] BSgenome.Hsapiens.UCSC.hg19_1.4.0      
+ [2] BSgenome_1.50.0                        
+ [3] RnBeads_2.0.1                          
+ [4] plyr_1.8.4                             
+ [5] methylumi_2.28.0                       
+ [6] minfi_1.28.4                           
+ [7] bumphunter_1.24.5                      
+ [8] locfit_1.5-9.1                         
+ [9] iterators_1.0.12                       
+[10] foreach_1.5.1                          
+[11] Biostrings_2.50.2                      
+[12] XVector_0.22.0                         
+[13] FDb.InfiniumMethylation.hg19_2.2.0     
+[14] org.Hs.eg.db_3.7.0                     
+[15] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+[16] GenomicFeatures_1.34.8                 
+[17] AnnotationDbi_1.44.0                   
+[18] reshape2_1.4.3                         
+[19] scales_1.0.0                           
+[20] illuminaio_0.24.0                      
+[21] limma_3.38.3                           
+[22] gridExtra_2.3                          
+[23] gplots_3.0.3                           
+[24] ggplot2_3.2.1                          
+[25] fields_9.9                             
+[26] maps_3.3.0                             
+[27] spam_2.3-0                             
+[28] dotCall64_1.0-0                        
+[29] ff_2.2-14                              
+[30] bit_1.1-14                             
+[31] cluster_2.0.7-1                        
+[32] MASS_7.3-51.1                          
+[33] MultiAssayExperiment_1.8.3             
+[34] SummarizedExperiment_1.12.0            
+[35] DelayedArray_0.8.0                     
+[36] BiocParallel_1.16.6                    
+[37] matrixStats_0.55.0                     
+[38] Biobase_2.42.0                         
+[39] ELMER_2.6.3                            
+[40] ELMER.data_2.6.0                       
+[41] rtracklayer_1.42.2                     
+[42] GenomicRanges_1.34.0                   
+[43] GenomeInfoDb_1.18.2                    
+[44] IRanges_2.16.0                         
+[45] S4Vectors_0.20.1                       
+[46] BiocGenerics_0.28.0                    
+
+loaded via a namespace (and not attached):
+  [1] rappdirs_0.3.1              ggthemes_4.2.0             
+  [3] R.methodsS3_1.7.1           pkgmaker_0.27              
+  [5] tidyr_1.0.0                 acepack_1.4.1              
+  [7] bit64_0.9-8                 knitr_1.25                 
+  [9] aroma.light_3.12.0          R.utils_2.9.0              
+ [11] data.table_1.12.6           rpart_4.1-13               
+ [13] hwriter_1.3.2               GEOquery_2.50.5            
+ [15] RCurl_1.96-0                AnnotationFilter_1.6.0     
+ [17] doParallel_1.0.15           generics_0.0.2             
+ [19] preprocessCore_1.44.0       RSQLite_2.1.2              
+ [21] xml2_1.2.2                  httpuv_1.5.2               
+ [23] assertthat_0.2.1            xfun_0.10                  
+ [25] hms_0.5.1                   evaluate_0.14              
+ [27] promises_1.1.0              progress_1.2.2             
+ [29] caTools_1.17.1.2            dbplyr_1.4.2               
+ [31] km.ci_0.5-2                 DBI_1.0.0                  
+ [33] geneplotter_1.60.0          htmlwidgets_1.5.1          
+ [35] reshape_0.8.8               EDASeq_2.16.3              
+ [37] matlab_1.0.2                purrr_0.3.3                
+ [39] selectr_0.4-1               dplyr_0.8.3                
+ [41] ggpubr_0.2.3                backports_1.1.5            
+ [43] annotate_1.60.1             biomaRt_2.41.9             
+ [45] vctrs_0.2.0                 ensembldb_2.6.8            
+ [47] withr_2.1.2                 Gviz_1.26.5                
+ [49] checkmate_1.9.4             GenomicAlignments_1.18.1   
+ [51] prettyunits_1.0.2           mclust_5.4.5               
+ [53] lazyeval_0.2.2              crayon_1.3.4               
+ [55] genefilter_1.64.0           edgeR_3.24.3               
+ [57] pkgconfig_2.0.3             nlme_3.1-137               
+ [59] ProtGenerics_1.14.0         nnet_7.3-12                
+ [61] rlang_0.4.0                 lifecycle_0.1.0            
+ [63] downloader_0.4              registry_0.5-1             
+ [65] BiocFileCache_1.6.0         dichromat_2.0-1            
+ [67] rprojroot_1.3-2             rngtools_1.4               
+ [69] base64_2.0                  Matrix_1.2-15              
+ [71] KMsurv_0.1-5                Rhdf5lib_1.4.3             
+ [73] zoo_1.8-7                   base64enc_0.1-4            
+ [75] whisker_0.4                 GlobalOptions_0.1.1        
+ [77] viridisLite_0.3.0           rjson_0.2.20               
+ [79] bitops_1.0-6                R.oo_1.22.0                
+ [81] ConsensusClusterPlus_1.46.0 KernSmooth_2.23-15         
+ [83] blob_1.2.0                  DelayedMatrixStats_1.4.0   
+ [85] TCGAbiolinks_2.13.6         workflowr_1.5.0            
+ [87] doRNG_1.7.1                 shape_1.4.4                
+ [89] stringr_1.4.0               nor1mix_1.3-0              
+ [91] ShortRead_1.40.0            readr_1.3.1                
+ [93] ggsignif_0.6.0              memoise_1.1.0              
+ [95] magrittr_1.5                bibtex_0.4.2               
+ [97] gdata_2.18.0                zlibbioc_1.28.0            
+ [99] compiler_3.5.2              RColorBrewer_1.1-2         
+[101] Rsamtools_1.34.1            htmlTable_1.13.2           
+[103] Formula_1.2-3               mgcv_1.8-26                
+[105] tidyselect_0.2.5            stringi_1.4.3              
+[107] yaml_2.2.0                  askpass_1.1                
+[109] latticeExtra_0.6-28         ggrepel_0.8.1              
+[111] survMisc_0.5.5              VariantAnnotation_1.28.13  
+[113] tools_3.5.2                 circlize_0.4.8             
+[115] rstudioapi_0.10             foreign_0.8-71             
+[117] git2r_0.26.1                digest_0.6.22              
+[119] quadprog_1.5-7              Rcpp_1.0.2                 
+[121] siggenes_1.56.0             broom_0.5.2                
+[123] later_1.0.0                 httr_1.4.1                 
+[125] survminer_0.4.6             biovizBase_1.30.1          
+[127] ComplexHeatmap_1.20.0       colorspace_1.4-2           
+[129] rvest_0.3.4                 XML_3.99-0                 
+[131] fs_1.3.1                    splines_3.5.2              
+[133] multtest_2.38.0             plotly_4.9.0               
+[135] xtable_1.8-5                jsonlite_1.6               
+[137] zeallot_0.1.0               R6_2.4.0                   
+[139] Hmisc_4.2-0                 pillar_1.4.2               
+[141] htmltools_0.4.0             glue_1.3.1                 
+[143] DESeq_1.34.1                beanplot_1.2               
+[145] codetools_0.2-15            lattice_0.20-38            
+[147] tibble_2.1.3                sva_3.30.1                 
+[149] curl_4.2                    gtools_3.8.1               
+[151] openssl_1.4.1               survival_2.43-3            
+[153] rmarkdown_1.16              munsell_0.5.0              
+[155] GetoptLong_0.1.7            rhdf5_2.26.2               
+[157] GenomeInfoDbData_1.2.0      HDF5Array_1.10.1           
+[159] gtable_0.3.0               </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

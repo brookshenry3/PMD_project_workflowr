@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Kevin Brooks Henry" />
+
+<meta name="date" content="2019-11-27" />
+
+<title>5:ChromHMM</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PMD_project_workflowr</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/brookshenry3/PMD_project_workflowr">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">5:ChromHMM</h1>
+<h4 class="author">Kevin Brooks Henry</h4>
+<h4 class="date">November 27, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PMD_project_workflowr/analysis/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191128code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191128)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191128code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191128)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/brookshenry3/PMD_project_workflowr/tree/4629dd5846cc531d5ee90955e97e7a62158de2a9" target="_blank">4629dd5</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombrookshenry3PMDprojectworkflowrtree4629dd5846cc531d5ee90955e97e7a62158de2a9targetblank4629dd5a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .gitignore
+    Untracked:  code/
+    Untracked:  data/Input/TFs/
+    Untracked:  data/Input/wgEncodeRegTfbsClusteredV3.bed.gz
+    Untracked:  data/Output/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/brookshenry3/PMD_project_workflowr/blob/19ceff7a3c9b1221d2c431d9ef8ea12b4b762f3d/analysis/ChromHMM.Rmd" target="_blank">19ceff7</a>
+</td>
+<td>
+GitHub
+</td>
+<td>
+2019-12-13
+</td>
+<td>
+Add files via upload
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>In this section I am adding chromatin annotations to the regions using publicly available ChromHMM data. This data contains chromatin annotations for both normal and cancer prostate cell lines. The interest here is that the chromatin states and other epigenetic marks present within PMD regions might help explain why the PMD is there in the first place or how PMDs regulate gene expression within the regions(?). Furthermore, finding some pattern in the epigenetic marks present in PMDs might help aid in their use as potential prognostic markers.</p>
+<p>ChromHMM data reference: <a href="https://www.ncbi.nlm.nih.gov/pubmed/24916973" class="uri">https://www.ncbi.nlm.nih.gov/pubmed/24916973</a> General ChromHMM info: <a href="http://compbio.mit.edu/ChromHMM/" class="uri">http://compbio.mit.edu/ChromHMM/</a> And some more: <a href="https://www.nature.com/articles/nprot.2017.124" class="uri">https://www.nature.com/articles/nprot.2017.124</a></p>
+<pre class="r"><code>library(rtracklayer)
+library(GenomicRanges)
+library(splicejam)
+library(dplyr)
+library(ggplot2)</code></pre>
+<pre class="r"><code>load(file = &#39;../data/Output/df_pairs_cor_methsd&#39;)</code></pre>
+<p>I am starting here with loading in the BED files containing the ChromHMM annotations for two prostate cell lines - a prostate cancer cell line (PC3) and a normal prostate cell line (PrEC).</p>
+<p>PC3:<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3426349/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3426349/</a><br />
+PrEC: <a href="https://www.ncbi.nlm.nih.gov/pubmed/16618209" class="uri">https://www.ncbi.nlm.nih.gov/pubmed/16618209</a></p>
+<p>Annoyingly, the files are not in a nice format like the original regions BED file, and both are formatted differently. It is therefore necessary to add chromosome names and column names to the data, which can then be converted into GRanges and added to the regions data.</p>
+<pre class="r"><code>#Starting with PC3 (cancer cell line)
+
+PC3_chrom_annots &lt;- import.bed(&quot;../data/Input/GSE57498_PC3_ChromHMM.bed&quot;)
+
+df.PC3.annots &lt;- data.frame(PC3_chrom_annots$thick, PC3_chrom_annots$name)
+
+df.PC3.annots$chr &lt;- NA
+df.PC3.annots &lt;- df.PC3.annots[, c(&#39;chr&#39;, &#39;start&#39;, &#39;end&#39;, &#39;width&#39;, &#39;PC3_chrom_annots.name&#39;)]
+#To find where the ends/beginnings of the chromosomes are:
+subset(df.PC3.annots, df.PC3.annots$start == 1)</code></pre>
+<pre><code>       chr start      end    width PC3_chrom_annots.name
+1       NA     1    81600    81600       Heterochromatin
+15154   NA     1   180200   180200       Heterochromatin
+33168   NA     1    73800    73800       Heterochromatin
+49148   NA     1 19172800 19172800       Heterochromatin
+57991   NA     1 19003600 19003600       Heterochromatin
+67608   NA     1 20000800 20000800       Heterochromatin
+78864   NA     1    60400    60400       Heterochromatin
+89643   NA     1    13400    13400       Heterochromatin
+105431  NA     1    11600    11600       Heterochromatin
+111719  NA     1   244200   244200       Heterochromatin
+124821  NA     1    10000    10000       Heterochromatin
+155715  NA     1   118400   118400       Heterochromatin
+166480  NA     1  9437200  9437200       Heterochromatin
+170239  NA     1 16166400 16166400       Heterochromatin
+176574  NA     1    11400    11400       Heterochromatin
+201576  NA     1   306800   306800       Heterochromatin
+220923  NA     1    10200    10200       Heterochromatin
+234294  NA     1    10200    10200       Heterochromatin
+250944  NA     1   148200   148200       Heterochromatin
+267456  NA     1    30000    30000       Heterochromatin
+284959  NA     1   156600   156600       Heterochromatin
+299670  NA     1    11200    11200       Heterochromatin
+312444  NA     1      400      400         CTCF+Promoter
+312467  NA     1  2721000  2721000       Heterochromatin
+320785  NA     1  9909200  9909200       Heterochromatin</code></pre>
+<pre class="r"><code>#Adding names to each of the regions:
+df.PC3.annots$chr &lt;- c(rep(&#39;chr10&#39;, 15153), rep(&#39;chr11&#39;, 18014), rep(&#39;chr12&#39;, 15980), rep(&#39;chr13&#39;, 8843), rep(&#39;chr14&#39;, 9617),
+                       rep(&#39;chr15&#39;, 11256), rep(&#39;chr16&#39;, 10779), rep(&#39;chr17&#39;, 15788), rep(&#39;chr18&#39;, 6288), rep(&#39;chr19&#39;, 13102),
+                       rep(&#39;chr1&#39;, 30894), rep(&#39;chr20&#39;, 10765), rep(&#39;chr21&#39;, 3759), rep(&#39;chr22&#39;, 6335), rep(&#39;chr2&#39;, 25002),
+                       rep(&#39;chr3&#39;, 19347), rep(&#39;chr4&#39;, 13371), rep(&#39;chr5&#39;, 16650), rep(&#39;chr6&#39;, 16512), rep(&#39;chr7&#39;, 17503),
+                       rep(&#39;chr8&#39;, 14711), rep(&#39;chr9&#39;, 12774), rep(&#39;chrM&#39;, 23), rep(&#39;chrX&#39;, 8318), rep(&#39;chrY&#39;, 152))
+
+#Making a GRanges object from the above data frame
+PC3.annots.gr &lt;- makeGRangesFromDataFrame(df.PC3.annots, 
+                                          keep.extra.columns = TRUE, 
+                                          seqnames.field = &quot;chr&quot;,
+                                          start.field = &quot;start&quot;, 
+                                          end.field = &quot;end&quot;)
+
+#Now to do the same with the PrEC normal prostate cell line
+
+PrEC_chrom_annots &lt;- import.bed(&quot;../data/Input/GSE57498_PrEC_ChromHMM.bed&quot;)
+
+df.PrEC.annots &lt;- data.frame(PrEC_chrom_annots@ranges@start, PrEC_chrom_annots@ranges@width, PrEC_chrom_annots$name)
+#Ok annoyingly the PrEC data is not in the same format as the PC3 data so I will have to re-organize and clean it up a bit 
+
+df.PrEC.annots$chr &lt;- NA
+df.PrEC.annots$end &lt;- NA
+df.PrEC.annots &lt;- df.PrEC.annots[, c(&#39;chr&#39;, &#39;PrEC_chrom_annots.ranges.start&#39;, &#39;end&#39;, &#39;PrEC_chrom_annots.ranges.width&#39;, &#39;PrEC_chrom_annots.name&#39;)]
+#df.PrEC.annots$PrEC_chrom_annots.type &lt;- gsub(&#39;hg19_custom_&#39;, &#39;&#39;, df.PrEC.annots$PrEC_chrom_annots.type)
+df.PrEC.annots$end &lt;- df.PrEC.annots$PrEC_chrom_annots.ranges.start + df.PrEC.annots$PrEC_chrom_annots.ranges.width
+names(df.PrEC.annots)[2] &lt;- &#39;start&#39;
+names(df.PrEC.annots)[4] &lt;- &#39;width&#39;
+names(df.PrEC.annots)[5] &lt;- &#39;annots.type&#39;
+
+#To find where the ends/beginnings of the chromosomes are:
+subset(df.PrEC.annots, df.PrEC.annots$PrEC_chrom_annots.ranges.start == 1)</code></pre>
+<pre><code>[1] chr         start       end         width       annots.type
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<pre class="r"><code>#Adding names to each of the regions:
+df.PrEC.annots$chr &lt;- c(rep(&#39;chr10&#39;, 17898), rep(&#39;chr11&#39;, 19786), rep(&#39;chr12&#39;, 19065), rep(&#39;chr13&#39;, 9817), rep(&#39;chr14&#39;, 12644),
+                        rep(&#39;chr15&#39;, 12851), rep(&#39;chr16&#39;, 13171), rep(&#39;chr17&#39;, 18042), rep(&#39;chr18&#39;, 8637), rep(&#39;chr19&#39;, 13516),
+                        rep(&#39;chr1&#39;, 37335), rep(&#39;chr20&#39;, 10964), rep(&#39;chr21&#39;, 5004), rep(&#39;chr22&#39;, 8100), rep(&#39;chr2&#39;, 31022),
+                        rep(&#39;chr3&#39;, 24901), rep(&#39;chr4&#39;, 18881), rep(&#39;chr5&#39;, 20390), rep(&#39;chr6&#39;, 22454), rep(&#39;chr7&#39;, 19577),
+                        rep(&#39;chr8&#39;, 17142), rep(&#39;chr9&#39;, 16559), rep(&#39;chrM&#39;, 23), rep(&#39;chrX&#39;, 7809), rep(&#39;chrY&#39;, 707))
+
+#Making a GRanges object from the above data frame
+PrEC.annots.gr &lt;- makeGRangesFromDataFrame(df.PrEC.annots, 
+                                           keep.extra.columns = TRUE, 
+                                           seqnames.field = &quot;chr&quot;,
+                                           start.field = &quot;start&quot;, 
+                                           end.field = &quot;end&quot;)
+
+rm(PC3_chrom_annots, PrEC_chrom_annots)</code></pre>
+<p>Once the data has been loaded and formatted, the “df.pairs.FINAL” object can be annotated with it using splicejam.</p>
+<p>Splicejam: <a href="https://rdrr.io/github/jmw86069/splicejam/" class="uri">https://rdrr.io/github/jmw86069/splicejam/</a></p>
+<pre class="r"><code>#Getting the chromatin regions onto the df.region.pairs.FINAL
+
+pairs.FINAL.gr &lt;- makeGRangesFromDataFrame(df.pairs.FINAL,
+                                                  keep.extra.columns = TRUE,
+                                                  ignore.strand = TRUE,
+                                                  seqnames.field = &#39;seqnames&#39;,
+                                                  start.field = &#39;start&#39;,
+                                                  end.field = &#39;end&#39;)
+
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(GR1 = pairs.FINAL.gr,
+                                                     GR2 = PC3.annots.gr)
+pairs.FINAL.gr &lt;- splicejam::annotateGRfromGR(GR1 = pairs.FINAL.gr,
+                                                     GR2 = PrEC.annots.gr)
+
+df.pairs.FINAL &lt;- as.data.frame(pairs.FINAL.gr)
+
+names(df.pairs.FINAL)[16] &lt;- &#39;PC3.annots&#39;
+names(df.pairs.FINAL)[17] &lt;- &#39;PrEC.annots&#39;
+
+
+#Last step is to get rid of overlapping regions
+
+chrom.regions &lt;- c(&#39;CTCF&#39;, &#39;CTCF+Enhancer&#39;, &#39;CTCF+Promoter&#39;, &#39;Enhancer&#39;, &#39;Heterochromatin&#39;, &#39;Poised_Promoter&#39;, &#39;Promoter&#39;, &#39;Repressed&#39;, &#39;Transcribed&#39;)
+
+df.pairs.FINAL &lt;- df.pairs.FINAL[df.pairs.FINAL$PC3.annots %in% chrom.regions &amp; df.pairs.FINAL$PrEC.annots %in% chrom.regions, ]
+df.pairs.FINAL &lt;- df.pairs.FINAL[ , c(1, 2, 3, 6:17)]
+
+pairs.FINAL.gr &lt;- makeGRangesFromDataFrame(df.pairs.FINAL,
+                                                  keep.extra.columns = TRUE,
+                                                  ignore.strand = TRUE,
+                                                  seqnames.field = &#39;seqnames&#39;,
+                                                  start.field = &#39;start&#39;,
+                                                  end.field = &#39;end&#39;)
+
+
+rm(chrom.regions)</code></pre>
+<p>Now that the PC3 and PrEC annotations have been added to df.pairs.FINAL, I can test for some association between the correlation coefficients and the chromatin annotation present in a given region using an ANOVA(?)</p>
+<pre class="r"><code>PMDs &lt;- dplyr::filter(df.pairs.FINAL, region==&#39;commonPMD&#39;)
+HMDs &lt;- dplyr::filter(df.pairs.FINAL, region==&#39;commonHMD&#39;)
+Neither &lt;- dplyr::filter(df.pairs.FINAL, region==&#39;neither&#39;)
+
+#The next three lines are just to get percentages of each annotation within each region, I&#39;ll look more at this enrichment in the next code chunk
+PMD.pc3.annots &lt;- table(PMDs$PC3.annots) / nrow(PMDs) * 100
+HMD.pc3.annots &lt;- table(HMDs$PC3.annots) / nrow(HMDs) * 100
+Neither.pc3.annots &lt;- table(Neither$PC3.annots) / nrow(Neither) * 100
+
+#Unrelated thought:
+#CTCF are located at the border of lamina-associated domains, makes sense then that they are enriched in PMDs
+
+res.aov &lt;- aov(r ~ PC3.annots, data = df.pairs.FINAL)
+summary(res.aov)</code></pre>
+<pre><code>               Df Sum Sq Mean Sq F value Pr(&gt;F)    
+PC3.annots      8   11.8  1.4766   73.06 &lt;2e-16 ***
+Residuals   95767 1935.7  0.0202                   
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>TukeyHSD(res.aov)</code></pre>
+<pre><code>  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = r ~ PC3.annots, data = df.pairs.FINAL)
+
+$PC3.annots
+                                         diff          lwr          upr
+CTCF+Enhancer-CTCF               0.0204126160  0.003734643  0.037090589
+CTCF+Promoter-CTCF               0.0142634154  0.003308864  0.025217967
+Enhancer-CTCF                   -0.0427596023 -0.055414700 -0.030104504
+Heterochromatin-CTCF             0.0013485724 -0.008395186  0.011092331
+Poised_Promoter-CTCF             0.0175555288  0.005701870  0.029409188
+Promoter-CTCF                    0.0133321154  0.003780369  0.022883861
+Repressed-CTCF                   0.0080313582 -0.004848462  0.020911179
+Transcribed-CTCF                -0.0163080133 -0.029032460 -0.003583567
+CTCF+Promoter-CTCF+Enhancer     -0.0061492005 -0.021099705  0.008801304
+Enhancer-CTCF+Enhancer          -0.0631722182 -0.079410041 -0.046934395
+Heterochromatin-CTCF+Enhancer   -0.0190640435 -0.033151493 -0.004976594
+Poised_Promoter-CTCF+Enhancer   -0.0028570872 -0.018478375  0.012764200
+Promoter-CTCF+Enhancer          -0.0070805006 -0.021035831  0.006874830
+Repressed-CTCF+Enhancer         -0.0123812577 -0.028794824  0.004032309
+Transcribed-CTCF+Enhancer       -0.0367206292 -0.053012558 -0.020428701
+Enhancer-CTCF+Promoter          -0.0570230177 -0.067295035 -0.046751001
+Heterochromatin-CTCF+Promoter   -0.0129148430 -0.019263359 -0.006566327
+Poised_Promoter-CTCF+Promoter    0.0032921133 -0.005974604  0.012558831
+Promoter-CTCF+Promoter          -0.0009313001 -0.006980984  0.005118384
+Repressed-CTCF+Promoter         -0.0062320572 -0.016779692  0.004315577
+Transcribed-CTCF+Promoter       -0.0305714287 -0.040928762 -0.020214095
+Heterochromatin-Enhancer         0.0441081747  0.035138618  0.053077732
+Poised_Promoter-Enhancer         0.0603151310  0.049089208  0.071541054
+Promoter-Enhancer                0.0560917176  0.047331125  0.064852310
+Repressed-Enhancer               0.0507909605  0.038486413  0.063095508
+Transcribed-Enhancer             0.0264515890  0.014309774  0.038593404
+Poised_Promoter-Heterochromatin  0.0162069563  0.008408836  0.024005076
+Promoter-Heterochromatin         0.0119835429  0.008586883  0.015380203
+Repressed-Heterochromatin        0.0066827858 -0.002601137  0.015966708
+Transcribed-Heterochromatin     -0.0176565857 -0.026723723 -0.008589448
+Promoter-Poised_Promoter        -0.0042234134 -0.011780245  0.003333418
+Repressed-Poised_Promoter       -0.0095241705 -0.021002830  0.001954489
+Transcribed-Poised_Promoter     -0.0338635420 -0.045167585 -0.022559499
+Repressed-Promoter              -0.0053007571 -0.014382951  0.003781437
+Transcribed-Promoter            -0.0296401286 -0.038500603 -0.020779654
+Transcribed-Repressed           -0.0243393715 -0.036715232 -0.011963511
+                                    p adj
+CTCF+Enhancer-CTCF              0.0046427
+CTCF+Promoter-CTCF              0.0017663
+Enhancer-CTCF                   0.0000000
+Heterochromatin-CTCF            0.9999694
+Poised_Promoter-CTCF            0.0001508
+Promoter-CTCF                   0.0005077
+Repressed-CTCF                  0.5898154
+Transcribed-CTCF                0.0022888
+CTCF+Promoter-CTCF+Enhancer     0.9385061
+Enhancer-CTCF+Enhancer          0.0000000
+Heterochromatin-CTCF+Enhancer   0.0009042
+Poised_Promoter-CTCF+Enhancer   0.9997451
+Promoter-CTCF+Enhancer          0.8193546
+Repressed-CTCF+Enhancer         0.3180881
+Transcribed-CTCF+Enhancer       0.0000000
+Enhancer-CTCF+Promoter          0.0000000
+Heterochromatin-CTCF+Promoter   0.0000000
+Poised_Promoter-CTCF+Promoter   0.9741254
+Promoter-CTCF+Promoter          0.9999308
+Repressed-CTCF+Promoter         0.6602818
+Transcribed-CTCF+Promoter       0.0000000
+Heterochromatin-Enhancer        0.0000000
+Poised_Promoter-Enhancer        0.0000000
+Promoter-Enhancer               0.0000000
+Repressed-Enhancer              0.0000000
+Transcribed-Enhancer            0.0000000
+Poised_Promoter-Heterochromatin 0.0000000
+Promoter-Heterochromatin        0.0000000
+Repressed-Heterochromatin       0.3841904
+Transcribed-Heterochromatin     0.0000001
+Promoter-Poised_Promoter        0.7257850
+Repressed-Poised_Promoter       0.1976933
+Transcribed-Poised_Promoter     0.0000000
+Repressed-Promoter              0.6754165
+Transcribed-Promoter            0.0000000
+Transcribed-Repressed           0.0000000</code></pre>
+<pre class="r"><code>res.aov2 &lt;- aov(r ~ PC3.annots + region, data = df.pairs.FINAL)
+summary(res.aov2)</code></pre>
+<pre><code>               Df Sum Sq Mean Sq F value Pr(&gt;F)    
+PC3.annots      8   11.8  1.4766   73.19 &lt;2e-16 ***
+region          2    3.7  1.8668   92.53 &lt;2e-16 ***
+Residuals   95765 1932.0  0.0202                   
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>#Ok from the ANOVA done above it looks like region and annotation do have some influence on gene expression/promoter methylation correlation </code></pre>
+<p>So based on the ANOVA above it looks like the region and annotation do influence correlation coefficient to a certain extent.</p>
+<p>Now I am looking at the enrichment of certain annotations within certain regions.</p>
+<pre class="r"><code>summary.regions &lt;- group_by(df.pairs.FINAL, PC3.annots, region) %&gt;%
+                            dplyr::summarise(
+                            count = n(),
+                            mean = mean(r, na.rm = TRUE),
+                            sd = sd(r, na.rm = TRUE))
+
+sum(summary.regions[summary.regions$region==&#39;commonHMD&#39;,]$count)</code></pre>
+<pre><code>[1] 46854</code></pre>
+<pre class="r"><code>sum(summary.regions[summary.regions$region==&#39;commonPMD&#39;,]$count)</code></pre>
+<pre><code>[1] 14105</code></pre>
+<pre class="r"><code>sum(summary.regions[summary.regions$region==&#39;neither&#39;,]$count)</code></pre>
+<pre><code>[1] 34817</code></pre>
+<pre class="r"><code>#The three numbers that are repeated below are gotten from the above 3 expressions, they&#39;re the total number of all annotations in each region
+summary.regions$total &lt;- rep(c(46854, 14105, 34817), 9)
+summary.regions$percent &lt;- summary.regions$count / summary.regions$total * 100
+
+ggplot(summary.regions, aes(fill=region, y=percent, x=PC3.annots)) + 
+  geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
+  ggtitle(&quot;Chromatin annotations in PMDs, HMDs, and neither regions for PC3 cells&quot;) +
+  theme(legend.position=&quot;top&quot;) +
+  labs(x=&#39;Annotation&#39;, y=&#39;Percent total annotations&#39;, fill=&#39;Region&#39;) +
+  theme(legend.background = element_rect(fill=&quot;lightblue&quot;, size=0.5, linetype=&quot;solid&quot;, colour =&quot;darkblue&quot;)) +
+  coord_flip()</code></pre>
+<p><img src="figure/ChromHMM.Rmd/Enrichment%20Analysis%20PC3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>So as expected PMDs are really enriched in heterochromatic regions but also surprisingly slightly enriched in CTCF binding sites. I’ll look more at this later when I annotate with TF binding sites</p>
+<p>CTCFs: <a href="https://www.nature.com/articles/emm201533" class="uri">https://www.nature.com/articles/emm201533</a><br />
+CTCFs &amp; prostate cancer: <a href="https://www.nature.com/articles/s41467-019-12079-8" class="uri">https://www.nature.com/articles/s41467-019-12079-8</a><br />
+More: <a href="https://www.spandidos-publications.com/mmr/18/2/2245" class="uri">https://www.spandidos-publications.com/mmr/18/2/2245</a></p>
+<p>Heterochromatin enrichment in PMDs: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6161375/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6161375/</a><br />
+<a href="https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004143" class="uri">https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1004143</a></p>
+<p>I am now performing the same enrichment analysis on the PrEC cell line.</p>
+<pre class="r"><code>#Ok from the above figure it confirms what I&#39;ve been seeing, PMDs are enriched in heterochromatin and CTCFs
+
+df.sig.corr &lt;- subset(df.pairs.FINAL, p.value &lt; 0.05 &amp; r &lt; (-0.75))
+
+#Doing the same in PrEC cells
+
+PMD.prec.annots &lt;- table(PMDs$PrEC.annots) / nrow(PMDs) * 100
+HMD.prec.annots &lt;- table(HMDs$PrEC.annots) / nrow(HMDs) * 100
+Neither.prec.annots &lt;- table(Neither$PrEC.annots) / nrow(Neither) * 100
+
+summary.regions2 &lt;- group_by(df.pairs.FINAL, PrEC.annots, region) %&gt;%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(r, na.rm = TRUE),
+    sd = sd(r, na.rm = TRUE))
+
+sum(summary.regions2[summary.regions2$region==&#39;commonHMD&#39;,]$count)</code></pre>
+<pre><code>[1] 46854</code></pre>
+<pre class="r"><code>sum(summary.regions2[summary.regions2$region==&#39;commonPMD&#39;,]$count)</code></pre>
+<pre><code>[1] 14105</code></pre>
+<pre class="r"><code>sum(summary.regions2[summary.regions2$region==&#39;neither&#39;,]$count)</code></pre>
+<pre><code>[1] 34817</code></pre>
+<pre class="r"><code>#See comment in last code chunk, same thing here. 
+summary.regions2$total &lt;- rep(c(46854, 14105, 34817), 9)
+summary.regions2$percent &lt;- summary.regions2$count / summary.regions2$total * 100
+
+ggplot(summary.regions2, aes(fill=region, y=percent, x=PrEC.annots)) + 
+  geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;) +
+  ggtitle(&quot;Chromatin annotations in PMDs, HMDs, and neither regions for PrEC cells&quot;) +
+  theme(legend.position=&quot;top&quot;) +
+  labs(x=&#39;Annotation&#39;, y=&#39;Percent total annotations&#39;, fill=&#39;Region&#39;) +
+  theme(legend.background = element_rect(fill=&quot;lightblue&quot;, size=0.5, linetype=&quot;solid&quot;, colour =&quot;darkblue&quot;)) +
+  coord_flip()</code></pre>
+<p><img src="figure/ChromHMM.Rmd/Enrichment%20Analysis%20PrEC-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#From comparing the PC3 and PrEC enrichment graphs, it maybe seems like there is a decrease in repressed annotations in PMDs from the normal cell line (PrEC) to PC3</code></pre>
+<p>Interestingly it looks like PrEC cells show a similar pattern as the PC3 cells. I’m not sure if this is expected but it doesn’t really look like much changes. It does seem like there are fewer poised promoter and repressed regions however in PMDs in the PC3 cell line when compared with PrEC cells.</p>
+<pre class="r"><code>save(df.pairs.FINAL, file =&#39;../data/Output/df_pairs_cor_methsd_chromhmm&#39;)
+save(pairs.FINAL.gr, file =&#39;../data/Output/GR_pairs_cor_methsd_chromhmm&#39;)</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-redhat-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS/LAPACK: /usr/lib64/R/lib/libRblas.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+[1] ggplot2_3.2.1        dplyr_0.8.3          splicejam_0.0.57.900
+[4] rtracklayer_1.42.2   GenomicRanges_1.34.0 GenomeInfoDb_1.18.2 
+[7] IRanges_2.16.0       S4Vectors_0.20.1     BiocGenerics_0.28.0 
+
+loaded via a namespace (and not attached):
+ [1] Biobase_2.42.0                httr_1.4.1                   
+ [3] tidyr_1.0.0                   jsonlite_1.6                 
+ [5] viridisLite_0.3.0             shiny_1.4.0                  
+ [7] assertthat_0.2.1              GenomeInfoDbData_1.2.0       
+ [9] Rsamtools_1.34.1              yaml_2.2.0                   
+[11] pillar_1.4.2                  backports_1.1.5              
+[13] lattice_0.20-38               glue_1.3.1                   
+[15] digest_0.6.22                 promises_1.1.0               
+[17] XVector_0.22.0                colorspace_1.4-2             
+[19] htmltools_0.4.0               httpuv_1.5.2                 
+[21] Matrix_1.2-15                 XML_3.99-0                   
+[23] pkgconfig_2.0.3               jamba_0.0.45.900             
+[25] zlibbioc_1.28.0               purrr_0.3.3                  
+[27] xtable_1.8-5                  scales_1.0.0                 
+[29] whisker_0.4                   later_1.0.0                  
+[31] BiocParallel_1.16.6           git2r_0.26.1                 
+[33] tibble_2.1.3                  withr_2.1.2                  
+[35] SummarizedExperiment_1.12.0   lazyeval_0.2.2               
+[37] magrittr_1.5                  crayon_1.3.4                 
+[39] mime_0.7.1                    evaluate_0.14                
+[41] fs_1.3.1                      shinydashboard_0.7.1         
+[43] tools_3.5.2                   data.table_1.12.6            
+[45] lifecycle_0.1.0               matrixStats_0.55.0           
+[47] stringr_1.4.0                 plotly_4.9.0                 
+[49] munsell_0.5.0                 DelayedArray_0.8.0           
+[51] Biostrings_2.50.2             compiler_3.5.2               
+[53] rlang_0.4.0                   grid_3.5.2                   
+[55] RCurl_1.96-0                  shinydashboardPlus_0.7.5.9000
+[57] htmlwidgets_1.5.1             labeling_0.3                 
+[59] shinyWidgets_0.4.9            bitops_1.0-6                 
+[61] rmarkdown_1.16                gtable_0.3.0                 
+[63] R6_2.4.0                      GenomicAlignments_1.18.1     
+[65] knitr_1.25                    fastmap_1.0.1                
+[67] zeallot_0.1.0                 workflowr_1.5.0              
+[69] rprojroot_1.3-2               stringi_1.4.3                
+[71] Rcpp_1.0.2                    vctrs_0.2.0                  
+[73] tidyselect_0.2.5              xfun_0.10                    </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
